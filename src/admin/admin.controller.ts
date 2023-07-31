@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -15,6 +16,7 @@ import { LoginAdminDto } from './dto/login-admin.dto';
 import { Admin } from './models/admin.models';
 import { NewPasswordAdminDto } from './dto/newPassword-admin.dto';
 import { PhoneAdminDto } from './dto/phone-admin.dto';
+import { AuthGuard } from 'src/guard/auth.guard';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -40,6 +42,7 @@ export class AdminController {
   }
 
   @ApiOperation({ summary: 'Get all admins' })
+  @UseGuards(AuthGuard)
   @Get()
   async findAll() {
     return this.adminService.findAll();
