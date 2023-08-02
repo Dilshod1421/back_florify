@@ -5,14 +5,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Observable } from 'rxjs';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext) {
     const req = context.switchToHttp().getRequest();
     const auth_header = req.headers.authorization;
     if (!auth_header) {
@@ -33,7 +30,25 @@ export class AuthGuard implements CanActivate {
         secret: process.env.ACCESS_TOKEN_KEY,
       });
       req.user = user;
-      console.log(user);
+      const date_now = +Date.now().toString().slice(0, 10);
+      if (date_now >= req.user.exp) {
+        const refresh_token = req.cookies.refresh_token;
+        user = this.jwtService.verify(refresh_token, {
+          secret: process.env.REFRESH_TOKEN_KEY,
+        });
+        if (date_now >= user.exp) {
+          throw new UnauthorizedException({
+            message: 'Token vaqti tugagan!',
+          });
+        } else {
+          const jwt_payload = { id: req.user.id };
+          const access_token = await this.jwtService.signAsync(jwt_payload, {
+            secret: process.env.ACCESS_TOKEN_KEY,
+            expiresIn: process.env.ACCESS_TOKEN_TIME,
+          });
+          
+        }
+      }
     } catch (error) {
       throw new UnauthorizedException({
         message: 'Token vaqti tugagan!',
@@ -41,4 +56,12 @@ export class AuthGuard implements CanActivate {
     }
     return true;
   }
+}
+
+export async function generateAccessToken(id: string, jwtService: any) {
+  const access_token = await jwtService.signAsync(id, {
+    secret: process.env.ACCESS_TOKEN_KEY,
+    expiresIn: process.env.ACCESS_TOKEN_TIME,
+  });
+  return access_token;
 }

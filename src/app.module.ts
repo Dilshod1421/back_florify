@@ -27,6 +27,7 @@ import { JwtModule } from '@nestjs/jwt';
       database: process.env.PG_DB,
       autoLoadModels: true,
       models: [],
+      logging: true,
     }),
     JwtModule.register({ global: true }),
     AdminModule,

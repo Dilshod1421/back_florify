@@ -1,15 +1,16 @@
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
 
-interface AdminAttrs {
+interface AdminAttributes {
   id: string;
   username: string;
   email: string;
   phone: string;
   hashed_password: string;
+  hashed_refresh_token: string;
 }
 
 @Table({ tableName: 'admin' })
-export class Admin extends Model<Admin, AdminAttrs> {
+export class Admin extends Model<Admin, AdminAttributes> {
   @Column({
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
@@ -44,4 +45,9 @@ export class Admin extends Model<Admin, AdminAttrs> {
     allowNull: false,
   })
   hashed_password: string;
+
+  @Column({
+    type: DataType.STRING,
+  })
+  hashed_refresh_token: string;
 }

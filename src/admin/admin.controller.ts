@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Res,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -17,16 +18,26 @@ import { Admin } from './models/admin.models';
 import { NewPasswordAdminDto } from './dto/newPassword-admin.dto';
 import { PhoneAdminDto } from './dto/phone-admin.dto';
 import { AuthGuard } from 'src/guard/auth.guard';
+import { Response } from 'express';
+import { VerifyOtpDto } from './dto/verifyOtp.dto';
+import { CookieGetter } from 'src/decorators/cookieGetter.decorator';
+import { SetNewPassDto } from './dto/setNewPass.dto';
 
 @ApiTags('Admin')
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @ApiOperation({ summary: 'Send OTP to phone number of the admin' })
-  @Post('checkPhone')
-  async checkPhone(@Body() phoneAdminDto: PhoneAdminDto) {
-    return this.adminService.checkPhone(phoneAdminDto);
+  @ApiOperation({ summary: 'Send OTP to phone number for register' })
+  @Post('sendOtp')
+  async sendOtp(@Body() phoneAdminDto: PhoneAdminDto) {
+    return this.adminService.sendOtp(phoneAdminDto);
+  }
+
+  @ApiOperation({ summary: 'Verify OTP' })
+  @Post('verifyOtp')
+  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
+    return this.adminService.verifyOtp(verifyOtpDto);
   }
 
   @ApiOperation({ summary: 'Registration a new admin' })
@@ -37,8 +48,21 @@ export class AdminController {
 
   @ApiOperation({ summary: 'Log in admin' })
   @Post('login')
-  async login(@Body() loginAdminDto: LoginAdminDto) {
-    return this.adminService.login(loginAdminDto);
+  async login(
+    @Body() loginAdminDto: LoginAdminDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.adminService.login(loginAdminDto, res);
+  }
+
+  @ApiOperation({ summary: 'Log out admin' })
+  @UseGuards(AuthGuard)
+  @Post('logout')
+  async logout(
+    @CookieGetter('refresh_token') refresh_token: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.adminService.logout(refresh_token, res);
   }
 
   @ApiOperation({ summary: 'Get all admins' })
@@ -49,13 +73,34 @@ export class AdminController {
   }
 
   @ApiOperation({ summary: 'Get admin by ID' })
-  @ApiResponse({ status: 200, type: Admin })
+  @UseGuards(AuthGuard)
   @Get(':id')
   async findById(@Param('id') id: string) {
     return this.adminService.findById(id);
   }
 
+  @ApiOperation({ summary: 'New password of the admin' })
+  @UseGuards(AuthGuard)
+  @Patch('newPassword/:id')
+  async newPassword(
+    @Param('id') id: string,
+    @Body() newPasswordAdminDto: NewPasswordAdminDto,
+  ) {
+    return this.adminService.newPassword(id, newPasswordAdminDto);
+  }
+
+  @ApiOperation({ summary: 'Forgot password' })
+  @UseGuards(AuthGuard)
+  @Patch('forgotPassword/:id')
+  async forgotPassword(
+    @Param('id') id: string,
+    @Body() setNewPassDto: SetNewPassDto,
+  ) {
+    return this.adminService.forgotPassword(id, setNewPassDto);
+  }
+
   @ApiOperation({ summary: 'Update admin by ID' })
+  @UseGuards(AuthGuard)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -64,28 +109,8 @@ export class AdminController {
     return this.adminService.update(id, updateAdminDto);
   }
 
-  @ApiOperation({ summary: 'Send sms to phone number' })
-  @Post('sms')
-  async sendSMS() {
-    return this.adminService.sendSMS();
-  }
-
-  @ApiOperation({ summary: 'forgot password' })
-  @Post('forgotPassword/:email')
-  async forgotPassword(@Param('email') email: string, @Body() code: string) {
-    return this.adminService.forgotPassword(email, code);
-  }
-
-  @ApiOperation({ summary: 'New password of the admin' })
-  @Post(':id')
-  async newPassword(
-    @Param('id') id: string,
-    @Body() newPasswordAdminDto: NewPasswordAdminDto,
-  ) {
-    return this.adminService.newPassword(id, newPasswordAdminDto);
-  }
-
   @ApiOperation({ summary: 'Delete admin by ID' })
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.adminService.remove(id);

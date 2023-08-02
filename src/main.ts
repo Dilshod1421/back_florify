@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   try {
@@ -9,6 +10,7 @@ async function bootstrap() {
     const PORT = process.env.PORT || 3000;
     app.enableCors();
     app.setGlobalPrefix('api');
+    app.use(cookieParser());
     app.useGlobalPipes(new ValidationPipe());
     const config = new DocumentBuilder()
       .setTitle('NestJS')
