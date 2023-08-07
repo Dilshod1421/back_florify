@@ -27,7 +27,7 @@ export class ProductService {
   async create(createProductDto: CreateProductDto) {
     try {
       await this.categoryService.getOne(createProductDto.category_id);
-      await this.salesmanService.getOne(createProductDto.salesman_id);
+      await this.salesmanService.findById(createProductDto.salesman_id);
       const newProduct = await this.productRepository.create({
         id: v4(),
         ...createProductDto,

@@ -6,59 +6,107 @@ import {
   Patch,
   Param,
   Delete,
+  Res,
+  UseGuards,
 } from '@nestjs/common';
 import { SalesmanService } from './salesman.service';
-import { CreateSalesmanDto } from './dto/create-salesman.dto';
-import { UpdateSalesmanDto } from './dto/update-salesman.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Salesman } from './models/salesman.model';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginSalesmanDto } from './dto/login-salesman.dto';
+import { PhoneDto } from 'src/admin/dto/phone.dto';
+import { VerifyOtpDto } from 'src/admin/dto/verifyOtp.dto';
+import { AddSalesmanDto } from './dto/add-salesman.dto';
+import { Response } from 'express';
+import { CookieGetter } from 'src/decorators/cookieGetter.decorator';
+import { SalesmanDto } from './dto/salesman.dto';
+import { NewPasswordDto } from 'src/admin/dto/new-password.dto';
+import { ForgotPasswordDto } from 'src/admin/dto/forgot-password.dto';
+import { AuthGuard } from 'src/guard/auth.guard';
 
 @ApiTags('Salesman')
 @Controller('salesman')
 export class SalesmanController {
   constructor(private readonly salesmanService: SalesmanService) {}
 
-  @ApiOperation({ summary: 'Log in Salesman' })
-  @ApiResponse({ status: 200, type: Salesman })
-  @Post('signin')
-  async login(@Body() loginSalesmanDto: LoginSalesmanDto) {
-    return this.salesmanService.login(loginSalesmanDto);
+  @ApiOperation({ summary: 'Send otp to phone number of the salesman' })
+  @UseGuards(AuthGuard)
+  @Post('sendOtp')
+  async sendOtp(@Body() phoneDto: PhoneDto) {
+    return this.salesmanService.sendOtp(phoneDto);
   }
 
-  @ApiOperation({ summary: 'Create new Salesman' })
-  @ApiResponse({ status: 201, type: Salesman })
-  @Post()
-  async create(@Body() createSalesmanDto: CreateSalesmanDto) {
-    return this.salesmanService.create(createSalesmanDto);
+  @ApiOperation({ summary: 'Verify otp of the salesman' })
+  @UseGuards(AuthGuard)
+  @Post('verifyOtp')
+  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
+    return this.salesmanService.verifyOtp(verifyOtpDto);
   }
 
-  @ApiOperation({ summary: 'Get all Salesmans' })
-  @ApiResponse({ status: 200, type: [Salesman] })
+  @ApiOperation({ summary: 'Create new salesman' })
+  @UseGuards(AuthGuard)
+  @Post('create')
+  async create(@Body() addSalesmanDto: AddSalesmanDto) {
+    return this.salesmanService.create(addSalesmanDto);
+  }
+
+  @ApiOperation({ summary: 'Log in salesman' })
+  @Post('login')
+  async login(
+    @Body() loginSalesmanDto: LoginSalesmanDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.salesmanService.login(loginSalesmanDto, res);
+  }
+
+  @ApiOperation({ summary: 'Log out salesman' })
+  @UseGuards(AuthGuard)
+  @Post('logout')
+  async logout(
+    @CookieGetter('refresh_token') refresh_token: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.salesmanService.logout(refresh_token, res);
+  }
+
+  @ApiOperation({ summary: 'Get all salesmans' })
+  @UseGuards(AuthGuard)
   @Get()
   async findAll() {
     return this.salesmanService.findAll();
   }
 
-  @ApiOperation({ summary: 'Get Salesman by ID' })
-  @ApiResponse({ status: 200, type: Salesman })
+  @ApiOperation({ summary: 'Get salesman by ID' })
+  @UseGuards(AuthGuard)
   @Get(':id')
   async findOne(@Param('id') id: string) {
-    return this.salesmanService.findOne(id);
+    return this.salesmanService.findById(id);
   }
 
-  @ApiOperation({ summary: 'Update Salesman by ID' })
-  @ApiResponse({ status: 200, type: Salesman })
-  @Patch(':id')
-  async update(
+  @ApiOperation({ summary: 'New password of the salesman' })
+  @UseGuards(AuthGuard)
+  @Patch('newPassword')
+  async newPassword(@Param('id') id: string, newPasswordDto: NewPasswordDto) {
+    return this.salesmanService.newPassword(id, newPasswordDto);
+  }
+
+  @ApiOperation({ summary: 'Forgot password salesman' })
+  @UseGuards(AuthGuard)
+  @Patch('forgotPassword')
+  async forgotPassword(
     @Param('id') id: string,
-    @Body() updateSalesmanDto: UpdateSalesmanDto,
+    forgotPasswordDto: ForgotPasswordDto,
   ) {
-    return this.salesmanService.update(id, updateSalesmanDto);
+    return this.salesmanService.forgotPassword(id, forgotPasswordDto);
+  }
+
+  @ApiOperation({ summary: 'Update salesman by ID' })
+  @UseGuards(AuthGuard)
+  @Patch(':id')
+  async update(@Param('id') id: string, @Body() salesmanDto: SalesmanDto) {
+    return this.salesmanService.update(id, salesmanDto);
   }
 
   @ApiOperation({ summary: 'Delete Salesman by ID' })
-  @ApiResponse({ status: 200, type: Salesman })
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async remove(@Param('id') id: string) {
     return this.salesmanService.remove(id);

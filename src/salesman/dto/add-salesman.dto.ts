@@ -1,12 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsPhoneNumber,
+  IsString,
+  MinLength,
+} from 'class-validator';
 
-export class LoginSalesmanDto {
+export class AddSalesmanDto {
   @ApiProperty({
     example: 'will_smith',
-    description: 'The username of the salesman',
+    description: 'The user name of the salesman',
   })
   @IsNotEmpty()
+  @IsString()
+  @MinLength(6)
   username: string;
 
   @ApiProperty({
@@ -14,5 +21,6 @@ export class LoginSalesmanDto {
     description: 'The password of the salesman',
   })
   @IsNotEmpty()
+  @IsPhoneNumber()
   password: string;
 }

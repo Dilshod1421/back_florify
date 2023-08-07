@@ -31,7 +31,7 @@ export class SoldProductService {
     try {
       await this.productService.getOne(createSoldProductDto.product_id);
       await this.cartService.getOne(createSoldProductDto.cart_id);
-      await this.salesmanService.getOne(createSoldProductDto.salesman_id);
+      await this.salesmanService.findById(createSoldProductDto.salesman_id);
       const newSoldProduct = await this.SoldProductRepository.create({
         id: v4(),
         ...createSoldProductDto,

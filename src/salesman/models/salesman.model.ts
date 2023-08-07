@@ -5,22 +5,32 @@ import { SoldProduct } from '../../sold-product/models/sold-product.model';
 
 interface SalesmanAttrs {
   id: string;
+  username: string;
   full_name: string;
-  brand: string;
-  address: string;
-  image_url: string;
-  email: string;
   phone: string;
+  address: string;
+  image: string;
+  email: string;
   hashed_password: string;
+  hashed_refresh_token: string;
 }
 
 @Table({ tableName: 'salesman' })
 export class Salesman extends Model<Salesman, SalesmanAttrs> {
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
     primaryKey: true,
+    allowNull: false,
   })
   id: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    unique: true,
+  })
+  username: string;
 
   @Column({
     type: DataType.STRING,
@@ -30,7 +40,7 @@ export class Salesman extends Model<Salesman, SalesmanAttrs> {
   @Column({
     type: DataType.STRING,
   })
-  brand: string;
+  phone: string;
 
   @Column({
     type: DataType.STRING,
@@ -40,7 +50,7 @@ export class Salesman extends Model<Salesman, SalesmanAttrs> {
   @Column({
     type: DataType.STRING,
   })
-  image_url: string;
+  image: string;
 
   @Column({
     type: DataType.STRING,
@@ -49,20 +59,30 @@ export class Salesman extends Model<Salesman, SalesmanAttrs> {
 
   @Column({
     type: DataType.STRING,
+    allowNull: false,
   })
-  phone: string;
+  hashed_password: string;
 
   @Column({
     type: DataType.STRING,
   })
-  hashed_password: string;
+  hashed_refresh_token: string;
 
-  @HasMany(() => SocialNetwork)
-  socialNetwork: SocialNetwork[];
+  @HasMany(() => SocialNetwork, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
+  social_network: SocialNetwork[];
 
-  @HasMany(() => Product)
+  @HasMany(() => Product, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
   product: Product[];
 
-  @HasMany(() => SoldProduct)
-  soldProduct: SoldProduct[];
+  @HasMany(() => SoldProduct, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
+  sold_product: SoldProduct[];
 }

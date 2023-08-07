@@ -21,7 +21,7 @@ export class SocialNetworkService {
 
   async create(createSocialNetworkDto: CreateSocialNetworkDto) {
     try {
-      await this.salesmanService.getOne(createSocialNetworkDto.salesman_id);
+      await this.salesmanService.findById(createSocialNetworkDto.salesman_id);
       const newSocialNetwork = await this.socialNetworkRepository.create({
         id: v4(),
         ...createSocialNetworkDto,

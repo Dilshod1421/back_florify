@@ -10,15 +10,15 @@ import { InjectModel } from '@nestjs/sequelize';
 import { JwtService } from '@nestjs/jwt';
 import { LoginAdminDto } from './dto/login-admin.dto';
 import { compare, hash } from 'bcryptjs';
-import { NewPasswordAdminDto } from './dto/newPassword-admin.dto';
-import { PhoneAdminDto } from './dto/phone-admin.dto';
 import { generate } from 'otp-generator';
 import { sendOTP } from 'src/utils/sendOtp';
 import { Response } from 'express';
 import { generateToken, writeToCookie } from 'src/utils/token';
-import { SetNewPassDto } from './dto/setNewPass.dto';
 import { VerifyOtpDto } from './dto/verifyOtp.dto';
 import { Otp } from './models/otp.model';
+import { PhoneDto } from './dto/phone.dto';
+import { NewPasswordDto } from './dto/new-password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Injectable()
 export class AdminService {
@@ -28,7 +28,7 @@ export class AdminService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async sendOtp(phoneDto: PhoneAdminDto) {
+  async sendOtp(phoneDto: PhoneDto) {
     try {
       const code = generate(6, {
         upperCaseAlphabets: false,
@@ -164,7 +164,11 @@ export class AdminService {
         { where: { id: admin.id }, returning: true },
       );
       await writeToCookie(refresh_token, res);
-      return { mesage: 'Tizimga muvaffaqiyatli kirildi', access_token, admin };
+      return {
+        mesage: 'Tizimga muvaffaqiyatli kirildi',
+        access_token,
+        admin,
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -226,10 +230,10 @@ export class AdminService {
     }
   }
 
-  async newPassword(id: string, newPasswordAdminDto: NewPasswordAdminDto) {
+  async newPassword(id: string, newPasswordDto: NewPasswordDto) {
     try {
       const { old_password, new_password, confirm_new_password } =
-        newPasswordAdminDto;
+        newPasswordDto;
       const admin = await this.adminRepository.findOne({ where: { id } });
       if (!admin) {
         throw new BadRequestException('Admin topilmadi!');
@@ -255,9 +259,9 @@ export class AdminService {
     }
   }
 
-  async forgotPassword(id: string, setNewPassDto: SetNewPassDto) {
+  async forgotPassword(id: string, forgotPasswordDto: ForgotPasswordDto) {
     try {
-      const { new_password, confirm_new_password } = setNewPassDto;
+      const { new_password, confirm_new_password } = forgotPasswordDto;
       if (new_password != confirm_new_password) {
         throw new BadRequestException('Parolni tasdiqlashda xatolik!');
       }

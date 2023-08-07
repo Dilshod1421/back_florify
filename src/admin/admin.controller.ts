@@ -12,16 +12,15 @@ import {
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginAdminDto } from './dto/login-admin.dto';
-import { Admin } from './models/admin.models';
-import { NewPasswordAdminDto } from './dto/newPassword-admin.dto';
-import { PhoneAdminDto } from './dto/phone-admin.dto';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { Response } from 'express';
 import { VerifyOtpDto } from './dto/verifyOtp.dto';
 import { CookieGetter } from 'src/decorators/cookieGetter.decorator';
-import { SetNewPassDto } from './dto/setNewPass.dto';
+import { PhoneDto } from './dto/phone.dto';
+import { NewPasswordDto } from './dto/new-password.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -30,8 +29,8 @@ export class AdminController {
 
   @ApiOperation({ summary: 'Send OTP to phone number for register' })
   @Post('sendOtp')
-  async sendOtp(@Body() phoneAdminDto: PhoneAdminDto) {
-    return this.adminService.sendOtp(phoneAdminDto);
+  async sendOtp(@Body() phoneDto: PhoneDto) {
+    return this.adminService.sendOtp(phoneDto);
   }
 
   @ApiOperation({ summary: 'Verify OTP' })
@@ -84,9 +83,9 @@ export class AdminController {
   @Patch('newPassword/:id')
   async newPassword(
     @Param('id') id: string,
-    @Body() newPasswordAdminDto: NewPasswordAdminDto,
+    @Body() newPasswordDto: NewPasswordDto,
   ) {
-    return this.adminService.newPassword(id, newPasswordAdminDto);
+    return this.adminService.newPassword(id, newPasswordDto);
   }
 
   @ApiOperation({ summary: 'Forgot password' })
@@ -94,9 +93,9 @@ export class AdminController {
   @Patch('forgotPassword/:id')
   async forgotPassword(
     @Param('id') id: string,
-    @Body() setNewPassDto: SetNewPassDto,
+    @Body() forgotPasswordDto: ForgotPasswordDto,
   ) {
-    return this.adminService.forgotPassword(id, setNewPassDto);
+    return this.adminService.forgotPassword(id, forgotPasswordDto);
   }
 
   @ApiOperation({ summary: 'Update admin by ID' })
