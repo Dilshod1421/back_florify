@@ -8,7 +8,6 @@ import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { ImageModule } from './image/image.module';
 import { ClientModule } from './client/client.module';
-import { CartModule } from './cart/cart.module';
 import { SoldProductModule } from './sold-product/sold-product.module';
 import { JwtModule } from '@nestjs/jwt';
 
@@ -37,7 +36,6 @@ import { JwtModule } from '@nestjs/jwt';
     ProductModule,
     ImageModule,
     ClientModule,
-    CartModule,
     SoldProductModule,
   ],
 })

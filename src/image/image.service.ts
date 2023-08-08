@@ -1,32 +1,19 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
-import { CreateImageDto } from './dto/create-image.dto';
-import { UpdateImageDto } from './dto/update-image.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Image } from './models/image.model';
-import { v4 } from 'uuid';
-import { ProductService } from './../product/product.service';
+import { ImageDto } from './dto/image.dto';
 
 @Injectable()
 export class ImageService {
   constructor(
     @InjectModel(Image)
     private readonly imageRepository: typeof Image,
-    private readonly productService: ProductService,
   ) {}
 
-  async create(createImageDto: CreateImageDto) {
+  async create(imageDto: ImageDto) {
     try {
-      await this.productService.getOne(createImageDto.product_id);
-      const newImage = await this.imageRepository.create({
-        id: v4(),
-        ...createImageDto,
-      });
-      return this.getOne(newImage.id);
+      const image = await this.imageRepository.create(imageDto);
+      return { message: "Rasm qo'shildi", image };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -34,29 +21,67 @@ export class ImageService {
 
   async findAll() {
     try {
-      return this.imageRepository.findAll({
-        attributes: ['id', 'image_url', 'product_id'],
+      const images = await this.imageRepository.findAll({
+        include: { all: true },
       });
+      return images;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async findOne(id: string) {
+  async paginate(page: number) {
     try {
-      return this.getOne(id);
+      page = Number(page);
+      const limit = 10;
+      const offset = (page - 1) * limit;
+      const images = await this.imageRepository.findAll({
+        include: { all: true },
+        offset,
+        limit,
+      });
+      const total_count = await this.imageRepository.count();
+      const total_pages = Math.ceil(total_count / limit);
+      const res = {
+        status: 200,
+        data: {
+          records: images,
+          pagination: {
+            currentPage: page,
+            total_pages,
+            total_count,
+          },
+        },
+      };
+      return res;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async update(id: string, updateImageDto: UpdateImageDto) {
+  async findById(id: string) {
     try {
-      const image = await this.getOne(id);
-      await this.imageRepository.update(updateImageDto, {
+      const image = await this.imageRepository.findOne({
         where: { id },
+        include: { all: true },
       });
-      return this.getOne(id);
+      if (!image) {
+        throw new BadRequestException('Rasm topilmadi!');
+      }
+      return image;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async update(id: string, imageDto: ImageDto) {
+    try {
+      const image = await this.findById(id);
+      const updated_info = await this.imageRepository.update(imageDto, {
+        where: { id: image.id },
+        returning: true,
+      });
+      return { message: 'Rasm tahrirlandi', image: updated_info[1][0] };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -64,24 +89,9 @@ export class ImageService {
 
   async remove(id: string) {
     try {
-      const image = await this.getOne(id);
-      await this.imageRepository.destroy({ where: { id } });
-      return image;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async getOne(id: string) {
-    try {
-      const image = await this.imageRepository.findOne({
-        where: { id },
-        attributes: ['id', 'image_url', 'product_id'],
-      });
-      if (!image) {
-        throw new HttpException('Image not found', HttpStatus.NOT_FOUND);
-      }
-      return image;
+      const image = await this.findById(id);
+      image.destroy();
+      return { message: "Rasm o'chirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

@@ -1,9 +1,8 @@
 import { Column, DataType, Model, Table, HasMany } from 'sequelize-typescript';
-import { Cart } from '../../cart/models/cart.model';
 
 interface ClientAttrs {
   id: string;
-  full_name: string;
+  name: string;
   address: string;
   phone: string;
 }
@@ -11,15 +10,17 @@ interface ClientAttrs {
 @Table({ tableName: 'client' })
 export class Client extends Model<Client, ClientAttrs> {
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
     primaryKey: true,
+    allowNull: false,
   })
   id: string;
 
   @Column({
     type: DataType.STRING,
   })
-  full_name: string;
+  name: string;
 
   @Column({
     type: DataType.STRING,
@@ -30,7 +31,4 @@ export class Client extends Model<Client, ClientAttrs> {
     type: DataType.STRING,
   })
   address: string;
-
-  @HasMany(() => Cart)
-  cart: Cart[];
 }

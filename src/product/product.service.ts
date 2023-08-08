@@ -35,7 +35,7 @@ export class ProductService {
       page = Number(page);
       const limit = 10;
       const offset = (page - 1) * limit;
-      const staffs = await this.productRepository.findAll({
+      const products = await this.productRepository.findAll({
         include: { all: true },
         offset,
         limit,
@@ -45,7 +45,7 @@ export class ProductService {
       const response = {
         status: 200,
         data: {
-          records: staffs,
+          records: products,
           pagination: {
             currentPage: page,
             total_pages,
@@ -73,10 +73,7 @@ export class ProductService {
 
   async update(id: string, productDto: ProductDto) {
     try {
-      const product = await this.productRepository.findOne({ where: { id } });
-      if (!product) {
-        throw new BadRequestException('Mahsulot topilmadi!');
-      }
+      const product = await this.findById(id);
       const updated_info = await this.productRepository.update(productDto, {
         where: { id: product.id },
         returning: true,

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
 
-export class CreateSocialNetworkDto {
+export class SocialNetworkDto {
   @ApiProperty({
     example: 'Telegram',
     description: 'The name of the Social Network',

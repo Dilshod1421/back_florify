@@ -1,42 +1,31 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
-import { CreateSoldProductDto } from './dto/create-sold-product.dto';
-import { UpdateSoldProductDto } from './dto/update-sold-product.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { SoldProduct } from './models/sold-product.model';
 import { InjectModel } from '@nestjs/sequelize';
-import { ProductService } from '../product/product.service';
-import { CartService } from './../cart/cart.service';
-import { SalesmanService } from './../salesman/salesman.service';
-import { v4 } from 'uuid';
 import { Product } from '../product/models/product.model';
-import { Category } from '../category/models/category.model';
-import { Image } from '../image/models/image.model';
-import { Salesman } from '../salesman/models/salesman.model';
+import { SoldProductDto } from './dto/sold-product.dto';
 
 @Injectable()
 export class SoldProductService {
   constructor(
     @InjectModel(SoldProduct)
-    private readonly SoldProductRepository: typeof SoldProduct,
-    private readonly productService: ProductService,
-    private readonly cartService: CartService,
-    private readonly salesmanService: SalesmanService,
+    private readonly soldProductRepository: typeof SoldProduct,
+    @InjectModel(Product) private readonly productRepository: typeof Product,
   ) {}
 
-  async create(createSoldProductDto: CreateSoldProductDto) {
+  async create(soldProductDto: SoldProductDto) {
     try {
-      await this.productService.getOne(createSoldProductDto.product_id);
-      await this.cartService.getOne(createSoldProductDto.cart_id);
-      await this.salesmanService.findById(createSoldProductDto.salesman_id);
-      const newSoldProduct = await this.SoldProductRepository.create({
-        id: v4(),
-        ...createSoldProductDto,
+      const sold_product = await this.soldProductRepository.create(
+        soldProductDto,
+      );
+      const product = await this.productRepository.findOne({
+        where: { id: soldProductDto.product_id },
       });
-      return this.getOne(newSoldProduct.id);
+      const residual = product.quantity - soldProductDto.how_many;
+      await this.productRepository.update(
+        { quantity: residual },
+        { where: { id: product.id } },
+      );
+      return { message: 'Mahsulot sotildi', sold_product };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -44,29 +33,77 @@ export class SoldProductService {
 
   async findAll() {
     try {
-      return this.SoldProductRepository.findAll({
-        attributes: ['id', 'product_id', 'cart_id', 'salesman_id'],
+      const sold_products = await this.soldProductRepository.findAll({
+        include: { all: true },
       });
+      return sold_products;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async findOne(id: string) {
+  async paginate(page: number) {
     try {
-      return this.getOne(id);
+      page = Number(page);
+      const limit = 10;
+      const offset = (page - 1) * limit;
+      const sold_products = await this.soldProductRepository.findAll({
+        include: { all: true },
+        offset,
+        limit,
+      });
+      const total_count = await this.soldProductRepository.count();
+      const total_pages = Math.ceil(total_count / limit);
+      const res = {
+        status: 200,
+        data: {
+          records: sold_products,
+          pagination: {
+            currentPage: page,
+            total_pages,
+            total_count,
+          },
+        },
+      };
+      return res;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async update(id: string, updateSoldProductDto: UpdateSoldProductDto) {
+  async findById(id: string) {
     try {
-      const soldProduct = await this.getOne(id);
-      await this.SoldProductRepository.update(updateSoldProductDto, {
+      const sold_product = await this.soldProductRepository.findOne({
         where: { id },
       });
-      return this.getOne(id);
+      if (!sold_product) {
+        throw new BadRequestException('Sotilgan mahsulot topilmadi!');
+      }
+      return sold_product;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async update(id: string, soldProductDto: SoldProductDto) {
+    try {
+      const sold_product = await this.findById(id);
+      const updated_info = await this.soldProductRepository.update(
+        soldProductDto,
+        { where: { id: sold_product.id }, returning: true },
+      );
+      const product = await this.productRepository.findOne({
+        where: { id: soldProductDto.product_id },
+      });
+      const residual = product.quantity - soldProductDto.how_many;
+      await this.productRepository.update(
+        { quantity: residual },
+        { where: { id: product.id } },
+      );
+      return {
+        message: 'Sotilgan mahsulot tahrirlandi',
+        sold_product: updated_info[1][0],
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -74,59 +111,9 @@ export class SoldProductService {
 
   async remove(id: string) {
     try {
-      const soldProduct = await this.getOne(id);
-      await this.SoldProductRepository.destroy({ where: { id } });
-      return soldProduct;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async getOne(id: string) {
-    try {
-      const soldProduct = await this.SoldProductRepository.findOne({
-        where: { id },
-        attributes: ['id', 'cart_id'],
-        include: [
-          {
-            model: Product,
-            attributes: [
-              'id',
-              'name',
-              'description',
-              'price',
-              'color',
-              'createdAt',
-            ],
-            include: [
-              {
-                model: Category,
-                attributes: ['id', 'name', 'description', 'image_url'],
-              },
-              {
-                model: Image,
-                attributes: ['id', 'image_url'],
-              },
-            ],
-          },
-          {
-            model: Salesman,
-            attributes: [
-              'id',
-              'full_name',
-              'brand',
-              'address',
-              'image_url',
-              'email',
-              'phone',
-            ],
-          },
-        ],
-      });
-      if (!soldProduct) {
-        throw new HttpException('Sold Product not found', HttpStatus.NOT_FOUND);
-      }
-      return soldProduct;
+      const sold_product = await this.findById(id);
+      sold_product.destroy();
+      return { message: "Sotilgan mahsulot o'chirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

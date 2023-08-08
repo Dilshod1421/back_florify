@@ -1,20 +1,7 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
-import { CreateClientDto } from './dto/create-client.dto';
-import { UpdateClientDto } from './dto/update-client.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Client } from './models/client.model';
-import { v4 } from 'uuid';
-import { Cart } from '../cart/models/cart.model';
-import { SoldProduct } from '../sold-product/models/sold-product.model';
-import { Product } from '../product/models/product.model';
-import { Category } from '../category/models/category.model';
-import { Salesman } from '../salesman/models/salesman.model';
-import { Image } from '../image/models/image.model';
+import { ClientDto } from './dto/client.dto';
 
 @Injectable()
 export class ClientService {
@@ -23,17 +10,16 @@ export class ClientService {
     private readonly clientRepository: typeof Client,
   ) {}
 
-  async create(createClientDto: CreateClientDto) {
+  async create(clientDto: ClientDto) {
     try {
-      const clientByPhone = await this.getClientByPhone(createClientDto.phone);
-      if (clientByPhone) {
-        throw new BadRequestException('Phone already registered!');
-      }
-      const newClient = await this.clientRepository.create({
-        id: v4(),
-        ...createClientDto,
+      const exist_phone = await this.clientRepository.findOne({
+        where: { phone: clientDto.phone },
       });
-      return this.getOne(newClient.id);
+      if (exist_phone) {
+        throw new BadRequestException('Bu telefon raqam band!');
+      }
+      const client = await this.clientRepository.create(clientDto);
+      return { message: "Mijoz ro'yxatga kiritildi", client };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -41,37 +27,80 @@ export class ClientService {
 
   async findAll() {
     try {
-      return this.clientRepository.findAll({
-        attributes: ['id', 'full_name', 'address', 'phone'],
+      const clients = await this.clientRepository.findAll({
+        include: { all: true },
       });
+      return clients;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async findOne(id: string) {
+  async paginate(page: number) {
     try {
-      return this.getOne(id);
+      page = Number(page);
+      const limit = 10;
+      const offset = (page - 1) * limit;
+      const clients = await this.clientRepository.findAll({
+        include: { all: true },
+        offset,
+        limit,
+      });
+      const total_count = await this.clientRepository.count();
+      const total_pages = Math.ceil(total_count / limit);
+      const res = {
+        status: 200,
+        data: {
+          records: clients,
+          pagination: {
+            currentPage: page,
+            total_pages,
+            total_count,
+          },
+        },
+      };
+      return res;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async update(id: string, updateClientDto: UpdateClientDto) {
+  async findById(id: string) {
     try {
-      const client = await this.getOne(id);
-      if (updateClientDto.phone) {
-        const clientByPhone = await this.getClientByPhone(
-          updateClientDto.phone,
-        );
-        if (clientByPhone && clientByPhone.id != id) {
-          throw new BadRequestException('Phone already registered!');
+      const client = await this.clientRepository.findOne({
+        where: { id },
+        include: { all: true },
+      });
+      if (!client) {
+        throw new BadRequestException('Mijoz topilmadi!');
+      }
+      return client;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async update(id: string, clientDto: ClientDto) {
+    try {
+      const client = await this.findById(id);
+      if (clientDto.phone) {
+        const exist_phone = await this.clientRepository.findOne({
+          where: { phone: clientDto.phone },
+        });
+        if (exist_phone) {
+          if (client.id != exist_phone.id) {
+            throw new BadRequestException('Bu telefon raqam band!');
+          }
         }
       }
-      await this.clientRepository.update(updateClientDto, {
+      const updated_info = await this.clientRepository.update(clientDto, {
         where: { id },
+        returning: true,
       });
-      return this.getOne(id);
+      return {
+        message: "Mijoz ma'lumotlari tahrirlandi",
+        client: updated_info[1][0],
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -79,83 +108,9 @@ export class ClientService {
 
   async remove(id: string) {
     try {
-      const client = await this.getOne(id);
-      await this.clientRepository.destroy({ where: { id } });
-      return client;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async getOne(id: string) {
-    try {
-      const client = await this.clientRepository.findOne({
-        where: { id },
-        attributes: ['id', 'full_name', 'address', 'phone'],
-        include: [
-          {
-            model: Cart,
-            attributes: ['id'],
-            include: [
-              {
-                model: SoldProduct,
-                attributes: ['id'],
-                include: [
-                  {
-                    model: Product,
-                    attributes: [
-                      'id',
-                      'name',
-                      'description',
-                      'price',
-                      'color',
-                      'createdAt',
-                    ],
-                    include: [
-                      {
-                        model: Category,
-                        attributes: ['id', 'name', 'description', 'image_url'],
-                      },
-                      {
-                        model: Image,
-                        attributes: ['id', 'image_url'],
-                      },
-                    ],
-                  },
-                  {
-                    model: Salesman,
-                    attributes: [
-                      'id',
-                      'full_name',
-                      'brand',
-                      'address',
-                      'image_url',
-                      'email',
-                      'phone',
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
-      });
-      if (!client) {
-        throw new HttpException('Client not found', HttpStatus.NOT_FOUND);
-      }
-      return client;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async getClientByPhone(phone: string) {
-    try {
-      const client = await this.clientRepository.findOne({
-        where: { phone },
-        attributes: ['id', 'full_name', 'address', 'phone'],
-      });
-      return client;
+      const client = await this.findById(id);
+      client.destroy();
+      return { message: "Mijoz o'chirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

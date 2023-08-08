@@ -182,12 +182,7 @@ export class AdminService {
       if (!data) {
         throw new UnauthorizedException('Tizimdan chiqishda xatolik!');
       }
-      const check = await this.adminRepository.findOne({
-        where: { id: data.id },
-      });
-      if (!check) {
-        throw new BadRequestException('Foydalanuvchi topilmadi!');
-      }
+      const check = await this.findById(data.id);
       const is_match = await compare(refresh_token, check.hashed_refresh_token);
       if (!is_match) {
         throw new BadRequestException('Tizimdan chiqishda xatololik!');
@@ -202,6 +197,35 @@ export class AdminService {
       res.clearCookie('refresh_token');
       return { mesage: 'Tizimdan chiqildi', admin: admin[1][0] };
     } catch (error) {}
+  }
+
+  async paginate(page: number) {
+    try {
+      page = Number(page);
+      const limit = 10;
+      const offset = (page - 1) * limit;
+      const admins = await this.adminRepository.findAll({
+        include: { all: true },
+        offset,
+        limit,
+      });
+      const total_count = await this.adminRepository.count();
+      const total_pages = Math.ceil(total_count / limit);
+      const res = {
+        status: 200,
+        data: {
+          records: admins,
+          pagination: {
+            currentPage: page,
+            total_pages,
+            total_count,
+          },
+        },
+      };
+      return res;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   async findAll() {
@@ -234,10 +258,7 @@ export class AdminService {
     try {
       const { old_password, new_password, confirm_new_password } =
         newPasswordDto;
-      const admin = await this.adminRepository.findOne({ where: { id } });
-      if (!admin) {
-        throw new BadRequestException('Admin topilmadi!');
-      }
+      const admin = await this.findById(id);
       const is_match_pass = await compare(old_password, admin.hashed_password);
       if (!is_match_pass) {
         throw new UnauthorizedException('Eski parol mos kelmadi!');
@@ -261,6 +282,7 @@ export class AdminService {
 
   async forgotPassword(id: string, forgotPasswordDto: ForgotPasswordDto) {
     try {
+      await this.findById(id);
       const { new_password, confirm_new_password } = forgotPasswordDto;
       if (new_password != confirm_new_password) {
         throw new BadRequestException('Parolni tasdiqlashda xatolik!');
@@ -281,10 +303,7 @@ export class AdminService {
 
   async update(id: string, updateAdminDto: UpdateAdminDto) {
     try {
-      const check = await this.adminRepository.findOne({ where: { id } });
-      if (!check) {
-        throw new BadRequestException('Admin topilmadi');
-      }
+      const check = await this.findById(id);
       const { username, email, phone } = updateAdminDto;
       if (username) {
         const exist_username = await this.adminRepository.findOne({

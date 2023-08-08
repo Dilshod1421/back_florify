@@ -8,6 +8,7 @@ import {
   Delete,
   UseGuards,
   Res,
+  Query,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import { CreateAdminDto } from './dto/create-admin.dto';
@@ -69,6 +70,13 @@ export class AdminController {
   @Get()
   findAll() {
     return this.adminService.findAll();
+  }
+
+  @ApiOperation({ summary: 'Pagination admins' })
+  @UseGuards(AuthGuard)
+  @Get('page')
+  paginate(@Query('page') page: number) {
+    return this.adminService.paginate(page);
   }
 
   @ApiOperation({ summary: 'Get admin by ID' })

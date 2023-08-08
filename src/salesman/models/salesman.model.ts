@@ -3,7 +3,7 @@ import { SocialNetwork } from '../../social-network/models/social-network.model'
 import { Product } from '../../product/models/product.model';
 import { SoldProduct } from '../../sold-product/models/sold-product.model';
 
-interface SalesmanAttrs {
+interface SalesmanAttributes {
   id: string;
   username: string;
   full_name: string;
@@ -16,7 +16,7 @@ interface SalesmanAttrs {
 }
 
 @Table({ tableName: 'salesman' })
-export class Salesman extends Model<Salesman, SalesmanAttrs> {
+export class Salesman extends Model<Salesman, SalesmanAttributes> {
   @Column({
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,

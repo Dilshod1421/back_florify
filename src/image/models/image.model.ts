@@ -10,26 +10,28 @@ import { Product } from '../../product/models/product.model';
 
 interface ImageAttrs {
   id: string;
-  image_url: string;
+  image: string;
   product_id: string;
 }
 
 @Table({ tableName: 'image' })
 export class Image extends Model<Image, ImageAttrs> {
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
     primaryKey: true,
+    allowNull: false,
   })
   id: string;
 
   @Column({
     type: DataType.STRING,
   })
-  image_url: string;
+  image: string;
 
   @ForeignKey(() => Product)
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUID,
   })
   product_id: string;
 

@@ -6,53 +6,58 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
-import { CreateClientDto } from './dto/create-client.dto';
-import { UpdateClientDto } from './dto/update-client.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Client } from './models/client.model';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guard/auth.guard';
+import { ClientDto } from './dto/client.dto';
 
 @ApiTags('Client')
 @Controller('client')
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
-  @ApiOperation({ summary: 'Create new Client' })
-  @ApiResponse({ status: 201, type: Client })
+  @ApiOperation({ summary: 'Create new client' })
+  @UseGuards(AuthGuard)
   @Post()
-  async create(@Body() createClientDto: CreateClientDto) {
-    return this.clientService.create(createClientDto);
+  create(@Body() clientDto: ClientDto) {
+    return this.clientService.create(clientDto);
   }
 
-  @ApiOperation({ summary: 'Get all Clients' })
-  @ApiResponse({ status: 200, type: [Client] })
+  @ApiOperation({ summary: 'Get all clients' })
+  @UseGuards(AuthGuard)
   @Get()
-  async findAll() {
+  findAll() {
     return this.clientService.findAll();
   }
 
-  @ApiOperation({ summary: 'Get Client by ID' })
-  @ApiResponse({ status: 200, type: Client })
+  @ApiOperation({ summary: 'Pagination clients' })
+  @UseGuards(AuthGuard)
+  @Get()
+  paginate(@Query('page') page: number) {
+    return this.clientService.paginate(page);
+  }
+
+  @ApiOperation({ summary: 'Get client by ID' })
+  @UseGuards(AuthGuard)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.clientService.findOne(id);
+  findById(@Param('id') id: string) {
+    return this.clientService.findById(id);
   }
 
-  @ApiOperation({ summary: 'Update Client by ID' })
-  @ApiResponse({ status: 200, type: Client })
+  @ApiOperation({ summary: 'Update client by ID' })
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateClientDto: UpdateClientDto,
-  ) {
-    return this.clientService.update(id, updateClientDto);
+  update(@Param('id') id: string, @Body() clientDto: ClientDto) {
+    return this.clientService.update(id, clientDto);
   }
 
-  @ApiOperation({ summary: 'Delete Client by ID' })
-  @ApiResponse({ status: 200, type: Client })
+  @ApiOperation({ summary: 'Delete client by ID' })
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  remove(@Param('id') id: string) {
     return this.clientService.remove(id);
   }
 }

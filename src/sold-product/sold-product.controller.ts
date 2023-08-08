@@ -6,53 +6,58 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Query,
 } from '@nestjs/common';
 import { SoldProductService } from './sold-product.service';
-import { CreateSoldProductDto } from './dto/create-sold-product.dto';
-import { UpdateSoldProductDto } from './dto/update-sold-product.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { SoldProduct } from './models/sold-product.model';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guard/auth.guard';
+import { SoldProductDto } from './dto/sold-product.dto';
 
 @ApiTags('Sold Product')
 @Controller('sold-product')
 export class SoldProductController {
   constructor(private readonly soldProductService: SoldProductService) {}
 
-  @ApiOperation({ summary: 'Create new Sold Product' })
-  @ApiResponse({ status: 201, type: SoldProduct })
+  @ApiOperation({ summary: 'Create new sold product' })
+  @UseGuards(AuthGuard)
   @Post()
-  async create(@Body() createSoldProductDto: CreateSoldProductDto) {
-    return this.soldProductService.create(createSoldProductDto);
+  create(@Body() soldProductDto: SoldProductDto) {
+    return this.soldProductService.create(soldProductDto);
   }
 
-  @ApiOperation({ summary: 'Get all Sold Products' })
-  @ApiResponse({ status: 200, type: [SoldProduct] })
+  @ApiOperation({ summary: 'Get all sold products' })
+  @UseGuards(AuthGuard)
   @Get()
-  async findAll() {
+  findAll() {
     return this.soldProductService.findAll();
   }
 
-  @ApiOperation({ summary: 'Get SoldProduct by ID' })
-  @ApiResponse({ status: 200, type: SoldProduct })
+  @ApiOperation({ summary: 'Pagination sold products' })
+  @UseGuards(AuthGuard)
+  @Get('page')
+  paginate(@Query('page') page: number) {
+    return this.soldProductService.paginate(page);
+  }
+
+  @ApiOperation({ summary: 'Get sold product by ID' })
+  @UseGuards(AuthGuard)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.soldProductService.findOne(id);
+  findOne(@Param('id') id: string) {
+    return this.soldProductService.findById(id);
   }
 
-  @ApiOperation({ summary: 'Update SoldProduct by ID' })
-  @ApiResponse({ status: 200, type: SoldProduct })
+  @ApiOperation({ summary: 'Update sold product by ID' })
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateSoldProductDto: UpdateSoldProductDto,
-  ) {
-    return this.soldProductService.update(id, updateSoldProductDto);
+  update(@Param('id') id: string, @Body() soldProductDto: SoldProductDto) {
+    return this.soldProductService.update(id, soldProductDto);
   }
 
-  @ApiOperation({ summary: 'Delete SoldProduct by ID' })
-  @ApiResponse({ status: 200, type: SoldProduct })
+  @ApiOperation({ summary: 'Delete sold product by ID' })
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  remove(@Param('id') id: string) {
     return this.soldProductService.remove(id);
   }
 }

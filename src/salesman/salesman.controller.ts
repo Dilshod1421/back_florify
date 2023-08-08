@@ -8,6 +8,7 @@ import {
   Delete,
   Res,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { SalesmanService } from './salesman.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -72,6 +73,13 @@ export class SalesmanController {
   @Get()
   findAll() {
     return this.salesmanService.findAll();
+  }
+
+  @ApiOperation({ summary: 'Pagination salesmans' })
+  @UseGuards(AuthGuard)
+  @Get('page')
+  paginate(@Query('page') page: number) {
+    return this.salesmanService.paginate(page);
   }
 
   @ApiOperation({ summary: 'Get salesman by ID' })

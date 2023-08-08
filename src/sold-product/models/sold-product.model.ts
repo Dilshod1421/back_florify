@@ -10,15 +10,16 @@ import { Salesman } from '../../salesman/models/salesman.model';
 import { Product } from '../../product/models/product.model';
 import { Client } from 'src/client/models/client.model';
 
-interface SoldProductAttrs {
+interface SoldProductAttributes {
   id: string;
+  how_many: number;
   product_id: string;
   salesman_id: string;
   client_id: string;
 }
 
 @Table({ tableName: 'sold-product' })
-export class SoldProduct extends Model<SoldProduct, SoldProductAttrs> {
+export class SoldProduct extends Model<SoldProduct, SoldProductAttributes> {
   @Column({
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
@@ -26,6 +27,11 @@ export class SoldProduct extends Model<SoldProduct, SoldProductAttrs> {
     allowNull: false,
   })
   id: string;
+
+  @Column({
+    type: DataType.INTEGER,
+  })
+  how_many: number;
 
   @ForeignKey(() => Product)
   @Column({

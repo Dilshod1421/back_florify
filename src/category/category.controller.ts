@@ -6,53 +6,58 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Query,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { CreateCategoryDto } from './dto/create-category.dto';
-import { UpdateCategoryDto } from './dto/update-category.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Category } from './models/category.model';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guard/auth.guard';
+import { CategoryDto } from './dto/category.dto';
 
 @ApiTags('Category')
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @ApiOperation({ summary: 'Create new Category' })
-  @ApiResponse({ status: 201, type: Category })
+  @ApiOperation({ summary: 'Create new category' })
+  @UseGuards(AuthGuard)
   @Post()
-  async create(@Body() createCategoryDto: CreateCategoryDto) {
-    return this.categoryService.create(createCategoryDto);
+  create(@Body() categoryDto: CategoryDto) {
+    return this.categoryService.create(categoryDto);
   }
 
-  @ApiOperation({ summary: 'Get all Categories' })
-  @ApiResponse({ status: 200, type: [Category] })
+  @ApiOperation({ summary: 'Get all categories' })
+  @UseGuards(AuthGuard)
   @Get()
-  async findAll() {
+  findAll() {
     return this.categoryService.findAll();
   }
 
-  @ApiOperation({ summary: 'Get Category by ID' })
-  @ApiResponse({ status: 200, type: Category })
+  @ApiOperation({ summary: 'Pagination categories' })
+  @UseGuards(AuthGuard)
+  @Get('page')
+  paginate(@Query('page') page: number) {
+    return this.categoryService.paginate(page);
+  }
+
+  @ApiOperation({ summary: 'Get category by ID' })
+  @UseGuards(AuthGuard)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(id);
+  findById(@Param('id') id: string) {
+    return this.categoryService.findById(id);
   }
 
-  @ApiOperation({ summary: 'Update Category by ID' })
-  @ApiResponse({ status: 200, type: Category })
+  @ApiOperation({ summary: 'Update category by ID' })
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateCategoryDto: UpdateCategoryDto,
-  ) {
-    return this.categoryService.update(id, updateCategoryDto);
+  update(@Param('id') id: string, @Body() categoryDto: CategoryDto) {
+    return this.categoryService.update(id, categoryDto);
   }
 
-  @ApiOperation({ summary: 'Delete Category by ID' })
-  @ApiResponse({ status: 200, type: Category })
+  @ApiOperation({ summary: 'Delete category by ID' })
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  remove(@Param('id') id: string) {
     return this.categoryService.remove(id);
   }
 }

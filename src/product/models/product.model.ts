@@ -12,7 +12,7 @@ import { Category } from '../../category/models/category.model';
 import { Image } from '../../image/models/image.model';
 import { SoldProduct } from '../../sold-product/models/sold-product.model';
 
-interface ProductAttrs {
+interface ProductAttributes {
   id: string;
   name: string;
   description: string;
@@ -24,7 +24,7 @@ interface ProductAttrs {
 }
 
 @Table({ tableName: 'product' })
-export class Product extends Model<Product, ProductAttrs> {
+export class Product extends Model<Product, ProductAttributes> {
   @Column({
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,

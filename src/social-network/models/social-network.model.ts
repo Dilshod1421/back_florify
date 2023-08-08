@@ -8,7 +8,7 @@ import {
 } from 'sequelize-typescript';
 import { Salesman } from '../../salesman/models/salesman.model';
 
-interface SocialNetworkAttrs {
+interface SocialNetworkAttributes {
   id: string;
   name: string;
   link: string;
@@ -16,10 +16,15 @@ interface SocialNetworkAttrs {
 }
 
 @Table({ tableName: 'SocialNetwork' })
-export class SocialNetwork extends Model<SocialNetwork, SocialNetworkAttrs> {
+export class SocialNetwork extends Model<
+  SocialNetwork,
+  SocialNetworkAttributes
+> {
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
     primaryKey: true,
+    allowNull: false,
   })
   id: string;
 
@@ -35,7 +40,7 @@ export class SocialNetwork extends Model<SocialNetwork, SocialNetworkAttrs> {
 
   @ForeignKey(() => Salesman)
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUID,
   })
   salesman_id: string;
 

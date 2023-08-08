@@ -6,53 +6,58 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ImageService } from './image.service';
-import { CreateImageDto } from './dto/create-image.dto';
-import { UpdateImageDto } from './dto/update-image.dto';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Image } from './models/image.model';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guard/auth.guard';
+import { ImageDto } from './dto/image.dto';
 
 @ApiTags('Image')
 @Controller('image')
 export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 
-  @ApiOperation({ summary: 'Create new Image' })
-  @ApiResponse({ status: 201, type: Image })
+  @ApiOperation({ summary: 'Create new image' })
+  @UseGuards(AuthGuard)
   @Post()
-  async create(@Body() createImageDto: CreateImageDto) {
-    return this.imageService.create(createImageDto);
+  create(@Body() imageDto: ImageDto) {
+    return this.imageService.create(imageDto);
   }
 
-  @ApiOperation({ summary: 'Get all Images' })
-  @ApiResponse({ status: 200, type: [Image] })
+  @ApiOperation({ summary: 'Get all images' })
+  @UseGuards(AuthGuard)
   @Get()
-  async findAll() {
+  findAll() {
     return this.imageService.findAll();
   }
 
-  @ApiOperation({ summary: 'Get Image by ID' })
-  @ApiResponse({ status: 200, type: Image })
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.imageService.findOne(id);
+  @ApiOperation({ summary: 'Pagination images' })
+  @UseGuards(AuthGuard)
+  @Get('page')
+  paginate(@Query('page') page: number) {
+    return this.imageService.paginate(page);
   }
 
-  @ApiOperation({ summary: 'Update Image by ID' })
-  @ApiResponse({ status: 200, type: Image })
+  @ApiOperation({ summary: 'Get image by ID' })
+  @UseGuards(AuthGuard)
+  @Get(':id')
+  findById(@Param('id') id: string) {
+    return this.imageService.findById(id);
+  }
+
+  @ApiOperation({ summary: 'Update image by ID' })
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateImageDto: UpdateImageDto,
-  ) {
-    return this.imageService.update(id, updateImageDto);
+  update(@Param('id') id: string, @Body() imageDto: ImageDto) {
+    return this.imageService.update(id, imageDto);
   }
 
   @ApiOperation({ summary: 'Delete Image by ID' })
-  @ApiResponse({ status: 200, type: Image })
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  remove(@Param('id') id: string) {
     return this.imageService.remove(id);
   }
 }

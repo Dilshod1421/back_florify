@@ -157,12 +157,7 @@ export class SalesmanService {
       if (!data) {
         throw new UnauthorizedException('Tizimdan chiqishda xatolik!');
       }
-      const check = await this.salesmanRepository.findOne({
-        where: { id: data.id },
-      });
-      if (!check) {
-        throw new BadRequestException('Foydalanuvchi topilmadi!');
-      }
+      const check = await this.findById(data.id);
       const is_match = await compare(refresh_token, check.hashed_refresh_token);
       if (!is_match) {
         throw new BadRequestException('Tizimdan chiqishda xatololik!');
@@ -187,6 +182,35 @@ export class SalesmanService {
     }
   }
 
+  async paginate(page: number) {
+    try {
+      page = Number(page);
+      const limit = 10;
+      const offset = (page - 1) * limit;
+      const salesmans = await this.salesmanRepository.findAll({
+        include: { all: true },
+        offset,
+        limit,
+      });
+      const total_count = await this.salesmanRepository.count();
+      const total_pages = Math.ceil(total_count / limit);
+      const res = {
+        status: 200,
+        data: {
+          records: salesmans,
+          pagination: {
+            currentPage: page,
+            total_pages,
+            total_count,
+          },
+        },
+      };
+      return res;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
   async findById(id: string) {
     try {
       const salesman = await this.salesmanRepository.findOne({
@@ -206,10 +230,7 @@ export class SalesmanService {
     try {
       const { old_password, new_password, confirm_new_password } =
         newPasswordDto;
-      const salesman = await this.salesmanRepository.findOne({ where: { id } });
-      if (!salesman) {
-        throw new BadRequestException('Sotuvchi topilmadi!');
-      }
+      const salesman = await this.findById(id);
       const is_match_pass = await compare(
         old_password,
         salesman.hashed_password,
@@ -236,6 +257,7 @@ export class SalesmanService {
 
   async forgotPassword(id: string, forgotPasswordDto: ForgotPasswordDto) {
     try {
+      await this.findById(id);
       const { new_password, confirm_new_password } = forgotPasswordDto;
       if (new_password != confirm_new_password) {
         throw new BadRequestException('Parolni tasdiqlashda xatolik!');
@@ -247,7 +269,7 @@ export class SalesmanService {
       );
       return {
         message: 'Parol muvaffaqiyatli yangilandi',
-        admin: updated_info[1][0],
+        salesman: updated_info[1][0],
       };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -257,10 +279,7 @@ export class SalesmanService {
   async update(id: string, salesmanDto: SalesmanDto) {
     try {
       const { username, phone, email } = salesmanDto;
-      const salesman = await this.salesmanRepository.findOne({ where: { id } });
-      if (!salesman) {
-        throw new BadRequestException('Sotuvchi topilmadi!');
-      }
+      const salesman = await this.findById(id);
       if (username) {
         const exist_username = await this.salesmanRepository.findOne({
           where: { username },
