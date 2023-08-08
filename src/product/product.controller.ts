@@ -6,52 +6,57 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Product } from './models/product.model';
+import { ApiOperation } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guard/auth.guard';
+import { ProductDto } from './dto/product.dto';
 
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @ApiOperation({ summary: 'Create new Product' })
-  @ApiResponse({ status: 201, type: Product })
+  @ApiOperation({ summary: 'Create new product' })
+  @UseGuards(AuthGuard)
   @Post()
-  async create(@Body() createProductDto: CreateProductDto) {
-    return this.productService.create(createProductDto);
+  create(@Body() productDto: ProductDto) {
+    return this.productService.create(productDto);
   }
 
-  @ApiOperation({ summary: 'Get all Products' })
-  @ApiResponse({ status: 200, type: [Product] })
+  @ApiOperation({ summary: 'Get all products' })
+  @UseGuards(AuthGuard)
   @Get()
-  async findAll() {
+  findAll() {
     return this.productService.findAll();
   }
 
-  @ApiOperation({ summary: 'Get Product by ID' })
-  @ApiResponse({ status: 200, type: Product })
+  @ApiOperation({ summary: 'Pagination products' })
+  @UseGuards(AuthGuard)
+  @Get('page')
+  paginate(@Query('page') page: number) {
+    return this.productService.paginate(page);
+  }
+
+  @ApiOperation({ summary: 'Get product by ID' })
+  @UseGuards(AuthGuard)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return this.productService.findOne(id);
+  findOne(@Param('id') id: string) {
+    return this.productService.findById(id);
   }
 
-  @ApiOperation({ summary: 'Update Product by ID' })
-  @ApiResponse({ status: 200, type: Product })
+  @ApiOperation({ summary: 'Update product by ID' })
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateProductDto: UpdateProductDto,
-  ) {
-    return this.productService.update(id, updateProductDto);
+  update(@Param('id') id: string, @Body() productDto: ProductDto) {
+    return this.productService.update(id, productDto);
   }
 
-  @ApiOperation({ summary: 'Delete Product by ID' })
-  @ApiResponse({ status: 200, type: Product })
+  @ApiOperation({ summary: 'Delete product by ID' })
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  remove(@Param('id') id: string) {
     return this.productService.remove(id);
   }
 }

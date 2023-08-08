@@ -29,25 +29,25 @@ export class AdminController {
 
   @ApiOperation({ summary: 'Send OTP to phone number for register' })
   @Post('sendOtp')
-  async sendOtp(@Body() phoneDto: PhoneDto) {
+  sendOtp(@Body() phoneDto: PhoneDto) {
     return this.adminService.sendOtp(phoneDto);
   }
 
   @ApiOperation({ summary: 'Verify OTP' })
   @Post('verifyOtp')
-  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
+  verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
     return this.adminService.verifyOtp(verifyOtpDto);
   }
 
   @ApiOperation({ summary: 'Registration a new admin' })
   @Post('register')
-  async register(@Body() createAdminDto: CreateAdminDto) {
+  register(@Body() createAdminDto: CreateAdminDto) {
     return this.adminService.register(createAdminDto);
   }
 
   @ApiOperation({ summary: 'Log in admin' })
   @Post('login')
-  async login(
+  login(
     @Body() loginAdminDto: LoginAdminDto,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -57,7 +57,7 @@ export class AdminController {
   @ApiOperation({ summary: 'Log out admin' })
   @UseGuards(AuthGuard)
   @Post('logout')
-  async logout(
+  logout(
     @CookieGetter('refresh_token') refresh_token: string,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -67,31 +67,28 @@ export class AdminController {
   @ApiOperation({ summary: 'Get all admins' })
   @UseGuards(AuthGuard)
   @Get()
-  async findAll() {
+  findAll() {
     return this.adminService.findAll();
   }
 
   @ApiOperation({ summary: 'Get admin by ID' })
   @UseGuards(AuthGuard)
   @Get(':id')
-  async findById(@Param('id') id: string) {
+  findById(@Param('id') id: string) {
     return this.adminService.findById(id);
   }
 
   @ApiOperation({ summary: 'New password of the admin' })
   @UseGuards(AuthGuard)
   @Patch('newPassword/:id')
-  async newPassword(
-    @Param('id') id: string,
-    @Body() newPasswordDto: NewPasswordDto,
-  ) {
+  newPassword(@Param('id') id: string, @Body() newPasswordDto: NewPasswordDto) {
     return this.adminService.newPassword(id, newPasswordDto);
   }
 
   @ApiOperation({ summary: 'Forgot password' })
   @UseGuards(AuthGuard)
   @Patch('forgotPassword/:id')
-  async forgotPassword(
+  forgotPassword(
     @Param('id') id: string,
     @Body() forgotPasswordDto: ForgotPasswordDto,
   ) {
@@ -101,17 +98,14 @@ export class AdminController {
   @ApiOperation({ summary: 'Update admin by ID' })
   @UseGuards(AuthGuard)
   @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateAdminDto: UpdateAdminDto,
-  ) {
+  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
     return this.adminService.update(id, updateAdminDto);
   }
 
   @ApiOperation({ summary: 'Delete admin by ID' })
   @UseGuards(AuthGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  remove(@Param('id') id: string) {
     return this.adminService.remove(id);
   }
 }

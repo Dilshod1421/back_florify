@@ -30,27 +30,27 @@ export class SalesmanController {
   @ApiOperation({ summary: 'Send otp to phone number of the salesman' })
   @UseGuards(AuthGuard)
   @Post('sendOtp')
-  async sendOtp(@Body() phoneDto: PhoneDto) {
+  sendOtp(@Body() phoneDto: PhoneDto) {
     return this.salesmanService.sendOtp(phoneDto);
   }
 
   @ApiOperation({ summary: 'Verify otp of the salesman' })
   @UseGuards(AuthGuard)
   @Post('verifyOtp')
-  async verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
+  verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
     return this.salesmanService.verifyOtp(verifyOtpDto);
   }
 
   @ApiOperation({ summary: 'Create new salesman' })
   @UseGuards(AuthGuard)
   @Post('create')
-  async create(@Body() addSalesmanDto: AddSalesmanDto) {
+  create(@Body() addSalesmanDto: AddSalesmanDto) {
     return this.salesmanService.create(addSalesmanDto);
   }
 
   @ApiOperation({ summary: 'Log in salesman' })
   @Post('login')
-  async login(
+  login(
     @Body() loginSalesmanDto: LoginSalesmanDto,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -60,7 +60,7 @@ export class SalesmanController {
   @ApiOperation({ summary: 'Log out salesman' })
   @UseGuards(AuthGuard)
   @Post('logout')
-  async logout(
+  logout(
     @CookieGetter('refresh_token') refresh_token: string,
     @Res({ passthrough: true }) res: Response,
   ) {
@@ -70,28 +70,28 @@ export class SalesmanController {
   @ApiOperation({ summary: 'Get all salesmans' })
   @UseGuards(AuthGuard)
   @Get()
-  async findAll() {
+  findAll() {
     return this.salesmanService.findAll();
   }
 
   @ApiOperation({ summary: 'Get salesman by ID' })
   @UseGuards(AuthGuard)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string) {
     return this.salesmanService.findById(id);
   }
 
   @ApiOperation({ summary: 'New password of the salesman' })
   @UseGuards(AuthGuard)
   @Patch('newPassword')
-  async newPassword(@Param('id') id: string, newPasswordDto: NewPasswordDto) {
+  newPassword(@Param('id') id: string, newPasswordDto: NewPasswordDto) {
     return this.salesmanService.newPassword(id, newPasswordDto);
   }
 
   @ApiOperation({ summary: 'Forgot password salesman' })
   @UseGuards(AuthGuard)
   @Patch('forgotPassword')
-  async forgotPassword(
+  forgotPassword(
     @Param('id') id: string,
     forgotPasswordDto: ForgotPasswordDto,
   ) {
@@ -101,14 +101,14 @@ export class SalesmanController {
   @ApiOperation({ summary: 'Update salesman by ID' })
   @UseGuards(AuthGuard)
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() salesmanDto: SalesmanDto) {
+  update(@Param('id') id: string, @Body() salesmanDto: SalesmanDto) {
     return this.salesmanService.update(id, salesmanDto);
   }
 
   @ApiOperation({ summary: 'Delete Salesman by ID' })
   @UseGuards(AuthGuard)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  remove(@Param('id') id: string) {
     return this.salesmanService.remove(id);
   }
 }

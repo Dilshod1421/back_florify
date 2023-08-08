@@ -17,21 +17,25 @@ interface ProductAttrs {
   name: string;
   description: string;
   price: number;
+  quantity: number;
   color: string;
-  category_id: string;
   salesman_id: string;
+  category_id: string;
 }
 
 @Table({ tableName: 'product' })
 export class Product extends Model<Product, ProductAttrs> {
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
     primaryKey: true,
+    allowNull: false,
   })
   id: string;
 
   @Column({
     type: DataType.STRING,
+    allowNull: false,
   })
   name: string;
 
@@ -42,35 +46,48 @@ export class Product extends Model<Product, ProductAttrs> {
 
   @Column({
     type: DataType.INTEGER,
+    allowNull: false,
   })
   price: number;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  quantity: number;
 
   @Column({
     type: DataType.STRING,
   })
   color: string;
 
-  @ForeignKey(() => Category)
-  @Column({
-    type: DataType.STRING,
-  })
-  category_id: string;
-
   @ForeignKey(() => Salesman)
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUID,
   })
   salesman_id: string;
 
-  @BelongsTo(() => Category)
-  category: Category;
+  @ForeignKey(() => Category)
+  @Column({
+    type: DataType.UUID,
+  })
+  category_id: string;
 
   @BelongsTo(() => Salesman)
   salesman: Salesman;
 
-  @HasMany(() => Image)
+  @BelongsTo(() => Category)
+  category: Category;
+
+  @HasMany(() => Image, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
   image: Image[];
 
-  @HasMany(() => SoldProduct)
-  soldProduct: SoldProduct[];
+  @HasMany(() => SoldProduct, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
+  sold_product: SoldProduct[];
 }

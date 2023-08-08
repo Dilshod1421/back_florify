@@ -6,49 +6,51 @@ import {
   ForeignKey,
   BelongsTo,
 } from 'sequelize-typescript';
-import { Cart } from '../../cart/models/cart.model';
 import { Salesman } from '../../salesman/models/salesman.model';
 import { Product } from '../../product/models/product.model';
+import { Client } from 'src/client/models/client.model';
 
 interface SoldProductAttrs {
   id: string;
   product_id: string;
-  cart_id: string;
   salesman_id: string;
+  client_id: string;
 }
 
 @Table({ tableName: 'sold-product' })
 export class SoldProduct extends Model<SoldProduct, SoldProductAttrs> {
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
     primaryKey: true,
+    allowNull: false,
   })
   id: string;
 
   @ForeignKey(() => Product)
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUID,
   })
   product_id: string;
 
-  @ForeignKey(() => Cart)
-  @Column({
-    type: DataType.STRING,
-  })
-  cart_id: string;
-
   @ForeignKey(() => Salesman)
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUID,
   })
   salesman_id: string;
+
+  @ForeignKey(() => Client)
+  @Column({
+    type: DataType.UUID,
+  })
+  client_id: string;
 
   @BelongsTo(() => Product)
   product: Product;
 
-  @BelongsTo(() => Cart)
-  cart: Cart;
-
   @BelongsTo(() => Salesman)
   salesman: Salesman;
+
+  @BelongsTo(() => Client)
+  client: Client;
 }
