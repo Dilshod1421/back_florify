@@ -29,21 +29,21 @@ export class SalesmanController {
   constructor(private readonly salesmanService: SalesmanService) {}
 
   @ApiOperation({ summary: 'Send otp to phone number of the salesman' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post('sendOtp')
   sendOtp(@Body() phoneDto: PhoneDto) {
     return this.salesmanService.sendOtp(phoneDto);
   }
 
   @ApiOperation({ summary: 'Verify otp of the salesman' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post('verifyOtp')
   verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
     return this.salesmanService.verifyOtp(verifyOtpDto);
   }
 
   @ApiOperation({ summary: 'Create new salesman' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post('create')
   create(@Body() addSalesmanDto: AddSalesmanDto) {
     return this.salesmanService.create(addSalesmanDto);
@@ -69,21 +69,21 @@ export class SalesmanController {
   }
 
   @ApiOperation({ summary: 'Get all salesmans' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.salesmanService.findAll();
   }
 
   @ApiOperation({ summary: 'Pagination salesmans' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get('page')
   paginate(@Query('page') page: number) {
     return this.salesmanService.paginate(page);
   }
 
   @ApiOperation({ summary: 'Get salesman by ID' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.salesmanService.findById(id);
@@ -97,7 +97,7 @@ export class SalesmanController {
   }
 
   @ApiOperation({ summary: 'Forgot password salesman' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Patch('forgotPassword')
   forgotPassword(
     @Param('id') id: string,
