@@ -20,28 +20,28 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @ApiOperation({ summary: 'Create new category' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post()
   create(@Body() categoryDto: CategoryDto) {
     return this.categoryService.create(categoryDto);
   }
 
   @ApiOperation({ summary: 'Get all categories' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.categoryService.findAll();
   }
 
   @ApiOperation({ summary: 'Pagination categories' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get('page')
   paginate(@Query('page') page: number) {
     return this.categoryService.paginate(page);
   }
 
   @ApiOperation({ summary: 'Get category by ID' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get(':id')
   findById(@Param('id') id: string) {
     return this.categoryService.findById(id);
