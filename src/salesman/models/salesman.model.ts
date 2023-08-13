@@ -5,7 +5,6 @@ import { SoldProduct } from '../../sold-product/models/sold-product.model';
 
 interface SalesmanAttributes {
   id: string;
-  username: string;
   full_name: string;
   phone: string;
   address: string;
@@ -27,18 +26,13 @@ export class Salesman extends Model<Salesman, SalesmanAttributes> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
-    unique: true,
-  })
-  username: string;
-
-  @Column({
-    type: DataType.STRING,
   })
   full_name: string;
 
   @Column({
     type: DataType.STRING,
+    allowNull: false,
+    unique: true,
   })
   phone: string;
 

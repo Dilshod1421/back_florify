@@ -3,14 +3,6 @@ import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
 
 export class SalesmanDto {
   @ApiProperty({
-    example: 'will_mith',
-    description: 'The user name of the salesman',
-  })
-  @IsNotEmpty()
-  @IsString()
-  username: string;
-
-  @ApiProperty({
     example: 'Will Smith',
     description: 'The full name of the salesman',
   })

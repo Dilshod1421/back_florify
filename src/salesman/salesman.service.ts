@@ -8,7 +8,6 @@ import { InjectModel } from '@nestjs/sequelize';
 import { JwtService } from '@nestjs/jwt';
 import { LoginSalesmanDto } from './dto/login-salesman.dto';
 import { compare, hash } from 'bcryptjs';
-import { AddSalesmanDto } from './dto/add-salesman.dto';
 import { generateToken, writeToCookie } from 'src/utils/token';
 import { Response } from 'express';
 import { NewPasswordDto } from 'src/admin/dto/new-password.dto';
@@ -92,18 +91,18 @@ export class SalesmanService {
     }
   }
 
-  async create(addSalesmanDto: AddSalesmanDto) {
+  async create(addSalesmanDto: LoginSalesmanDto) {
     try {
-      const { username, password } = addSalesmanDto;
-      const exist_username = await this.salesmanRepository.findOne({
-        where: { username },
+      const { phone, password } = addSalesmanDto;
+      const exist_phone = await this.salesmanRepository.findOne({
+        where: { phone },
       });
-      if (exist_username) {
-        throw new BadRequestException('Bunday username band!');
+      if (exist_phone) {
+        throw new BadRequestException('Bunday telefon raqam band!');
       }
       const hashed_password = await hash(password, 7);
       const salesman = await this.salesmanRepository.create({
-        username,
+        phone,
         hashed_password,
       });
       return { messagee: "Sotuvchi ro'yxatga kiritildi", salesman };
@@ -114,12 +113,12 @@ export class SalesmanService {
 
   async login(loginSalesmanDto: LoginSalesmanDto, res: Response) {
     try {
-      const { username, password } = loginSalesmanDto;
+      const { phone, password } = loginSalesmanDto;
       const salesman = await this.salesmanRepository.findOne({
-        where: { username },
+        where: { phone },
       });
-      if (!username) {
-        throw new UnauthorizedException('Username mos kelmadi!');
+      if (!phone) {
+        throw new UnauthorizedException('Telefon raqam mos kelmadi!');
       }
       const is_match_password = await compare(
         password,
@@ -278,18 +277,8 @@ export class SalesmanService {
 
   async update(id: string, salesmanDto: SalesmanDto) {
     try {
-      const { username, phone, email } = salesmanDto;
+      const { phone, email } = salesmanDto;
       const salesman = await this.findById(id);
-      if (username) {
-        const exist_username = await this.salesmanRepository.findOne({
-          where: { username },
-        });
-        if (exist_username) {
-          if (exist_username.id != salesman.id) {
-            throw new BadRequestException('Bunday username band!');
-          }
-        }
-      }
       if (phone) {
         const exist_phone = await this.salesmanRepository.findOne({
           where: { phone },
