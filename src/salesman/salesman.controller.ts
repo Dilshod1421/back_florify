@@ -15,7 +15,6 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginSalesmanDto } from './dto/login-salesman.dto';
 import { PhoneDto } from 'src/admin/dto/phone.dto';
 import { VerifyOtpDto } from 'src/admin/dto/verifyOtp.dto';
-import { AddSalesmanDto } from './dto/add-salesman.dto';
 import { Response } from 'express';
 import { CookieGetter } from 'src/decorators/cookieGetter.decorator';
 import { SalesmanDto } from './dto/salesman.dto';
@@ -45,7 +44,7 @@ export class SalesmanController {
   @ApiOperation({ summary: 'Create new salesman' })
   // @UseGuards(AuthGuard)
   @Post('create')
-  create(@Body() addSalesmanDto: AddSalesmanDto) {
+  create(@Body() addSalesmanDto: LoginSalesmanDto) {
     return this.salesmanService.create(addSalesmanDto);
   }
 
