@@ -79,11 +79,11 @@ export class Product extends Model<Product, ProductAttributes> {
   @BelongsTo(() => Category)
   category: Category;
 
-  @HasMany(() => Image, {
-    onDelete: 'CASCADE',
-    hooks: true,
-  })
-  image: Image[];
+  // @HasMany(() => Image, {
+  //   onDelete: 'CASCADE',
+  //   hooks: true,
+  // })
+  // image: Image[];
 
   @HasMany(() => SoldProduct, {
     onDelete: 'CASCADE',
