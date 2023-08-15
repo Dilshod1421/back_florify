@@ -117,7 +117,7 @@ export class SalesmanService {
       const salesman = await this.salesmanRepository.findOne({
         where: { phone },
       });
-      if (!phone) {
+      if (!salesman) {
         throw new UnauthorizedException('Telefon raqam mos kelmadi!');
       }
       const is_match_password = await compare(
