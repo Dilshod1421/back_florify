@@ -10,6 +10,8 @@ import { ImageModule } from './image/image.module';
 import { ClientModule } from './client/client.module';
 import { SoldProductModule } from './sold-product/sold-product.module';
 import { JwtModule } from '@nestjs/jwt';
+import { MulterModule } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @Module({
   imports: [
@@ -27,6 +29,16 @@ import { JwtModule } from '@nestjs/jwt';
       autoLoadModels: true,
       models: [],
       logging: true,
+    }),
+    MulterModule.register({
+      storage: diskStorage({
+        destination: '/uploads',
+        filename: (req, file, cb) => {
+          const unique_suffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, file.fieldname + '-' + unique_suffix);
+        },
+      }),
     }),
     JwtModule.register({ global: true }),
     AdminModule,

@@ -10,28 +10,16 @@ import {
 } from '@nestjs/common';
 import { ImageService } from './image.service';
 import { Response } from 'express';
-import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageValidationPipe } from '../pipes/image-validation.pipe';
 
-@ApiTags('Image')
+@ApiTags('image')
 @Controller('image')
 export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 
-  @ApiOperation({ summary: 'Create new Image' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        image: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
+  @ApiOperation({ summary: 'create new image' })
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   async create(
@@ -40,21 +28,21 @@ export class ImageController {
     return this.imageService.create(image);
   }
 
-  @ApiOperation({ summary: 'Get All Image' })
+  @ApiOperation({ summary: 'get all Image' })
   @Get()
   async findAll() {
     return this.imageService.findAll();
   }
 
-  @ApiOperation({ summary: 'Get Image by file name' })
+  @ApiOperation({ summary: 'get image by file name' })
   @Get(':fileName')
-  async findOne(@Param('fileName') fileName: string, @Res() res: Response) {
-    return this.imageService.findOne(fileName, res);
+  async findOne(@Param('fileName') file_name: string, @Res() res: Response) {
+    return this.imageService.findOne(file_name, res);
   }
 
-  @ApiOperation({ summary: 'Delete Image by file name' })
+  @ApiOperation({ summary: 'delete image by file name' })
   @Delete(':fileName')
-  async remove(@Param('fileName') fileName: string) {
-    return this.imageService.remove(fileName);
+  async remove(@Param('fileName') file_name: string) {
+    return this.imageService.remove(file_name);
   }
 }

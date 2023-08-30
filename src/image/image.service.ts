@@ -9,18 +9,17 @@ import { Storage } from '@google-cloud/storage';
 import { extname } from 'path';
 
 const storage = new Storage({
-  projectId: 'upload-image-392818',
+  projectId: 'fileupload-393404',
   keyFilename: 'keyfile.json',
 });
 
-const bucketName = 'upload-image-nest-florify';
+const bucketName = 'florify';
 const bucket = storage.bucket(bucketName);
 
 @Injectable()
 export class ImageService {
   async create(image: Express.Multer.File) {
     if (!image) throw new BadRequestException('No image');
-
     try {
       const fileName =
         (await this.generateUniqueFileName()) + extname(image.originalname);
@@ -38,7 +37,6 @@ export class ImageService {
   async findAll() {
     const [files] = await bucket.getFiles();
     const allFileNames = files.map((file) => file.name);
-
     return allFileNames;
   }
 
@@ -48,7 +46,6 @@ export class ImageService {
     if (!exists[0]) {
       throw new HttpException('Image not found', HttpStatus.NOT_FOUND);
     }
-
     const stream = file.createReadStream();
     stream.pipe(res);
   }
@@ -77,7 +74,6 @@ export class ImageService {
   async generateUniqueFileName() {
     const [files] = await bucket.getFiles();
     const allUniqueFileNames = files.map((file) => file.name);
-
     let fileName: any;
     while (true) {
       fileName = await this.generateFileName();
