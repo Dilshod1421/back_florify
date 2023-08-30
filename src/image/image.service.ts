@@ -9,7 +9,7 @@ import { Storage } from '@google-cloud/storage';
 import { extname } from 'path';
 
 const storage = new Storage({
-  projectId: 'fileupload-393404',
+  projectId: 'react-chat-1e5cc',
   keyFilename: 'keyfile.json',
 });
 
