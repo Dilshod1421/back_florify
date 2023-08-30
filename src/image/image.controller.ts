@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ImageService } from './image.service';
 import { Response } from 'express';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageValidationPipe } from '../pipes/image-validation.pipe';
 
@@ -20,6 +20,18 @@ export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 
   @ApiOperation({ summary: 'create new image' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @Post()
   @UseInterceptors(FileInterceptor('image'))
   async create(
