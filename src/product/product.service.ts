@@ -90,7 +90,7 @@ export class ProductService {
   async remove(id: string) {
     try {
       const product = await this.findById(id);
-      product.destroy();
+      await product.destroy();
       return { message: "Mahsulot o'chirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);

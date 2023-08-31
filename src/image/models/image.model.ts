@@ -20,12 +20,12 @@ export class Image extends Model<Image, ImageAttrs> {
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
-    allowNull: false,
   })
   id: string;
 
   @Column({
     type: DataType.STRING,
+    allowNull: false,
   })
   image: string;
 

@@ -20,42 +20,42 @@ export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @ApiOperation({ summary: 'Create new product' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post()
   create(@Body() productDto: ProductDto) {
     return this.productService.create(productDto);
   }
 
   @ApiOperation({ summary: 'Get all products' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.productService.findAll();
   }
 
   @ApiOperation({ summary: 'Pagination products' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get('page')
   paginate(@Query('page') page: number) {
     return this.productService.paginate(page);
   }
 
   @ApiOperation({ summary: 'Get product by ID' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productService.findById(id);
   }
 
   @ApiOperation({ summary: 'Update product by ID' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() productDto: ProductDto) {
     return this.productService.update(id, productDto);
   }
 
   @ApiOperation({ summary: 'Delete product by ID' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.productService.remove(id);

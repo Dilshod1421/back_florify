@@ -1,84 +1,117 @@
-import {
-  BadRequestException,
-  HttpException,
-  HttpStatus,
-  Injectable,
-} from '@nestjs/common';
-import { Response } from 'express';
-import { Storage } from '@google-cloud/storage';
-import { extname } from 'path';
-
-const storage = new Storage({
-  projectId: 'react-chat-1e5cc',
-  keyFilename: 'keyfile.json',
-});
-
-const bucketName = 'florify';
-const bucket = storage.bucket(bucketName);
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { Image } from './models/image.model';
+import { FilesService } from 'src/files/files.service';
+import { ProductService } from 'src/product/product.service';
 
 @Injectable()
 export class ImageService {
-  async create(image: Express.Multer.File) {
-    if (!image) throw new BadRequestException('No image');
+  constructor(
+    @InjectModel(Image)
+    private readonly imageRepository: typeof Image,
+    private readonly fileService: FilesService,
+    private readonly productService: ProductService,
+  ) {}
+
+  async create(product_id: string, file: any) {
     try {
-      const fileName =
-        (await this.generateUniqueFileName()) + extname(image.originalname);
-      const file = bucket.file(fileName);
-      await file.save(image.buffer, { resumable: false });
-      return fileName;
+      await this.productService.findById(product_id);
+      const file_name = await this.fileService.createFile(file);
+      const image = await this.imageRepository.create({
+        product_id,
+        image: file_name,
+      });
+      return { message: 'Image created successfully', image };
     } catch (error) {
-      throw new HttpException(
-        'Error with uploading images',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new BadRequestException(error.message);
     }
   }
 
   async findAll() {
-    const [files] = await bucket.getFiles();
-    const allFileNames = files.map((file) => file.name);
-    return allFileNames;
-  }
-
-  async findOne(fileName: string, res: Response) {
-    const file = bucket.file(fileName);
-    const exists = await file.exists();
-    if (!exists[0]) {
-      throw new HttpException('Image not found', HttpStatus.NOT_FOUND);
-    }
-    const stream = file.createReadStream();
-    stream.pipe(res);
-  }
-
-  async remove(fileName: string) {
-    const file = bucket.file(fileName);
-    const exists = await file.exists();
-    if (exists[0]) {
-      await file.delete();
-      return fileName;
-    } else {
-      throw new HttpException('Image not found', HttpStatus.NOT_FOUND);
+    try {
+      const images = await this.imageRepository.findAll({
+        include: { all: true },
+      });
+      return images;
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
   }
 
-  async generateFileName() {
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const prefix =
-      letters.charAt(Math.floor(Math.random() * letters.length)) +
-      letters.charAt(Math.floor(Math.random() * letters.length)) +
-      letters.charAt(Math.floor(Math.random() * letters.length));
-    const suffix = Math.floor(Math.random() * 90000) + 10000;
-    return prefix + suffix;
+  async findById(id: string) {
+    try {
+      const image = await this.imageRepository.findByPk(id, {
+        include: { all: true },
+      });
+      if (!image) {
+        throw new BadRequestException('Image not found!');
+      }
+      return image;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
-  async generateUniqueFileName() {
-    const [files] = await bucket.getFiles();
-    const allUniqueFileNames = files.map((file) => file.name);
-    let fileName: any;
-    while (true) {
-      fileName = await this.generateFileName();
-      if (!allUniqueFileNames.includes(fileName)) break;
+  async findByProductId(product_id: string) {
+    try {
+      const image = await this.imageRepository.findOne({
+        where: { product_id },
+        include: { all: true },
+      });
+      if (!image) {
+        throw new BadRequestException('Image not found!');
+      }
+      return image;
+    } catch (error) {
+      throw new BadRequestException(error.message);
     }
-    return fileName;
+  }
+
+  async updateById(product_id: string, file: any) {
+    try {
+      await this.productService.findById(product_id);
+      const file_name = await this.fileService.createFile(file);
+      const image = await this.imageRepository.update(
+        { image: file_name },
+        { where: { product_id }, returning: true },
+      );
+      return { message: 'Image updated successfully', image };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async updateByProductId(product_id: string, file: any) {
+    try {
+      await this.productService.findById(product_id);
+      const file_name = await this.fileService.createFile(file);
+      const image = await this.imageRepository.update(
+        { image: file_name },
+        { where: { product_id }, returning: true },
+      );
+      return { message: 'Image updated successfully', image };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async remove(id: string) {
+    try {
+      const image = await this.findById(id);
+      await image.destroy();
+      return { message: 'Image removed successfully', image };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async removeByProductId(product_id: string) {
+    try {
+      const image = await this.findByProductId(product_id);
+      await image.destroy();
+      return { message: 'Image removed successfully', image };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 }

@@ -12,6 +12,9 @@ import { SoldProductModule } from './sold-product/sold-product.module';
 import { JwtModule } from '@nestjs/jwt';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { FilesModule } from './files/files.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { resolve } from 'path';
 
 @Module({
   imports: [
@@ -40,6 +43,9 @@ import { diskStorage } from 'multer';
         },
       }),
     }),
+    ServeStaticModule.forRoot({
+      rootPath: resolve(__dirname, 'static'),
+    }),
     JwtModule.register({ global: true }),
     AdminModule,
     SalesmanModule,
@@ -49,6 +55,7 @@ import { diskStorage } from 'multer';
     ImageModule,
     ClientModule,
     SoldProductModule,
+    FilesModule,
   ],
 })
 export class AppModule {}

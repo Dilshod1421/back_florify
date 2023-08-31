@@ -9,8 +9,8 @@ import {
 } from 'sequelize-typescript';
 import { Salesman } from '../../salesman/models/salesman.model';
 import { Category } from '../../category/models/category.model';
-import { Image } from '../../image/models/image.model';
 import { SoldProduct } from '../../sold-product/models/sold-product.model';
+import { Image } from 'src/image/models/image.model';
 
 interface ProductAttributes {
   id: string;
@@ -79,11 +79,11 @@ export class Product extends Model<Product, ProductAttributes> {
   @BelongsTo(() => Category)
   category: Category;
 
-  // @HasMany(() => Image, {
-  //   onDelete: 'CASCADE',
-  //   hooks: true,
-  // })
-  // image: Image[];
+  @HasMany(() => Image, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
+  image: Image[];
 
   @HasMany(() => SoldProduct, {
     onDelete: 'CASCADE',
