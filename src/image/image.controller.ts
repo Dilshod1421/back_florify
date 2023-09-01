@@ -34,7 +34,7 @@ export class ImageController {
   @Post('create/:productId')
   @UseInterceptors(FileInterceptor('image'))
   async create(
-    @Param('productId') productId: string,
+    @Param('productId') productId: number,
     @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
   ) {
     return this.imageService.create(productId, image);
@@ -53,8 +53,8 @@ export class ImageController {
   }
 
   @ApiOperation({ summary: 'Get image by ID' })
-  @Get('productId:id')
-  async findByProductId(@Param('productId') product_id: string) {
+  @Get('productId/:id')
+  async findByProductId(@Param('productId') product_id: number) {
     return this.imageService.findByProductId(product_id);
   }
 
@@ -72,7 +72,7 @@ export class ImageController {
   @Patch('productId/:id')
   @UseInterceptors(FileInterceptor('image'))
   async updateByProductId(
-    @Param('productId') product_id: string,
+    @Param('productId') product_id: number,
     @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
   ) {
     return this.imageService.updateByProductId(product_id, image);
@@ -81,12 +81,12 @@ export class ImageController {
   @ApiOperation({ summary: 'Delete image by ID' })
   @Delete('id/:id')
   async removeById(@Param('id') id: string) {
-    return this.imageService.remove(id);
+    return this.imageService.removeById(id);
   }
 
   @ApiOperation({ summary: 'Delete image by ID' })
   @Delete('productId/:id')
-  async removeByProductId(@Param('productId') product_id: string) {
+  async removeByProductId(@Param('productId') product_id: number) {
     return this.imageService.removeByProductId(product_id);
   }
 }

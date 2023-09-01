@@ -11,7 +11,7 @@ import { Product } from '../../product/models/product.model';
 interface ImageAttrs {
   id: string;
   image: string;
-  product_id: string;
+  product_id: number;
 }
 
 @Table({ tableName: 'image' })
@@ -31,9 +31,9 @@ export class Image extends Model<Image, ImageAttrs> {
 
   @ForeignKey(() => Product)
   @Column({
-    type: DataType.UUID,
+    type: DataType.INTEGER,
   })
-  product_id: string;
+  product_id: number;
 
   @BelongsTo(() => Product)
   product: Product;

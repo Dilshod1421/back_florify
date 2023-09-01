@@ -13,7 +13,7 @@ export class ImageService {
     private readonly productService: ProductService,
   ) {}
 
-  async create(product_id: string, file: any) {
+  async create(product_id: number, file: any) {
     try {
       await this.productService.findById(product_id);
       const file_name = await this.fileService.createFile(file);
@@ -52,7 +52,7 @@ export class ImageService {
     }
   }
 
-  async findByProductId(product_id: string) {
+  async findByProductId(product_id: number) {
     try {
       const image = await this.imageRepository.findOne({
         where: { product_id },
@@ -67,7 +67,21 @@ export class ImageService {
     }
   }
 
-  async updateById(product_id: string, file: any) {
+  async updateById(id: string, file: any) {
+    try {
+      await this.findById(id);
+      const file_name = await this.fileService.createFile(file);
+      const image = await this.imageRepository.update(
+        { image: file_name },
+        { where: { id }, returning: true },
+      );
+      return { message: 'Image updated successfully', image };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async updateByProductId(product_id: number, file: any) {
     try {
       await this.productService.findById(product_id);
       const file_name = await this.fileService.createFile(file);
@@ -81,21 +95,7 @@ export class ImageService {
     }
   }
 
-  async updateByProductId(product_id: string, file: any) {
-    try {
-      await this.productService.findById(product_id);
-      const file_name = await this.fileService.createFile(file);
-      const image = await this.imageRepository.update(
-        { image: file_name },
-        { where: { product_id }, returning: true },
-      );
-      return { message: 'Image updated successfully', image };
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async remove(id: string) {
+  async removeById(id: string) {
     try {
       const image = await this.findById(id);
       await image.destroy();
@@ -105,7 +105,7 @@ export class ImageService {
     }
   }
 
-  async removeByProductId(product_id: string) {
+  async removeByProductId(product_id: number) {
     try {
       const image = await this.findByProductId(product_id);
       await image.destroy();

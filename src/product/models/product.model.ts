@@ -13,7 +13,6 @@ import { SoldProduct } from '../../sold-product/models/sold-product.model';
 import { Image } from 'src/image/models/image.model';
 
 interface ProductAttributes {
-  id: string;
   name: string;
   description: string;
   price: number;
@@ -26,12 +25,11 @@ interface ProductAttributes {
 @Table({ tableName: 'product' })
 export class Product extends Model<Product, ProductAttributes> {
   @Column({
-    type: DataType.UUID,
-    defaultValue: DataType.UUIDV4,
+    type: DataType.INTEGER,
+    autoIncrement: true,
     primaryKey: true,
-    allowNull: false,
   })
-  id: string;
+  id: number;
 
   @Column({
     type: DataType.STRING,

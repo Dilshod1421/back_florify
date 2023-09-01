@@ -13,7 +13,7 @@ import { Client } from 'src/client/models/client.model';
 interface SoldProductAttributes {
   id: string;
   how_many: number;
-  product_id: string;
+  product_id: number;
   salesman_id: string;
   client_id: string;
 }
@@ -35,9 +35,9 @@ export class SoldProduct extends Model<SoldProduct, SoldProductAttributes> {
 
   @ForeignKey(() => Product)
   @Column({
-    type: DataType.UUID,
+    type: DataType.INTEGER,
   })
-  product_id: string;
+  product_id: number;
 
   @ForeignKey(() => Salesman)
   @Column({

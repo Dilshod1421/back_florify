@@ -43,21 +43,21 @@ export class ProductController {
   @ApiOperation({ summary: 'Get product by ID' })
   // @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.productService.findById(id);
   }
 
   @ApiOperation({ summary: 'Update product by ID' })
   // @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() productDto: ProductDto) {
+  update(@Param('id') id: number, @Body() productDto: ProductDto) {
     return this.productService.update(id, productDto);
   }
 
   @ApiOperation({ summary: 'Delete product by ID' })
   // @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: number) {
     return this.productService.remove(id);
   }
 }

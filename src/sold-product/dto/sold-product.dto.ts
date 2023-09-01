@@ -12,12 +12,12 @@ export class SoldProductDto {
   how_many: number;
 
   @ApiProperty({
-    example: 'de53c13b-45as-4e0b-86b2-25ce4c5a2177',
+    example: '1',
     description: 'The product ID of the Sold Product',
   })
   @IsNotEmpty()
   @IsString()
-  product_id: string;
+  product_id: number;
 
   @ApiProperty({
     example: 'de53c13b-45as-4e0b-86b2-25ce4c5a2177',

@@ -59,7 +59,7 @@ export class ProductService {
     }
   }
 
-  async findById(id: string) {
+  async findById(id: number) {
     try {
       const product = await this.productRepository.findOne({ where: { id } });
       if (!product) {
@@ -71,7 +71,7 @@ export class ProductService {
     }
   }
 
-  async update(id: string, productDto: ProductDto) {
+  async update(id: number, productDto: ProductDto) {
     try {
       const product = await this.findById(id);
       const updated_info = await this.productRepository.update(productDto, {
@@ -87,7 +87,7 @@ export class ProductService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: number) {
     try {
       const product = await this.findById(id);
       await product.destroy();
