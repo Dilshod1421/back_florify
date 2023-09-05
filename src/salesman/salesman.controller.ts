@@ -90,14 +90,14 @@ export class SalesmanController {
 
   @ApiOperation({ summary: 'New password of the salesman' })
   @UseGuards(AuthGuard)
-  @Patch('newPassword')
+  @Patch('newPassword/:id')
   newPassword(@Param('id') id: string, newPasswordDto: NewPasswordDto) {
     return this.salesmanService.newPassword(id, newPasswordDto);
   }
 
   @ApiOperation({ summary: 'Forgot password salesman' })
   // @UseGuards(AuthGuard)
-  @Patch('forgotPassword')
+  @Patch('forgotPassword/:id')
   forgotPassword(
     @Param('id') id: string,
     forgotPasswordDto: ForgotPasswordDto,
@@ -107,7 +107,7 @@ export class SalesmanController {
 
   @ApiOperation({ summary: 'Update salesman by ID' })
   @UseGuards(AuthGuard)
-  @Patch(':id')
+  @Patch('profile/:id')
   update(@Param('id') id: string, @Body() salesmanDto: SalesmanDto) {
     return this.salesmanService.update(id, salesmanDto);
   }
