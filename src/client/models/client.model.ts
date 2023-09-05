@@ -20,12 +20,12 @@ export class Client extends Model<Client, ClientAttrs> {
   @Column({
     type: DataType.STRING,
   })
-  name: string;
+  phone: string;
 
   @Column({
     type: DataType.STRING,
   })
-  phone: string;
+  name: string;
 
   @Column({
     type: DataType.STRING,
