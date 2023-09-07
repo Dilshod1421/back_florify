@@ -9,9 +9,11 @@ import {
   Res,
   UseGuards,
   Query,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { SalesmanService } from './salesman.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginSalesmanDto } from './dto/login-salesman.dto';
 import { PhoneDto } from 'src/admin/dto/phone.dto';
 import { VerifyOtpDto } from 'src/admin/dto/verifyOtp.dto';
@@ -21,6 +23,8 @@ import { SalesmanDto } from './dto/salesman.dto';
 import { NewPasswordDto } from 'src/admin/dto/new-password.dto';
 import { ForgotPasswordDto } from 'src/admin/dto/forgot-password.dto';
 import { AuthGuard } from 'src/guard/auth.guard';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ImageValidationPipe } from 'src/pipes/image-validation.pipe';
 
 @ApiTags('Salesman')
 @Controller('salesman')
@@ -107,9 +111,26 @@ export class SalesmanController {
 
   @ApiOperation({ summary: 'Update salesman by ID' })
   @UseGuards(AuthGuard)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @Patch('profile/:id')
-  update(@Param('id') id: string, @Body() salesmanDto: SalesmanDto) {
-    return this.salesmanService.update(id, salesmanDto);
+  @UseInterceptors(FileInterceptor('image'))
+  update(
+    @Param('id') id: string,
+    @Body() salesmanDto: SalesmanDto,
+    @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
+  ) {
+    return this.salesmanService.update(id, salesmanDto, image);
   }
 
   @ApiOperation({ summary: 'Delete Salesman by ID' })

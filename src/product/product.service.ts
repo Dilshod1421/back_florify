@@ -61,7 +61,10 @@ export class ProductService {
 
   async findById(id: number) {
     try {
-      const product = await this.productRepository.findOne({ where: { id } });
+      const product = await this.productRepository.findOne({
+        where: { id },
+        include: { all: true },
+      });
       if (!product) {
         throw new BadRequestException('Mahsulot topilmadi!');
       }

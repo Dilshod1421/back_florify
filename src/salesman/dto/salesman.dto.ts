@@ -27,14 +27,6 @@ export class SalesmanDto {
   address: string;
 
   @ApiProperty({
-    example: 'https://picsum.photos/id/128/200/300',
-    description: 'The image url of the salesman',
-  })
-  @IsNotEmpty()
-  @IsString()
-  image: string;
-
-  @ApiProperty({
     example: 'will@gmail.com',
     description: 'The email of the salesman',
   })

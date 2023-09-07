@@ -18,6 +18,7 @@ import { generate } from 'otp-generator';
 import { sendOTP } from 'src/utils/sendOtp';
 import { Otp } from 'src/admin/models/otp.model';
 import { VerifyOtpDto } from 'src/admin/dto/verifyOtp.dto';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class SalesmanService {
@@ -26,6 +27,7 @@ export class SalesmanService {
     private readonly salesmanRepository: typeof Salesman,
     @InjectModel(Otp) private readonly otpRepository: typeof Otp,
     private readonly jwtService: JwtService,
+    private readonly fileService: FilesService,
   ) {}
 
   async sendOtp(phoneDto: PhoneDto) {
@@ -275,7 +277,7 @@ export class SalesmanService {
     }
   }
 
-  async update(id: string, salesmanDto: SalesmanDto) {
+  async update(id: string, salesmanDto: SalesmanDto, image: any) {
     try {
       const { phone, email } = salesmanDto;
       const salesman = await this.findById(id);
@@ -298,6 +300,20 @@ export class SalesmanService {
             throw new BadRequestException('Bunday email band!');
           }
         }
+      }
+      if (image) {
+        const file_name = await this.fileService.createFile(image);
+        const updated_info = await this.salesmanRepository.update(
+          { ...salesmanDto, image: file_name },
+          {
+            where: { id },
+            returning: true,
+          },
+        );
+        return {
+          message: "Ma'lumotlar tahrirlandi",
+          salesman: updated_info[1][0],
+        };
       }
       const updated_info = await this.salesmanRepository.update(salesmanDto, {
         where: { id },
