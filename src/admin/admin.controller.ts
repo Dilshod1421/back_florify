@@ -31,7 +31,7 @@ export class AdminController {
   @ApiOperation({ summary: 'Send OTP to phone number for register' })
   @Post('sendOtp')
   sendOtp(@Body() phoneDto: PhoneDto) {
-    return this.adminService.sendOtp(phoneDto);
+    return this.adminService.sendSMS(phoneDto);
   }
 
   @ApiOperation({ summary: 'Verify OTP' })

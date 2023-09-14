@@ -279,7 +279,7 @@ export class SalesmanService {
 
   async update(id: string, salesmanDto: SalesmanDto, image: any) {
     try {
-      const { phone, email } = salesmanDto;
+      const { phone, username, telegram } = salesmanDto;
       const salesman = await this.findById(id);
       if (phone) {
         const exist_phone = await this.salesmanRepository.findOne({
@@ -291,13 +291,23 @@ export class SalesmanService {
           }
         }
       }
-      if (email) {
-        const exist_email = await this.salesmanRepository.findOne({
-          where: { email },
+      if (username) {
+        const exist_username = await this.salesmanRepository.findOne({
+          where: { username },
         });
-        if (exist_email) {
-          if (exist_email.id != salesman.id) {
-            throw new BadRequestException('Bunday email band!');
+        if (exist_username) {
+          if (exist_username.id != salesman.id) {
+            throw new BadRequestException('Bunday telefon raqam band!');
+          }
+        }
+      }
+      if (telegram) {
+        const exist_telegram = await this.salesmanRepository.findOne({
+          where: { telegram },
+        });
+        if (exist_telegram) {
+          if (exist_telegram.id != salesman.id) {
+            throw new BadRequestException('Bunday telefon raqam band!');
           }
         }
       }

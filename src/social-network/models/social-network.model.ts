@@ -1,18 +1,9 @@
-import {
-  Column,
-  DataType,
-  Model,
-  Table,
-  ForeignKey,
-  BelongsTo,
-} from 'sequelize-typescript';
-import { Salesman } from '../../salesman/models/salesman.model';
+import { Column, DataType, Model, Table } from 'sequelize-typescript';
 
 interface SocialNetworkAttributes {
   id: string;
   name: string;
   link: string;
-  salesman_id: string;
 }
 
 @Table({ tableName: 'SocialNetwork' })
@@ -37,13 +28,4 @@ export class SocialNetwork extends Model<
     type: DataType.STRING,
   })
   link: string;
-
-  @ForeignKey(() => Salesman)
-  @Column({
-    type: DataType.UUID,
-  })
-  salesman_id: string;
-
-  @BelongsTo(() => Salesman)
-  salesman: Salesman;
 }

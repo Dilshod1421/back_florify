@@ -24,6 +24,7 @@ export class Otp extends Model<Otp, OtpAttributes> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
   phone: string;
 

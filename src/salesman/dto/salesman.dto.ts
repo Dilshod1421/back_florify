@@ -1,14 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsPhoneNumber, IsString } from 'class-validator';
 
 export class SalesmanDto {
   @ApiProperty({
-    example: 'Will Smith',
-    description: 'The full name of the salesman',
+    example: 'florago',
+    description: 'The username of the salesman',
   })
   @IsNotEmpty()
   @IsString()
-  full_name: string;
+  username: string;
 
   @ApiProperty({
     example: '+998991234567',
@@ -19,18 +19,10 @@ export class SalesmanDto {
   phone: string;
 
   @ApiProperty({
-    example: 'Tashkent',
-    description: 'The address of the salesman',
+    example: 'will@gmail.com',
+    description: 'The telegram username of the salesman',
   })
   @IsNotEmpty()
   @IsString()
-  address: string;
-
-  @ApiProperty({
-    example: 'will@gmail.com',
-    description: 'The email of the salesman',
-  })
-  @IsNotEmpty()
-  @IsEmail()
-  email: string;
+  telegram: string;
 }

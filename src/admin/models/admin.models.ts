@@ -35,7 +35,6 @@ export class Admin extends Model<Admin, AdminAttributes> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
     unique: true,
   })
   phone: string;

@@ -28,7 +28,7 @@ export class AdminService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async sendOtp(phoneDto: PhoneDto) {
+  async sendSMS(phoneDto: PhoneDto) {
     try {
       const code = generate(6, {
         upperCaseAlphabets: false,
@@ -68,23 +68,23 @@ export class AdminService {
 
   async verifyOtp(verifyOtpDto: VerifyOtpDto) {
     try {
-      const check_phone = await this.otpRepository.findOne({
+      const phone = await this.otpRepository.findOne({
         where: { phone: verifyOtpDto.phone },
       });
-      if (!check_phone) {
-        throw new BadRequestException('Telefon raqamda xatolik!');
+      if (!phone) {
+        throw new BadRequestException('Telefon raqami xato kiritldi!');
       }
       const now = Date.now();
-      if (now > check_phone.expire_time) {
-        check_phone.destroy();
+      if (now > phone.expire_time) {
+        phone.destroy();
         throw new BadRequestException(
-          'Yuborilgan parol vaqti tugadi, iltimos telefon raqamni qaytadan kiritib, yangi parol oling!',
+          'Sizga yuborilgan parol vaqti tugadi, iltimos telefon raqamini qaytadan kiriting!',
         );
       }
-      if (verifyOtpDto.code != check_phone.code) {
-        throw new BadRequestException('Tasdiqlash paroli xato!');
+      if (verifyOtpDto.code != phone.code) {
+        throw new BadRequestException('Parolni tasdiqlashda xatolik!');
       }
-      check_phone.destroy();
+      phone.destroy();
       return { message: 'Parol tasdiqlandi' };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -93,9 +93,8 @@ export class AdminService {
 
   async register(createAdminDto: CreateAdminDto) {
     try {
-      const admin_secret_key = process.env.ADMIN_SECRET_KEY;
       const { username, phone, email, password, secret_key } = createAdminDto;
-      if (admin_secret_key != secret_key) {
+      if (process.env.ADMIN_SECRET_KEY != secret_key) {
         throw new BadRequestException("Maxsus kalit so'z noto'g'ri!");
       }
       const exist_username = await this.adminRepository.findOne({
@@ -123,7 +122,7 @@ export class AdminService {
         ...createAdminDto,
         hashed_password,
       });
-      return { message: "Admin ro'yxatdan muvaffaqiyatli o'tdi", admin };
+      return { message: "Admin ro'yxatdan o'tdi", admin };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -165,7 +164,7 @@ export class AdminService {
       );
       await writeToCookie(refresh_token, res);
       return {
-        mesage: 'Tizimga muvaffaqiyatli kirildi',
+        mesage: 'Admin tizimga kirdi',
         access_token,
         admin,
       };
@@ -189,19 +188,15 @@ export class AdminService {
       }
       const admin = await this.adminRepository.update(
         { hashed_refresh_token: null },
-        {
-          where: { id: data.id },
-          returning: true,
-        },
+        { where: { id: data.id }, returning: true },
       );
       res.clearCookie('refresh_token');
-      return { mesage: 'Tizimdan chiqildi', admin: admin[1][0] };
+      return { mesage: 'Admin tizimdan chiqdi', admin: admin[1][0] };
     } catch (error) {}
   }
 
   async paginate(page: number) {
     try {
-      page = Number(page);
       const limit = 10;
       const offset = (page - 1) * limit;
       const admins = await this.adminRepository.findAll({

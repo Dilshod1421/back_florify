@@ -5,12 +5,11 @@ import { SoldProduct } from '../../sold-product/models/sold-product.model';
 
 interface SalesmanAttributes {
   id: string;
-  full_name: string;
+  username: string;
   phone: string;
-  address: string;
-  image: string;
-  email: string;
+  telegram: string;
   hashed_password: string;
+  image: string;
   hashed_refresh_token: string;
 }
 
@@ -26,30 +25,20 @@ export class Salesman extends Model<Salesman, SalesmanAttributes> {
 
   @Column({
     type: DataType.STRING,
+    allowNull: false,
   })
-  full_name: string;
+  username: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
-    unique: true,
   })
   phone: string;
 
   @Column({
     type: DataType.STRING,
   })
-  address: string;
-
-  @Column({
-    type: DataType.STRING,
-  })
-  image: string;
-
-  @Column({
-    type: DataType.STRING,
-  })
-  email: string;
+  telegram: string;
 
   @Column({
     type: DataType.STRING,
@@ -60,13 +49,12 @@ export class Salesman extends Model<Salesman, SalesmanAttributes> {
   @Column({
     type: DataType.STRING,
   })
-  hashed_refresh_token: string;
+  image: string;
 
-  @HasMany(() => SocialNetwork, {
-    onDelete: 'CASCADE',
-    hooks: true,
+  @Column({
+    type: DataType.STRING,
   })
-  social_network: SocialNetwork[];
+  hashed_refresh_token: string;
 
   @HasMany(() => Product, {
     onDelete: 'CASCADE',
