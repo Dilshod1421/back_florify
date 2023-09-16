@@ -20,7 +20,7 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @ApiOperation({ summary: 'Create new category' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post()
   create(@Body() categoryDto: CategoryDto) {
     return this.categoryService.create(categoryDto);
