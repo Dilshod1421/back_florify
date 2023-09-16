@@ -2,6 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Category } from './models/category.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { CategoryDto } from './dto/category.dto';
+import { Product } from 'src/product/models/product.model';
+import { Image } from 'src/image/models/image.model';
 
 @Injectable()
 export class CategoryService {
@@ -22,7 +24,7 @@ export class CategoryService {
   async findAll() {
     try {
       const categories = await this.categoryRepository.findAll({
-        include: { all: true },
+        include: [{ model: Product, include: [Image] }],
       });
       return categories;
     } catch (error) {
@@ -30,13 +32,13 @@ export class CategoryService {
     }
   }
 
-  async paginate(page: number){
+  async paginate(page: number) {
     try {
       page = Number(page);
       const limit = 10;
       const offset = (page - 1) * limit;
       const categories = await this.categoryRepository.findAll({
-        include: { all: true },
+        include: [{ model: Product, include: [Image] }],
         offset,
         limit,
       });
@@ -63,7 +65,7 @@ export class CategoryService {
     try {
       const category = await this.categoryRepository.findOne({
         where: { id },
-        include: { all: true },
+        include: [{ model: Product, include: [Image] }],
       });
       if (!category) {
         throw new BadRequestException('Kategoriya topilmadi!');
