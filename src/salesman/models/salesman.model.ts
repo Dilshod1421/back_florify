@@ -25,7 +25,6 @@ export class Salesman extends Model<Salesman, SalesmanAttributes> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
   })
   username: string;
 
