@@ -18,6 +18,7 @@ interface ProductAttributes {
   price: number;
   quantity: number;
   color: string;
+  date: string;
   salesman_id: string;
   category_id: string;
 }
@@ -58,6 +59,12 @@ export class Product extends Model<Product, ProductAttributes> {
     type: DataType.STRING,
   })
   color: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  date: string;
 
   @ForeignKey(() => Salesman)
   @Column({

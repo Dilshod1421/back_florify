@@ -40,6 +40,12 @@ export class ProductController {
     return this.productService.paginate(page);
   }
 
+  @ApiOperation({ summary: 'Get present products' })
+  @Get('present')
+  present() {
+    return this.productService.presents();
+  }
+
   @ApiOperation({ summary: 'Get product by ID' })
   // @UseGuards(AuthGuard)
   @Get(':id')

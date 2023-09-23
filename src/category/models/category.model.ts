@@ -3,8 +3,12 @@ import { Product } from '../../product/models/product.model';
 
 interface CategoryAttrs {
   id: string;
-  name: string;
-  description: string;
+  uz: string;
+  ru: string;
+  en: string;
+  uz_description: string;
+  ru_description: string;
+  en_description: string;
   image: string;
 }
 
@@ -23,12 +27,36 @@ export class Category extends Model<Category, CategoryAttrs> {
     allowNull: false,
     unique: true,
   })
-  name: string;
+  uz: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    unique: true,
+  })
+  ru: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    unique: true,
+  })
+  en: string;
 
   @Column({
     type: DataType.STRING,
   })
-  description: string;
+  uz_description: string;
+
+  @Column({
+    type: DataType.STRING,
+  })
+  ru_description: string;
+
+  @Column({
+    type: DataType.STRING,
+  })
+  en_description: string;
 
   @Column({
     type: DataType.STRING,

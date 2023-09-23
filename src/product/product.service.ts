@@ -12,7 +12,11 @@ export class ProductService {
 
   async create(productDto: ProductDto) {
     try {
-      const product = await this.productRepository.create(productDto);
+      const date = new Date().toISOString().slice(0, 10);
+      const product = await this.productRepository.create({
+        ...productDto,
+        date,
+      });
       return { message: "Mahsulot qo'shildi", product };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -54,6 +58,19 @@ export class ProductService {
         },
       };
       return response;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async presents() {
+    try {
+      const date = new Date().toISOString().slice(0, 10);
+      const products = await this.productRepository.findAll({
+        where: { date },
+        include: { all: true },
+      });
+      return products;
     } catch (error) {
       throw new BadRequestException(error.message);
     }

@@ -8,19 +8,39 @@ export class CategoryDto {
   })
   @IsNotEmpty()
   @IsString()
-  name: string;
+  uz: string;
+
+  @ApiProperty({
+    example: 'Bucket',
+    description: 'The name of the Category',
+  })
+  @IsNotEmpty()
+  @IsString()
+  ru: string;
+
+  @ApiProperty({
+    example: 'Bucket',
+    description: 'The name of the Category',
+  })
+  @IsNotEmpty()
+  @IsString()
+  en: string;
 
   @ApiProperty({
     example: 'Some description',
     description: 'The description of the Category',
   })
-  description: string;
+  uz_description: string;
 
   @ApiProperty({
-    example: 'https://picsum.photos/id/128/200/300',
-    description: 'The image url of the Category',
+    example: 'Some description',
+    description: 'The description of the Category',
   })
-  @IsNotEmpty()
-  @IsString()
-  image: string;
+  ru_description: string;
+
+  @ApiProperty({
+    example: 'Some description',
+    description: 'The description of the Category',
+  })
+  en_description: string;
 }

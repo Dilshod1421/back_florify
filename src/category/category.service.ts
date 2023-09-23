@@ -4,17 +4,22 @@ import { InjectModel } from '@nestjs/sequelize';
 import { CategoryDto } from './dto/category.dto';
 import { Product } from 'src/product/models/product.model';
 import { Image } from 'src/image/models/image.model';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class CategoryService {
   constructor(
-    @InjectModel(Category)
-    private readonly categoryRepository: typeof Category,
+    @InjectModel(Category) private readonly categoryRepository: typeof Category,
+    private readonly fileService: FilesService,
   ) {}
 
-  async create(categoryDto: CategoryDto) {
+  async create(categoryDto: CategoryDto, file: any) {
     try {
-      const category = await this.categoryRepository.create(categoryDto);
+      const file_name = await this.fileService.createFile(file);
+      const category = await this.categoryRepository.create({
+        ...categoryDto,
+        image: file_name,
+      });
       return { message: "Kategoriya ro'yxatga qo'shildi", category };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -76,9 +81,20 @@ export class CategoryService {
     }
   }
 
-  async update(id: string, categoryDto: CategoryDto) {
+  async update(id: string, categoryDto: CategoryDto, file: any) {
     try {
       await this.findById(id);
+      if (file) {
+        const file_name = await this.fileService.createFile(file);
+        const updated_info = await this.categoryRepository.update(
+          { ...categoryDto, image: file_name },
+          { where: { id }, returning: true },
+        );
+        return {
+          message: "Ma'lumotlar tahrirlandi",
+          category: updated_info[1][0],
+        };
+      }
       const updated_info = await this.categoryRepository.update(categoryDto, {
         where: { id },
         returning: true,

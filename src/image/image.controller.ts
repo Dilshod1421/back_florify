@@ -59,6 +59,18 @@ export class ImageController {
   }
 
   @ApiOperation({ summary: 'Update image by ID' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @Patch('id/:id')
   @UseInterceptors(FileInterceptor('image'))
   async updateById(
@@ -69,6 +81,18 @@ export class ImageController {
   }
 
   @ApiOperation({ summary: 'Update image by product ID' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   @Patch('productId/:id')
   @UseInterceptors(FileInterceptor('image'))
   async updateByProductId(
