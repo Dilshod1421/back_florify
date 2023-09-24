@@ -58,7 +58,6 @@ export class LikeService {
       if (!like) {
         throw new BadRequestException('Layk topilmadi!');
       }
-      console.log(like);
       like.destroy();
       return { message: 'Mahsulotdan layk olib tashlandi', like };
     } catch (error) {
