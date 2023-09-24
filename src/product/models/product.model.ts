@@ -11,6 +11,7 @@ import { Salesman } from '../../salesman/models/salesman.model';
 import { Category } from '../../category/models/category.model';
 import { SoldProduct } from '../../sold-product/models/sold-product.model';
 import { Image } from 'src/image/models/image.model';
+import { Like } from 'src/like/models/like.model';
 
 interface ProductAttributes {
   name: string;
@@ -89,6 +90,12 @@ export class Product extends Model<Product, ProductAttributes> {
     hooks: true,
   })
   image: Image[];
+
+  @HasMany(() => Like, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
+  like: Like[];
 
   @HasMany(() => SoldProduct, {
     onDelete: 'CASCADE',

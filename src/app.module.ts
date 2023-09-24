@@ -15,6 +15,7 @@ import { diskStorage } from 'multer';
 import { FilesModule } from './files/files.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve } from 'path';
+import { LikeModule } from './like/like.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { resolve } from 'path';
     ClientModule,
     SoldProductModule,
     FilesModule,
+    LikeModule,
   ],
 })
 export class AppModule {}
