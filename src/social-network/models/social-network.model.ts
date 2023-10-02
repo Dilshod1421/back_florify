@@ -15,7 +15,6 @@ export class SocialNetwork extends Model<
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
-    allowNull: false,
   })
   id: string;
 

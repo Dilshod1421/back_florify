@@ -13,7 +13,6 @@ export class Client extends Model<Client, ClientAttrs> {
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
-    allowNull: false,
   })
   id: string;
 

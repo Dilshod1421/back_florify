@@ -15,7 +15,6 @@ export class Admin extends Model<Admin, AdminAttributes> {
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
-    allowNull: false,
   })
   id: string;
 
@@ -28,7 +27,6 @@ export class Admin extends Model<Admin, AdminAttributes> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
     unique: true,
   })
   email: string;

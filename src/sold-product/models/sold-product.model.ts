@@ -24,7 +24,6 @@ export class SoldProduct extends Model<SoldProduct, SoldProductAttributes> {
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
-    allowNull: false,
   })
   id: string;
 

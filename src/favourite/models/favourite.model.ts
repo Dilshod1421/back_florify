@@ -1,21 +1,21 @@
 import {
-  Table,
-  Model,
   Column,
   DataType,
   ForeignKey,
-  BelongsTo,
+  Model,
+  Table,
 } from 'sequelize-typescript';
+import { Client } from 'src/client/models/client.model';
 import { Product } from 'src/product/models/product.model';
 
-interface LikeAttributes {
+interface FavouriteAttributes {
   id: string;
-  is_like: boolean;
+  client_id: string;
   product_id: number;
 }
 
-@Table({ tableName: 'like' })
-export class Like extends Model<Like, LikeAttributes> {
+@Table({ tableName: 'favourite' })
+export class Favourite extends Model<Favourite, FavouriteAttributes> {
   @Column({
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
@@ -23,18 +23,15 @@ export class Like extends Model<Like, LikeAttributes> {
   })
   id: string;
 
+  @ForeignKey(() => Client)
   @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
+    type: DataType.UUID,
   })
-  is_like: boolean;
+  client_id: string;
 
   @ForeignKey(() => Product)
   @Column({
     type: DataType.INTEGER,
   })
   product_id: number;
-
-  @BelongsTo(() => Product)
-  product: Product;
 }

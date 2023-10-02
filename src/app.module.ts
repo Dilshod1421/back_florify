@@ -16,6 +16,7 @@ import { FilesModule } from './files/files.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve } from 'path';
 import { LikeModule } from './like/like.module';
+import { FavouriteModule } from './favourite/favourite.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { LikeModule } from './like/like.module';
     SoldProductModule,
     FilesModule,
     LikeModule,
+    FavouriteModule,
   ],
 })
 export class AppModule {}
