@@ -2,9 +2,9 @@ import { Column, DataType, Model, Table, HasMany } from 'sequelize-typescript';
 
 interface ClientAttrs {
   id: string;
+  phone: string;
   name: string;
   address: string;
-  phone: string;
 }
 
 @Table({ tableName: 'client' })

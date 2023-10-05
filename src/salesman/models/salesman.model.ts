@@ -1,5 +1,4 @@
 import { Column, DataType, Model, Table, HasMany } from 'sequelize-typescript';
-import { SocialNetwork } from '../../social-network/models/social-network.model';
 import { Product } from '../../product/models/product.model';
 import { SoldProduct } from '../../sold-product/models/sold-product.model';
 
