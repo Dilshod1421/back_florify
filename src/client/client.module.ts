@@ -9,5 +9,6 @@ import { Otp } from 'src/admin/models/otp.model';
   imports: [SequelizeModule.forFeature([Client, Otp])],
   controllers: [ClientController],
   providers: [ClientService],
+  exports: [ClientService],
 })
 export class ClientModule {}

@@ -27,9 +27,27 @@ export class LikeController {
     return this.likeService.findAll();
   }
 
+  @ApiOperation({ summary: 'get one by client and product ID' })
+  @Get('findOne')
+  findOne(@Body() likeDto: LikeDto) {
+    return this.likeService.findOne(likeDto);
+  }
+
+  @ApiOperation({ summary: 'get one by client ID' })
+  @Get('clientId/:clientId')
+  findByClientId(@Param('clientId') clientId: string) {
+    return this.likeService.findByClientId(clientId);
+  }
+
+  @ApiOperation({ summary: 'get one by product ID' })
+  @Get('productId/:productId')
+  findByProductId(@Param('productId') productId: number) {
+    return this.likeService.findByProductId(productId);
+  }
+
   @ApiOperation({ summary: 'delete like from product' })
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.likeService.remove(id);
+  @Delete()
+  remove(@Body() likeDto: LikeDto) {
+    return this.likeService.remove(likeDto);
   }
 }

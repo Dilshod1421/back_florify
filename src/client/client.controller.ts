@@ -27,8 +27,8 @@ export class ClientController {
     return this.clientService.sendSMS(phoneDto);
   }
 
-  @ApiOperation({ summary: 'login client' })
-  @Post('login')
+  @ApiOperation({ summary: 'sign up client' })
+  @Post('signup')
   create(@Body() verifyOtpDto: VerifyOtpDto) {
     return this.clientService.register(verifyOtpDto);
   }

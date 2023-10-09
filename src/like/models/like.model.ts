@@ -6,11 +6,13 @@ import {
   ForeignKey,
   BelongsTo,
 } from 'sequelize-typescript';
+import { Client } from 'src/client/models/client.model';
 import { Product } from 'src/product/models/product.model';
 
 interface LikeAttributes {
   id: string;
   is_like: boolean;
+  client_id: string;
   product_id: number;
 }
 
@@ -29,11 +31,20 @@ export class Like extends Model<Like, LikeAttributes> {
   })
   is_like: boolean;
 
+  @ForeignKey(() => Client)
+  @Column({
+    type: DataType.UUID,
+  })
+  client_id: string;
+
   @ForeignKey(() => Product)
   @Column({
     type: DataType.INTEGER,
   })
   product_id: number;
+
+  @BelongsTo(() => Client)
+  client: Client;
 
   @BelongsTo(() => Product)
   product: Product;

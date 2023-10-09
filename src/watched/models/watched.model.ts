@@ -1,27 +1,35 @@
 import {
+  Table,
+  Model,
   Column,
   DataType,
   ForeignKey,
-  Model,
-  Table,
+  BelongsTo,
 } from 'sequelize-typescript';
 import { Client } from 'src/client/models/client.model';
 import { Product } from 'src/product/models/product.model';
 
-interface FavouriteAttributes {
+interface WatchedAttributes {
   id: string;
+  is_watched: boolean;
   client_id: string;
   product_id: number;
 }
 
-@Table({ tableName: 'favourite' })
-export class Favourite extends Model<Favourite, FavouriteAttributes> {
+@Table({ tableName: 'watched' })
+export class Watched extends Model<Watched, WatchedAttributes> {
   @Column({
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
   })
   id: string;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+  })
+  is_watched: boolean;
 
   @ForeignKey(() => Client)
   @Column({
@@ -34,4 +42,10 @@ export class Favourite extends Model<Favourite, FavouriteAttributes> {
     type: DataType.INTEGER,
   })
   product_id: number;
+
+  @BelongsTo(() => Client)
+  client: Client;
+
+  @BelongsTo(() => Product)
+  product: Product;
 }

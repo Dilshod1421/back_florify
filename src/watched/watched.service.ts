@@ -1,34 +1,34 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
-import { Like } from './models/like.model';
-import { LikeDto } from './dto/like.dto';
 import { ProductService } from 'src/product/product.service';
 import { ClientService } from 'src/client/client.service';
 import { Op } from 'sequelize';
+import { Watched } from './models/watched.model';
+import { WatchedDto } from './dto/watched.dto';
 
 @Injectable()
-export class LikeService {
+export class WatchedService {
   constructor(
-    @InjectModel(Like) private readonly likeRepository: typeof Like,
+    @InjectModel(Watched) private readonly watchedRepository: typeof Watched,
     private readonly clientService: ClientService,
     private readonly productService: ProductService,
   ) {}
 
-  async create(likeDto: LikeDto) {
+  async create(watchedDto: WatchedDto) {
     try {
-      await this.clientService.findById(likeDto.client_id);
-      await this.productService.findById(likeDto.product_id);
-      const exist = await this.findOne(likeDto);
+      await this.clientService.findById(watchedDto.client_id);
+      await this.productService.findById(watchedDto.product_id);
+      const exist = await this.findOne(watchedDto);
       if (exist) {
         throw new BadRequestException(
-          "Mahsulot allaqachon sevimlilar ro'yxatiga qo'shilgan!",
+          "Mahsulot allaqachon ko'rilganlarga qo'shilgan!",
         );
       }
-      const like = await this.likeRepository.create({
-        ...likeDto,
-        is_like: true,
+      const watched = await this.watchedRepository.create({
+        ...watchedDto,
+        is_watched: true,
       });
-      return { message: "Mahsulot sevimlilarga qo'shildi", like };
+      return { message: "Mahsulot ko'rilganlarga qo'shildi", watched };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -36,26 +36,26 @@ export class LikeService {
 
   async findAll() {
     try {
-      const likes = await this.likeRepository.findAll({
+      const watched = await this.watchedRepository.findAll({
         include: { all: true },
       });
-      return likes;
+      return watched;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async findOne(likeDto: LikeDto) {
+  async findOne(watchedDto: WatchedDto) {
     try {
-      const like = await this.likeRepository.findOne({
+      const watched = await this.watchedRepository.findOne({
         where: {
           [Op.and]: [
-            { client_id: likeDto.client_id },
-            { product_id: likeDto.product_id },
+            { client_id: watchedDto.client_id },
+            { product_id: watchedDto.product_id },
           ],
         },
       });
-      return like;
+      return watched;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -63,14 +63,14 @@ export class LikeService {
 
   async findByClientId(client_id: string) {
     try {
-      const likes = await this.likeRepository.findAll({
+      const watched = await this.watchedRepository.findAll({
         where: { client_id },
         include: { all: true },
       });
-      if (!likes) {
-        throw new BadRequestException("Sevimlilar ro'yxati bo'sh!");
+      if (!watched) {
+        throw new BadRequestException("Ko'rilganlar ro'yxati bo'sh!");
       }
-      return likes;
+      return watched;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -78,30 +78,32 @@ export class LikeService {
 
   async findByProductId(product_id: number) {
     try {
-      const likes = await this.likeRepository.findAll({
+      const watched = await this.watchedRepository.findAll({
         where: { product_id },
         include: { all: true },
       });
-      if (!likes) {
-        throw new BadRequestException("Ushbu mahsulotga tegishli like yo'q!");
+      if (!watched) {
+        throw new BadRequestException(
+          "Ushbu mahsulotga ko'rilganlar ro'yxatida yo'q!",
+        );
       }
-      return likes;
+      return watched;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async remove(likeDto: LikeDto) {
+  async remove(watchedDto: WatchedDto) {
     try {
-      const like = await this.findOne(likeDto);
+      const like = await this.findOne(watchedDto);
       if (!like) {
         throw new BadRequestException(
-          "Mahsulot mijozning sevimlilar ro'yxatida yo'q!",
+          "Mahsulot mijozning ko'rilganlar ro'yxatida yo'q!",
         );
       }
       like.destroy();
       return {
-        message: "Mahsulot sevimlilar ro'yxatidan olib tashlandi",
+        message: "Mahsulot ko'rilganlar ro'yxatidan olib tashlandi",
         like,
       };
     } catch (error) {

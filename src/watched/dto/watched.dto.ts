@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class LikeDto {
+export class WatchedDto {
   @ApiProperty({
     example: 'adsf12300j2-adf23',
     description: 'id of client',

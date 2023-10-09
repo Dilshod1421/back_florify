@@ -1,4 +1,5 @@
 import { Column, DataType, Model, Table, HasMany } from 'sequelize-typescript';
+import { Like } from 'src/like/models/like.model';
 
 interface ClientAttrs {
   id: string;
@@ -30,4 +31,10 @@ export class Client extends Model<Client, ClientAttrs> {
     type: DataType.STRING,
   })
   address: string;
+
+  @HasMany(() => Like, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
+  likes: Like[];
 }
