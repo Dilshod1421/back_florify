@@ -8,9 +8,10 @@ import {
   Delete,
 } from '@nestjs/common';
 import { LikeService } from './like.service';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LikeDto } from './dto/like.dto';
 
+@ApiTags('Like/favourite')
 @Controller('like')
 export class LikeController {
   constructor(private readonly likeService: LikeService) {}

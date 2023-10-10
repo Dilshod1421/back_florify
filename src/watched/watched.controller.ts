@@ -7,11 +7,12 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { WatchedService } from './watched.service';
 import { WatchedDto } from './dto/watched.dto';
 
-@Controller('like')
+@ApiTags('Watched')
+@Controller('watched')
 export class WatchedController{
   constructor(private readonly watchedService: WatchedService) {}
 
