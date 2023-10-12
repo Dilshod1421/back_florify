@@ -19,7 +19,7 @@ export class ClientService {
 
   async sendSMS(phoneDto: PhoneDto) {
     try {
-      const code = generate(6, {
+      const code = generate(4, {
         upperCaseAlphabets: false,
         lowerCaseAlphabets: false,
         specialChars: false,
