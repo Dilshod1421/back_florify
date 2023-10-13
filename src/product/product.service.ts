@@ -2,6 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Product } from './models/product.model';
 import { ProductDto } from './dto/product.dto';
+import { Like } from 'src/like/models/like.model';
+import { SoldProduct } from 'src/sold-product/models/sold-product.model';
+import { Image } from 'src/image/models/image.model';
 
 @Injectable()
 export class ProductService {
@@ -26,7 +29,7 @@ export class ProductService {
   async findAll() {
     try {
       const products = await this.productRepository.findAll({
-        include: { all: true },
+        include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
       });
       return products;
     } catch (error) {
@@ -40,7 +43,7 @@ export class ProductService {
       const limit = 10;
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
-        include: { all: true },
+        include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
         offset,
         limit,
       });
@@ -68,7 +71,7 @@ export class ProductService {
       const date = new Date().toISOString().slice(0, 10);
       const products = await this.productRepository.findAll({
         where: { date },
-        include: { all: true },
+        include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
       });
       return products;
     } catch (error) {
@@ -80,7 +83,7 @@ export class ProductService {
     try {
       const product = await this.productRepository.findOne({
         where: { id },
-        include: { all: true },
+        include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
       });
       if (!product) {
         throw new BadRequestException('Mahsulot topilmadi!');
