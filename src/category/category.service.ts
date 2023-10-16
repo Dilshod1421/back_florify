@@ -5,6 +5,7 @@ import { CategoryDto } from './dto/category.dto';
 import { Product } from 'src/product/models/product.model';
 import { Image } from 'src/image/models/image.model';
 import { FilesService } from 'src/files/files.service';
+import { Like } from 'src/like/models/like.model';
 
 @Injectable()
 export class CategoryService {
@@ -29,7 +30,7 @@ export class CategoryService {
   async findAll() {
     try {
       const categories = await this.categoryRepository.findAll({
-        include: [{ model: Product, include: [Image] }],
+        include: [{ model: Product, include: [Like, Image] }],
       });
       return categories;
     } catch (error) {
@@ -43,7 +44,7 @@ export class CategoryService {
       const limit = 10;
       const offset = (page - 1) * limit;
       const categories = await this.categoryRepository.findAll({
-        include: [{ model: Product, include: [Image] }],
+        include: [{ model: Product, include: [Like, Image] }],
         offset,
         limit,
       });
@@ -70,7 +71,7 @@ export class CategoryService {
     try {
       const category = await this.categoryRepository.findOne({
         where: { id },
-        include: [{ model: Product, include: [Image] }],
+        include: [{ model: Product, include: [Like, Image] }],
       });
       if (!category) {
         throw new BadRequestException('Kategoriya topilmadi!');
