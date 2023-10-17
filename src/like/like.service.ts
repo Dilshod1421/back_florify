@@ -5,6 +5,8 @@ import { LikeDto } from './dto/like.dto';
 import { ProductService } from 'src/product/product.service';
 import { ClientService } from 'src/client/client.service';
 import { Op } from 'sequelize';
+import { Product } from 'src/product/models/product.model';
+import { Image } from 'src/image/models/image.model';
 
 @Injectable()
 export class LikeService {
@@ -65,7 +67,7 @@ export class LikeService {
     try {
       const likes = await this.likeRepository.findAll({
         where: { client_id },
-        include: { all: true },
+        include: [{ model: Product, include: [Image] }],
       });
       if (!likes) {
         throw new BadRequestException("Sevimlilar ro'yxati bo'sh!");
