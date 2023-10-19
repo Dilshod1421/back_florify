@@ -22,9 +22,7 @@ export class LikeService {
       await this.productService.findById(likeDto.product_id);
       const exist = await this.findOne(likeDto);
       if (exist) {
-        throw new BadRequestException(
-          "Mahsulot allaqachon sevimlilar ro'yxatiga qo'shilgan!",
-        );
+        return "Mahsulot allaqachon sevimlilar ro'yxatiga qo'shilgan!";
       }
       const like = await this.likeRepository.create({
         ...likeDto,
@@ -39,7 +37,7 @@ export class LikeService {
   async findAll() {
     try {
       const likes = await this.likeRepository.findAll({
-        include: { all: true },
+        include: [{ model: Product, include: [Image] }],
       });
       return likes;
     } catch (error) {
@@ -56,6 +54,7 @@ export class LikeService {
             { product_id: likeDto.product_id },
           ],
         },
+        include: [{ model: Product, include: [Image] }],
       });
       return like;
     } catch (error) {
@@ -82,7 +81,7 @@ export class LikeService {
     try {
       const likes = await this.likeRepository.findAll({
         where: { product_id },
-        include: { all: true },
+        include: [{ model: Product, include: [Image] }],
       });
       if (!likes) {
         throw new BadRequestException("Ushbu mahsulotga tegishli like yo'q!");

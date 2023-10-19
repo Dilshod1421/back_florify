@@ -5,6 +5,9 @@ import { ClientService } from 'src/client/client.service';
 import { Op } from 'sequelize';
 import { Watched } from './models/watched.model';
 import { WatchedDto } from './dto/watched.dto';
+import { Product } from 'src/product/models/product.model';
+import { Image } from 'src/image/models/image.model';
+import { Like } from 'src/like/models/like.model';
 
 @Injectable()
 export class WatchedService {
@@ -20,9 +23,7 @@ export class WatchedService {
       await this.productService.findById(watchedDto.product_id);
       const exist = await this.findOne(watchedDto);
       if (exist) {
-        throw new BadRequestException(
-          "Mahsulot allaqachon ko'rilganlarga qo'shilgan!",
-        );
+        return "Mahsulot allaqachon ko'rilganlarga qo'shilgan!";
       }
       const watched = await this.watchedRepository.create({
         ...watchedDto,
@@ -37,7 +38,7 @@ export class WatchedService {
   async findAll() {
     try {
       const watched = await this.watchedRepository.findAll({
-        include: { all: true },
+        include: [{ model: Product, include: [Image, Like] }],
       });
       return watched;
     } catch (error) {
@@ -54,6 +55,7 @@ export class WatchedService {
             { product_id: watchedDto.product_id },
           ],
         },
+        include: [{ model: Product, include: [Image, Like] }],
       });
       return watched;
     } catch (error) {
@@ -65,7 +67,7 @@ export class WatchedService {
     try {
       const watched = await this.watchedRepository.findAll({
         where: { client_id },
-        include: { all: true },
+        include: [{ model: Product, include: [Image, Like] }],
       });
       if (!watched) {
         throw new BadRequestException("Ko'rilganlar ro'yxati bo'sh!");
@@ -80,7 +82,7 @@ export class WatchedService {
     try {
       const watched = await this.watchedRepository.findAll({
         where: { product_id },
-        include: { all: true },
+        include: [{ model: Product, include: [Image, Like] }],
       });
       if (!watched) {
         throw new BadRequestException(
