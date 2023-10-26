@@ -11,7 +11,7 @@ export class SoldProductService {
     private readonly soldProductRepository: typeof SoldProduct,
     @InjectModel(Product) private readonly productRepository: typeof Product,
   ) {}
-
+    
   async create(soldProductDto: SoldProductDto) {
     try {
       const sold_product = await this.soldProductRepository.create(
