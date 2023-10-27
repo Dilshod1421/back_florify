@@ -18,11 +18,6 @@ export class SalesmanDto {
   @IsPhoneNumber()
   phone: string;
 
-  @ApiProperty({
-    example: 'will@gmail.com',
-    description: 'The telegram username of the salesman',
-  })
-  @IsNotEmpty()
-  @IsString()
-  telegram: string;
+  address?: string;
+  telegram?: string;
 }

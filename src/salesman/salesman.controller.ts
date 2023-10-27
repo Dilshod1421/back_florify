@@ -120,16 +120,16 @@ export class SalesmanController {
           type: 'string',
           format: 'binary',
         },
-        full_name: {
+        username: {
           type: 'string',
         },
         phone: {
           type: 'string',
         },
-        address: {
+        telegram: {
           type: 'string',
         },
-        email: {
+        address: {
           type: 'string',
         },
       },

@@ -9,6 +9,7 @@ interface SalesmanAttributes {
   telegram: string;
   hashed_password: string;
   image: string;
+  address: string;
   hashed_refresh_token: string;
 }
 
@@ -36,6 +37,11 @@ export class Salesman extends Model<Salesman, SalesmanAttributes> {
     type: DataType.STRING,
   })
   telegram: string;
+
+  @Column({
+    type: DataType.STRING,
+  })
+  address: string;
 
   @Column({
     type: DataType.STRING,
