@@ -95,7 +95,7 @@ export class Product extends Model<Product, ProductAttributes> {
     onDelete: 'CASCADE',
     hooks: true,
   })
-  like: Like[];
+  likes: Like[];
 
   @HasMany(() => SoldProduct, {
     onDelete: 'CASCADE',

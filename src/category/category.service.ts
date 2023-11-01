@@ -30,7 +30,15 @@ export class CategoryService {
   async findAll() {
     try {
       const categories = await this.categoryRepository.findAll({
-        include: [{ model: Product, include: [Like, Image] }],
+        include: [
+          {
+            model: Product,
+            include: [
+              { model: Image, attributes: ['image'] },
+              { model: Like, attributes: ['is_like'] },
+            ],
+          },
+        ],
       });
       return categories;
     } catch (error) {
@@ -44,7 +52,15 @@ export class CategoryService {
       const limit = 10;
       const offset = (page - 1) * limit;
       const categories = await this.categoryRepository.findAll({
-        include: [{ model: Product, include: [Like, Image] }],
+        include: [
+          {
+            model: Product,
+            include: [
+              { model: Image, attributes: ['image'] },
+              { model: Like, attributes: ['is_like'] },
+            ],
+          },
+        ],
         offset,
         limit,
       });
@@ -71,7 +87,15 @@ export class CategoryService {
     try {
       const category = await this.categoryRepository.findOne({
         where: { id },
-        include: [{ model: Product, include: [Like, Image] }],
+        include: [
+          {
+            model: Product,
+            include: [
+              { model: Image, attributes: ['image'] },
+              { model: Like, attributes: ['is_like'] },
+            ],
+          },
+        ],
       });
       if (!category) {
         throw new BadRequestException('Kategoriya topilmadi!');

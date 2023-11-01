@@ -19,6 +19,7 @@ export class Client extends Model<Client, ClientAttrs> {
 
   @Column({
     type: DataType.STRING,
+    allowNull: false,
   })
   phone: string;
 

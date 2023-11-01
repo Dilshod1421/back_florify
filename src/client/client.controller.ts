@@ -34,35 +34,35 @@ export class ClientController {
   }
 
   @ApiOperation({ summary: 'Get all clients' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get()
   findAll() {
     return this.clientService.findAll();
   }
 
   @ApiOperation({ summary: 'Pagination clients' })
-  @UseGuards(AuthGuard)
-  @Get()
+  // @UseGuards(AuthGuard)
+  @Get('page')
   paginate(@Query('page') page: number) {
     return this.clientService.paginate(page);
   }
 
   @ApiOperation({ summary: 'Get client by ID' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get(':id')
   findById(@Param('id') id: string) {
     return this.clientService.findById(id);
   }
 
   @ApiOperation({ summary: 'Update client by ID' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: string, @Body() clientDto: ClientDto) {
     return this.clientService.update(id, clientDto);
   }
 
   @ApiOperation({ summary: 'Delete client by ID' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.clientService.remove(id);

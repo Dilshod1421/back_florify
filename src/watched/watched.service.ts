@@ -40,8 +40,18 @@ export class WatchedService {
     try {
       const watched = await this.watchedRepository.findAll({
         include: [
-          { model: Product, include: [Image, Like] },
-          { model: Client, include: [Like] },
+          {
+            model: Product,
+            include: [
+              { model: Image, attributes: ['image'] },
+              { model: Like, attributes: ['is_like'] },
+            ],
+          },
+          {
+            model: Client,
+            attributes: ['id'],
+            include: [{ model: Like, attributes: ['is_like'] }],
+          },
         ],
       });
       return watched;
@@ -60,8 +70,18 @@ export class WatchedService {
           ],
         },
         include: [
-          { model: Product, include: [Image, Like] },
-          { model: Client, include: [Like] },
+          {
+            model: Product,
+            include: [
+              { model: Image, attributes: ['image'] },
+              { model: Like, attributes: ['is_like'] },
+            ],
+          },
+          {
+            model: Client,
+            attributes: ['id'],
+            include: [{ model: Like, attributes: ['is_like'] }],
+          },
         ],
       });
       return watched;
@@ -75,8 +95,18 @@ export class WatchedService {
       const watched = await this.watchedRepository.findAll({
         where: { client_id },
         include: [
-          { model: Product, include: [Image, Like] },
-          { model: Client, include: [Like] },
+          {
+            model: Product,
+            include: [
+              { model: Image, attributes: ['image'] },
+              { model: Like, attributes: ['is_like'] },
+            ],
+          },
+          {
+            model: Client,
+            attributes: ['id'],
+            include: [{ model: Like, attributes: ['is_like'] }],
+          },
         ],
       });
       if (!watched) {
@@ -93,8 +123,18 @@ export class WatchedService {
       const watched = await this.watchedRepository.findAll({
         where: { product_id },
         include: [
-          { model: Product, include: [Image, Like] },
-          { model: Client, include: [Like] },
+          {
+            model: Product,
+            include: [
+              { model: Image, attributes: ['image'] },
+              { model: Like, attributes: ['is_like'] },
+            ],
+          },
+          {
+            model: Client,
+            attributes: ['id'],
+            include: [{ model: Like, attributes: ['is_like'] }],
+          },
         ],
       });
       if (!watched) {
