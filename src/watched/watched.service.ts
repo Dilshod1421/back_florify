@@ -101,7 +101,7 @@ export class WatchedService {
               { model: Image, attributes: ['image'] },
               {
                 model: Like,
-                attributes: ['is_like', 'client_id'],
+                attributes: ['is_like'],
                 where: { client_id },
               },
             ],
