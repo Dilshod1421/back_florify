@@ -99,13 +99,12 @@ export class WatchedService {
             model: Product,
             include: [
               { model: Image, attributes: ['image'] },
-              { model: Like, attributes: ['is_like'] },
+              {
+                model: Like,
+                attributes: ['is_like', 'client_id'],
+                where: { client_id },
+              },
             ],
-          },
-          {
-            model: Client,
-            attributes: ['id'],
-            include: [{ model: Like, attributes: ['is_like'] }],
           },
         ],
       });
