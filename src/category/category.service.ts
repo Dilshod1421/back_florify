@@ -85,8 +85,8 @@ export class CategoryService {
 
   async findById(id: string) {
     try {
-      const category_id = id.split('-')[0];
-      const client_id = id.split('-')[1];
+      const category_id = id.split(':')[0];
+      const client_id = id.split(':')[1];
       const category = await this.categoryRepository.findOne({
         where: { id: category_id },
         include: [
