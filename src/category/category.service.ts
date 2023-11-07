@@ -54,7 +54,7 @@ export class CategoryService {
             model: Product,
             include: [
               { model: Image, attributes: ['image'] },
-              { model: Like, attributes: ['is_like'], where: { client_id } },
+              { model: Like, attributes: ['is_like'] },
             ],
           },
         ],
