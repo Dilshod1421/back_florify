@@ -46,6 +46,25 @@ export class CategoryService {
     }
   }
 
+  async getByClientId(client_id: string) {
+    try {
+      const categories = await this.categoryRepository.findAll({
+        include: [
+          {
+            model: Product,
+            include: [
+              { model: Image, attributes: ['image'] },
+              { model: Like, attributes: ['is_like'], where: { client_id } },
+            ],
+          },
+        ],
+      });
+      return categories;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
   async paginate(page: number) {
     try {
       page = Number(page);
