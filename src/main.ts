@@ -19,7 +19,7 @@ async function bootstrap() {
       .addTag('NodeJS, NestJS, Postgres, sequelize')
       .build();
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('/api/docs', app, document);
+    SwaggerModule.setup('/', app, document);
     app.use((req: any, res: any, next: any) => {
       const start_time = Date.now();
       res.on('finish', () => {
