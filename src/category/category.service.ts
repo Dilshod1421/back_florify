@@ -46,29 +46,9 @@ export class CategoryService {
     }
   }
 
-  async getByClientId(client_id: string) {
+  async paginate(page: number) {
     try {
-      const categories = await this.categoryRepository.findAll({
-        include: [
-          {
-            model: Product,
-            include: [
-              { model: Image, attributes: ['image'] },
-              { model: Like, attributes: ['is_like', 'client_id'] },
-            ],
-          },
-        ],
-      });
-      return categories;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async paginate(page_limit: string) {
-    try {
-      const page = Number(page_limit.split('-')[0]);
-      const limit = Number(page_limit.split('-')[1]);
+      const limit = 10;
       const offset = (page - 1) * limit;
       const categories = await this.categoryRepository.findAll({
         include: [
@@ -105,7 +85,6 @@ export class CategoryService {
   async findById(id: string) {
     try {
       const category_id = id.split(':')[0];
-      const client_id = id.split(':')[1];
       const category = await this.categoryRepository.findOne({
         where: { id: category_id },
         include: [
@@ -122,6 +101,48 @@ export class CategoryService {
         throw new BadRequestException('Kategoriya topilmadi!');
       }
       return category;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async findByIdPage(id_page_limit: string) {
+    try {
+      const id = id_page_limit.split(':')[0];
+      const page = Number(id_page_limit.split(':')[1]);
+      const limit = Number(id_page_limit.split(':')[2]);
+      const offset = (page - 1) * limit;
+      const category = await this.categoryRepository.findOne({
+        where: { id },
+        include: [
+          {
+            model: Product,
+            include: [
+              { model: Image, attributes: ['image'] },
+              { model: Like, attributes: ['is_like', 'client_id'] },
+            ],
+          },
+        ],
+        offset,
+        limit,
+      });
+      const total_count = await this.categoryRepository.count();
+      const total_pages = Math.ceil(total_count / limit);
+      const res = {
+        status: 200,
+        data: {
+          records: category,
+          pagination: {
+            currentPage: page,
+            total_pages,
+            total_count,
+          },
+        },
+      };
+      if (!category) {
+        throw new BadRequestException('Kategoriya topilmadi!');
+      }
+      return res;
     } catch (error) {
       throw new BadRequestException(error.message);
     }

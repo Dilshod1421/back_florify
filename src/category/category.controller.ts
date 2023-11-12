@@ -70,16 +70,16 @@ export class CategoryController {
     return this.categoryService.findAll();
   }
 
-  @ApiOperation({ summary: 'Get categories by client id' })
-  @Get('clientId/:clientId')
-  getByClientId(@Param('clientId') clientId: string) {
-    return this.categoryService.getByClientId(clientId);
+  @ApiOperation({ summary: 'Pagination categories' })
+  @Get('page')
+  paginate(@Query('page') page: number) {
+    return this.categoryService.paginate(page);
   }
 
-  @ApiOperation({ summary: 'Pagination categories' })
-  @Get('page-limit')
-  paginate(@Query('page-limit') page_limit: string) {
-    return this.categoryService.paginate(page_limit);
+  @ApiOperation({ summary: 'Get category by ID' })
+  @Get('idPage/idPageLimit')
+  findByIdPage(@Param('idPageLimit') id: string) {
+    return this.categoryService.findByIdPage(id);
   }
 
   @ApiOperation({ summary: 'Get category by ID' })

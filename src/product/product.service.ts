@@ -39,7 +39,6 @@ export class ProductService {
 
   async paginate(page: number) {
     try {
-      page = Number(page);
       const limit = 10;
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
