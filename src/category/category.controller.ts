@@ -77,7 +77,7 @@ export class CategoryController {
   }
 
   @ApiOperation({ summary: 'Get category by ID' })
-  @Get('idPage/idPageLimit')
+  @Get('idPage/:idPageLimit')
   findByIdPage(@Param('idPageLimit') id: string) {
     return this.categoryService.findByIdPage(id);
   }
