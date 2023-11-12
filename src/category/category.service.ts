@@ -65,10 +65,10 @@ export class CategoryService {
     }
   }
 
-  async paginate(page: number) {
+  async paginate(page_limit: string) {
     try {
-      page = Number(page);
-      const limit = 10;
+      const page = Number(page_limit.split('-')[0]);
+      const limit = Number(page_limit.split('-')[1]);
       const offset = (page - 1) * limit;
       const categories = await this.categoryRepository.findAll({
         include: [

@@ -77,9 +77,9 @@ export class CategoryController {
   }
 
   @ApiOperation({ summary: 'Pagination categories' })
-  @Get('page')
-  paginate(@Query('page') page: number) {
-    return this.categoryService.paginate(page);
+  @Get('page-limit')
+  paginate(@Query('page-limit') page_limit: string) {
+    return this.categoryService.paginate(page_limit);
   }
 
   @ApiOperation({ summary: 'Get category by ID' })
