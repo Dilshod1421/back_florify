@@ -87,6 +87,7 @@ export class CategoryService {
       const id = id_page_limit.split(':')[0];
       const page = Number(id_page_limit.split(':')[1]);
       const limit = Number(id_page_limit.split(':')[2]);
+      const offset = (page - 1) * limit;
       const category = await this.categoryRepository.findOne({
         where: { id },
         include: [
@@ -105,6 +106,7 @@ export class CategoryService {
       }
       const total_count = await this.categoryRepository.count();
       const total_pages = Math.ceil(total_count / limit);
+      category.product.splice(category.product.length - offset);
       const res = {
         status: 200,
         data: {
