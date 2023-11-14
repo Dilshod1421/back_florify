@@ -6,7 +6,6 @@ import { Product } from 'src/product/models/product.model';
 import { Image } from 'src/image/models/image.model';
 import { FilesService } from 'src/files/files.service';
 import { Like } from 'src/like/models/like.model';
-import { GetByIdDto } from './dto/search.dto';
 
 @Injectable()
 export class CategoryService {
@@ -83,10 +82,13 @@ export class CategoryService {
     }
   }
 
-  async findById(getByIdDto: GetByIdDto) {
+  async findById(id_page_limit: string) {
     try {
+      const id = id_page_limit.split(':')[0];
+      const page = Number(id_page_limit.split(':')[1]);
+      const limit = Number(id_page_limit.split(':')[2]);
       const category = await this.categoryRepository.findOne({
-        where: { id: getByIdDto.id },
+        where: { id },
         include: [
           {
             model: Product,
@@ -94,7 +96,7 @@ export class CategoryService {
               { model: Image, attributes: ['image'] },
               { model: Like, attributes: ['is_like', 'client_id'] },
             ],
-            limit: getByIdDto.limit,
+            limit,
           },
         ],
       });
@@ -102,13 +104,13 @@ export class CategoryService {
         throw new BadRequestException('Kategoriya topilmadi!');
       }
       const total_count = await this.categoryRepository.count();
-      const total_pages = Math.ceil(total_count / getByIdDto.limit);
+      const total_pages = Math.ceil(total_count / limit);
       const res = {
         status: 200,
         data: {
           records: category,
           pagination: {
-            currentPage: getByIdDto.page,
+            currentPage: page,
             total_pages,
             total_count,
           },

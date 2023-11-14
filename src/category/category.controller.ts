@@ -17,7 +17,6 @@ import { AuthGuard } from 'src/guard/auth.guard';
 import { CategoryDto } from './dto/category.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageValidationPipe } from 'src/pipes/image-validation.pipe';
-import { GetByIdDto } from './dto/search.dto';
 
 @ApiTags('Category')
 @Controller('category')
@@ -79,8 +78,8 @@ export class CategoryController {
 
   @ApiOperation({ summary: 'Get category by ID' })
   @Get(':id')
-  findById(@Body() getByIdDto: GetByIdDto) {
-    return this.categoryService.findById(getByIdDto);
+  findById(@Param('id') id: string) {
+    return this.categoryService.findById(id);
   }
 
   @ApiOperation({ summary: 'Update category by ID' })
