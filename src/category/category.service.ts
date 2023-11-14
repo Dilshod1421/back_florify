@@ -6,6 +6,7 @@ import { Product } from 'src/product/models/product.model';
 import { Image } from 'src/image/models/image.model';
 import { FilesService } from 'src/files/files.service';
 import { Like } from 'src/like/models/like.model';
+import { GetByIdDto } from './dto/search.dto';
 
 @Injectable()
 export class CategoryService {
@@ -82,11 +83,10 @@ export class CategoryService {
     }
   }
 
-  async findById(id: string) {
+  async findById(getByIdDto: GetByIdDto) {
     try {
-      const category_id = id.split(':')[0];
       const category = await this.categoryRepository.findOne({
-        where: { id: category_id },
+        where: { id: getByIdDto.id },
         include: [
           {
             model: Product,
@@ -94,54 +94,26 @@ export class CategoryService {
               { model: Image, attributes: ['image'] },
               { model: Like, attributes: ['is_like', 'client_id'] },
             ],
+            limit: getByIdDto.limit,
           },
         ],
       });
       if (!category) {
         throw new BadRequestException('Kategoriya topilmadi!');
       }
-      return category;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async findByIdPage(id_page_limit: string) {
-    try {
-      const id = id_page_limit.split(':')[0];
-      const page = Number(id_page_limit.split(':')[1]);
-      const limit = Number(id_page_limit.split(':')[2]);
-      const offset = (page - 1) * limit;
-      const category = await this.categoryRepository.findOne({
-        where: { id },
-        include: [
-          {
-            model: Product,
-            include: [
-              { model: Image, attributes: ['image'] },
-              { model: Like, attributes: ['is_like', 'client_id'] },
-            ],
-          },
-        ],
-        offset,
-        limit,
-      });
       const total_count = await this.categoryRepository.count();
-      const total_pages = Math.ceil(total_count / limit);
+      const total_pages = Math.ceil(total_count / getByIdDto.limit);
       const res = {
         status: 200,
         data: {
           records: category,
           pagination: {
-            currentPage: page,
+            currentPage: getByIdDto.page,
             total_pages,
             total_count,
           },
         },
       };
-      if (!category) {
-        throw new BadRequestException('Kategoriya topilmadi!');
-      }
       return res;
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -150,7 +122,6 @@ export class CategoryService {
 
   async update(id: string, categoryDto: CategoryDto, file: any) {
     try {
-      await this.findById(id);
       if (file) {
         const file_name = await this.fileService.createFile(file);
         const updated_info = await this.categoryRepository.update(
@@ -177,7 +148,7 @@ export class CategoryService {
 
   async remove(id: string) {
     try {
-      const category = await this.findById(id);
+      const category = await this.categoryRepository.findOne({ where: { id } });
       category.destroy();
       return { message: "Kategoriya ro'yxatdan o'chirildi" };
     } catch (error) {
