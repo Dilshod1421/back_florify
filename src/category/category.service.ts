@@ -106,7 +106,9 @@ export class CategoryService {
       }
       const total_count = await this.categoryRepository.count();
       const total_pages = Math.ceil(total_count / limit);
-      category.product.splice(category.product.length - offset);
+      category.product = category.product.splice(
+        category.product.length - offset,
+      );
       const res = {
         status: 200,
         data: {
