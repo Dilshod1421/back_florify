@@ -82,12 +82,8 @@ export class CategoryService {
     }
   }
 
-  async findById(id_page_limit: string) {
+  async findById(id: string) {
     try {
-      const id = id_page_limit.split(':')[0];
-      const page = Number(id_page_limit.split(':')[1]);
-      const limit = Number(id_page_limit.split(':')[2]);
-      const offset = limit - limit / page;
       const category = await this.categoryRepository.findOne({
         where: { id },
         include: [
@@ -97,29 +93,13 @@ export class CategoryService {
               { model: Image, attributes: ['image'] },
               { model: Like, attributes: ['is_like', 'client_id'] },
             ],
-            limit,
           },
         ],
       });
       if (!category) {
         throw new BadRequestException('Kategoriya topilmadi!');
       }
-      const total_count = await this.categoryRepository.count();
-      const total_pages = Math.ceil(total_count / limit);
-      category.product = category.product.splice(offset);
-      
-      const res = {
-        status: 200,
-        data: {
-          records: category,
-          pagination: {
-            currentPage: page,
-            total_pages,
-            total_count,
-          },
-        },
-      };
-      return res;
+      return category;
     } catch (error) {
       throw new BadRequestException(error.message);
     }

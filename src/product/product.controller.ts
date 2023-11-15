@@ -40,6 +40,13 @@ export class ProductController {
     return this.productService.paginate(page);
   }
 
+  @ApiOperation({ summary: 'Get by category id with pagination' })
+  // @UseGuards(AuthGuard)
+  @Get('categoryId:id_page_limit')
+  getByCategoryId(@Param('id_page_limit') id_page_limit: string) {
+    return this.productService.getByCategoryId(id_page_limit);
+  }
+
   @ApiOperation({ summary: 'Get present products' })
   @Get('present')
   present() {
