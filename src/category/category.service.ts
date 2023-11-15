@@ -99,9 +99,7 @@ export class CategoryService {
       if (!category) {
         throw new BadRequestException('Kategoriya topilmadi!');
       }
-<<<<<<< HEAD
       return category;
-=======
       const total_count = await this.categoryRepository.count();
       const total_pages = Math.ceil(total_count / limit);
       category.product = category.product.splice(0, offset);
@@ -117,7 +115,6 @@ export class CategoryService {
         },
       };
       return res;
->>>>>>> 15f25a0440d62c2e1064ef07a53cdac5e46ad907
     } catch (error) {
       throw new BadRequestException(error.message);
     }
