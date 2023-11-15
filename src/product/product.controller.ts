@@ -42,7 +42,7 @@ export class ProductController {
 
   @ApiOperation({ summary: 'Get by category id with pagination' })
   // @UseGuards(AuthGuard)
-  @Get('categoryId:id_page_limit')
+  @Get('categoryId/:id_page_limit')
   getByCategoryId(@Param('id_page_limit') id_page_limit: string) {
     return this.productService.getByCategoryId(id_page_limit);
   }
