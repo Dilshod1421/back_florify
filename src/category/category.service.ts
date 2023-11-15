@@ -100,21 +100,6 @@ export class CategoryService {
         throw new BadRequestException('Kategoriya topilmadi!');
       }
       return category;
-      const total_count = await this.categoryRepository.count();
-      const total_pages = Math.ceil(total_count / limit);
-      category.product = category.product.splice(0, offset);
-      const res = {
-        status: 200,
-        data: {
-          records: category,
-          pagination: {
-            currentPage: page,
-            total_pages,
-            total_count,
-          },
-        },
-      };
-      return res;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
