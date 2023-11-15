@@ -77,7 +77,9 @@ export class ProductService {
         offset,
         limit,
       });
-      const total_count = await this.productRepository.count();
+      const total_count = await this.productRepository.count({
+        where: { category_id },
+      });
       const total_pages = Math.ceil(total_count / limit);
       const response = {
         status: 200,
