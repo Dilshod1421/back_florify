@@ -26,12 +26,29 @@ export class ProductService {
     }
   }
 
-  async findAll() {
+  async findAll(id_page_limit: string) {
     try {
+      const page = Number(id_page_limit.split(':')[0]);
+      const limit = Number(id_page_limit.split(':')[1]);
+      const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
         include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
+        offset,
+        limit,
       });
-      return products;
+      const total_count = await this.productRepository.count();
+      const total_pages = Math.ceil(total_count / limit);
+      return {
+        status: 200,
+        data: {
+          records: products,
+          pagination: {
+            currentPage: page,
+            total_pages,
+            total_count,
+          },
+        },
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

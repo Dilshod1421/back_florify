@@ -27,10 +27,9 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Get all products' })
-  // @UseGuards(AuthGuard)
-  @Get()
-  findAll() {
-    return this.productService.findAll();
+  @Get('/:id_page_limit')
+  findAll(@Param('id_page_limit') id_page_limit: string) {
+    return this.productService.findAll(id_page_limit);
   }
 
   @ApiOperation({ summary: 'Pagination products' })
