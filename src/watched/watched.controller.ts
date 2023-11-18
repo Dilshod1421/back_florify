@@ -13,7 +13,7 @@ import { WatchedDto } from './dto/watched.dto';
 
 @ApiTags('Watched')
 @Controller('watched')
-export class WatchedController{
+export class WatchedController {
   constructor(private readonly watchedService: WatchedService) {}
 
   @ApiOperation({ summary: 'add product to watched list' })
@@ -35,9 +35,9 @@ export class WatchedController{
   }
 
   @ApiOperation({ summary: 'get one by client ID' })
-  @Get('clientId/:clientId')
-  findByClientId(@Param('clientId') clientId: string) {
-    return this.watchedService.findByClientId(clientId);
+  @Get('clientId/:idPageLimit')
+  findByClientId(@Param('idPageLimit') idPageLimit: string) {
+    return this.watchedService.findByClientId(idPageLimit);
   }
 
   @ApiOperation({ summary: 'get one by product ID' })

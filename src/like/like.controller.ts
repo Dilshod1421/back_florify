@@ -35,9 +35,9 @@ export class LikeController {
   }
 
   @ApiOperation({ summary: 'get one by client ID' })
-  @Get('clientId/:clientId')
-  findByClientId(@Param('clientId') clientId: string) {
-    return this.likeService.findByClientId(clientId);
+  @Get('clientId/:id_page_limit')
+  findByClientId(@Param('id_page_limit') id_page_limit: string) {
+    return this.likeService.findByClientId(id_page_limit);
   }
 
   @ApiOperation({ summary: 'get one by product ID' })

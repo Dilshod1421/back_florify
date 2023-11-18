@@ -62,16 +62,33 @@ export class LikeService {
     }
   }
 
-  async findByClientId(client_id: string) {
+  async findByClientId(id_page_limit: string) {
     try {
+      const client_id = Number(id_page_limit.split(':')[0]);
+      const page = Number(id_page_limit.split(':')[1]);
+      const limit = Number(id_page_limit.split(':')[2]);
+      const offset = (page - 1) * limit;
       const likes = await this.likeRepository.findAll({
         where: { client_id },
         include: [{ model: Product, include: [Image] }],
+        offset,
+        limit,
       });
-      if (!likes) {
-        throw new BadRequestException("Sevimlilar ro'yxati bo'sh!");
-      }
-      return likes;
+      const total_count = await this.likeRepository.count({
+        where: { client_id },
+      });
+      const total_pages = Math.ceil(total_count / limit);
+      return {
+        status: 200,
+        data: {
+          records: likes,
+          pagination: {
+            currentPage: page,
+            total_pages,
+            total_count,
+          },
+        },
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

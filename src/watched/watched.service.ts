@@ -90,8 +90,12 @@ export class WatchedService {
     }
   }
 
-  async findByClientId(client_id: string) {
+  async findByClientId(id_page_limit: string) {
     try {
+      const client_id = Number(id_page_limit.split(':')[0]);
+      const page = Number(id_page_limit.split(':')[1]);
+      const limit = Number(id_page_limit.split(':')[2]);
+      const offset = (page - 1) * limit;
       const watched = await this.watchedRepository.findAll({
         where: { client_id },
         include: [
@@ -101,16 +105,29 @@ export class WatchedService {
               { model: Image, attributes: ['image'] },
               {
                 model: Like,
-                attributes: ['is_like', 'client_id']
+                attributes: ['is_like', 'client_id'],
               },
             ],
           },
         ],
+        offset,
+        limit,
       });
-      if (!watched) {
-        throw new BadRequestException("Ko'rilganlar ro'yxati bo'sh!");
-      }
-      return watched;
+      const total_count = await this.watchedRepository.count({
+        where: { client_id },
+      });
+      const total_pages = Math.ceil(total_count / limit);
+      return {
+        status: 200,
+        data: {
+          records: watched,
+          pagination: {
+            currentPage: page,
+            total_pages,
+            total_count,
+          },
+        },
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
