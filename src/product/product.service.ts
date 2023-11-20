@@ -34,6 +34,7 @@ export class ProductService {
       console.log(page, limit, offset);
       const products = await this.productRepository.findAll({
         include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
+        order: [['id', 'DESC']],
         offset,
         limit,
       });
