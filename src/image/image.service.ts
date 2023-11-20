@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Image } from './models/image.model';
 import { FilesService } from 'src/files/files.service';
 import { ProductService } from 'src/product/product.service';
+import { ImageDto } from './dto/image.dto';
 
 @Injectable()
 export class ImageService {
@@ -13,12 +14,12 @@ export class ImageService {
     private readonly productService: ProductService,
   ) {}
 
-  async create(product_id: number, file: any) {
+  async create(imageDto: ImageDto, file: any) {
     try {
-      await this.productService.findById(product_id);
+      await this.productService.findById(imageDto.product_id);
       const file_name = await this.fileService.createFile(file);
       const image = await this.imageRepository.create({
-        product_id,
+        ...imageDto,
         image: file_name,
       });
       return { message: 'Image created successfully', image };
@@ -67,12 +68,12 @@ export class ImageService {
     }
   }
 
-  async updateById(id: string, file: any) {
+  async updateById(id: string, imageDto: ImageDto, file: any) {
     try {
       await this.findById(id);
       const file_name = await this.fileService.createFile(file);
       const image = await this.imageRepository.update(
-        { image: file_name },
+        { ...imageDto, image: file_name },
         { where: { id }, returning: true },
       );
       return { message: 'Image updated successfully', image };
@@ -81,13 +82,13 @@ export class ImageService {
     }
   }
 
-  async updateByProductId(product_id: number, file: any) {
+  async updateByProductId(imageDto: ImageDto, file: any) {
     try {
-      await this.productService.findById(product_id);
+      await this.productService.findById(imageDto.product_id);
       const file_name = await this.fileService.createFile(file);
       const image = await this.imageRepository.update(
-        { image: file_name },
-        { where: { product_id }, returning: true },
+        { ...imageDto, image: file_name },
+        { where: { product_id: imageDto.product_id }, returning: true },
       );
       return { message: 'Image updated successfully', image };
     } catch (error) {

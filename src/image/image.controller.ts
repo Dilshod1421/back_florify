@@ -7,11 +7,13 @@ import {
   Delete,
   UseInterceptors,
   UploadedFile,
+  Body,
 } from '@nestjs/common';
 import { ImageService } from './image.service';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageValidationPipe } from 'src/pipes/image-validation.pipe';
+import { ImageDto } from './dto/image.dto';
 
 @ApiTags('Image')
 @Controller('image')
@@ -31,13 +33,13 @@ export class ImageController {
       },
     },
   })
-  @Post('create/:productId')
+  @Post()
   @UseInterceptors(FileInterceptor('image'))
   async create(
-    @Param('productId') productId: number,
+    @Body() imageDto: ImageDto,
     @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
   ) {
-    return this.imageService.create(productId, image);
+    return this.imageService.create(imageDto, image);
   }
 
   @ApiOperation({ summary: 'Get all images' })
@@ -75,9 +77,10 @@ export class ImageController {
   @UseInterceptors(FileInterceptor('image'))
   async updateById(
     @Param('id') id: string,
+    @Body() imageDto: ImageDto,
     @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
   ) {
-    return this.imageService.updateById(id, image);
+    return this.imageService.updateById(id, imageDto, image);
   }
 
   @ApiOperation({ summary: 'Update image by product ID' })
@@ -93,13 +96,13 @@ export class ImageController {
       },
     },
   })
-  @Patch('productId/:id')
+  @Patch('productId')
   @UseInterceptors(FileInterceptor('image'))
   async updateByProductId(
-    @Param('productId') product_id: number,
+    @Body() imageDto: ImageDto,
     @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
   ) {
-    return this.imageService.updateByProductId(product_id, image);
+    return this.imageService.updateByProductId(imageDto, image);
   }
 
   @ApiOperation({ summary: 'Delete image by ID' })

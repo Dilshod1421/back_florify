@@ -11,6 +11,8 @@ import { Product } from '../../product/models/product.model';
 interface ImageAttrs {
   id: string;
   image: string;
+  name: string;
+  size: string;
   product_id: number;
 }
 
@@ -28,6 +30,16 @@ export class Image extends Model<Image, ImageAttrs> {
     allowNull: false,
   })
   image: string;
+
+  @Column({
+    type: DataType.STRING,
+  })
+  name: string;
+
+  @Column({
+    type: DataType.STRING,
+  })
+  size: string;
 
   @ForeignKey(() => Product)
   @Column({
