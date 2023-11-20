@@ -27,9 +27,9 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Get all products' })
-  @Get('/:id_page_limit')
-  findAll(@Param('id_page_limit') id_page_limit: string) {
-    return this.productService.findAll(id_page_limit);
+  @Get('/:page_limit')
+  findAll(@Param('page_limit') page_limit: string) {
+    return this.productService.findAll(page_limit);
   }
 
   @ApiOperation({ summary: 'Pagination products' })
@@ -48,8 +48,8 @@ export class ProductController {
 
   @ApiOperation({ summary: 'Get present products' })
   @Get('present')
-  present() {
-    return this.productService.presents();
+  present(page_limit: string) {
+    return this.productService.presents(page_limit);
   }
 
   @ApiOperation({ summary: 'Get product by ID' })

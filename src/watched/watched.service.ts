@@ -92,7 +92,7 @@ export class WatchedService {
 
   async findByClientId(id_page_limit: string) {
     try {
-      const client_id = Number(id_page_limit.split(':')[0]);
+      const client_id = id_page_limit.split(':')[0];
       const page = Number(id_page_limit.split(':')[1]);
       const limit = Number(id_page_limit.split(':')[2]);
       const offset = (page - 1) * limit;
