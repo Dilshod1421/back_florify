@@ -30,6 +30,12 @@ export class ImageController {
           type: 'string',
           format: 'binary',
         },
+        name: {
+          type: 'string',
+        },
+        size: {
+          type: 'string',
+        },
       },
     },
   })
@@ -69,6 +75,12 @@ export class ImageController {
         image: {
           type: 'string',
           format: 'binary',
+        },
+        name: {
+          type: 'string',
+        },
+        size: {
+          type: 'string',
         },
       },
     },
