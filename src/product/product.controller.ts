@@ -47,8 +47,8 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Get present products' })
-  @Get('present')
-  present(page_limit: string) {
+  @Get('present/:page_limit')
+  present(@Param('page_limit') page_limit: string) {
     return this.productService.presents(page_limit);
   }
 
