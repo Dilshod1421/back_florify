@@ -46,6 +46,13 @@ export class ProductController {
     return this.productService.getByCategoryId(id_page_limit);
   }
 
+  @ApiOperation({ summary: 'Get by salesman_id with pagination' })
+  // @UseGuards(AuthGuard)
+  @Get('salesmanId/:salesman_id_page_limit')
+  getBySalesmanId(@Param('salesman_id_page_limit') salesman_id_page_limit: string) {
+    return this.productService.getBySalesmanId(salesman_id_page_limit);
+  }
+
   @ApiOperation({ summary: 'Get present products' })
   @Get('present/:page_limit')
   present(@Param('page_limit') page_limit: string) {

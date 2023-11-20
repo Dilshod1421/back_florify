@@ -116,6 +116,39 @@ export class ProductService {
     }
   }
 
+  async getBySalesmanId(salesman_id_page_limit: string) {
+    try {
+      const salesman_id = salesman_id_page_limit.split(':')[0];
+      const page = Number(salesman_id_page_limit.split(':')[1]);
+      const limit = Number(salesman_id_page_limit.split(':')[2]);
+      const offset = (page - 1) * limit;
+      const products = await this.productRepository.findAll({
+        where: { salesman_id },
+        include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
+        offset,
+        limit,
+      });
+      const total_count = await this.productRepository.count({
+        where: { salesman_id },
+      });
+      const total_pages = Math.ceil(total_count / limit);
+      const response = {
+        status: 200,
+        data: {
+          records: products,
+          pagination: {
+            currentPage: page,
+            total_pages,
+            total_count,
+          },
+        },
+      };
+      return response;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
   async presents(page_limit: string) {
     try {
       const date = new Date().toISOString().slice(0, 10);
