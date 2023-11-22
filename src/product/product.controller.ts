@@ -61,7 +61,7 @@ export class ProductController {
 
   @ApiOperation({ summary: 'Get product by ID' })
   // @UseGuards(AuthGuard)
-  @Get('getById:id')
+  @Get('getById/:id')
   findOne(@Param('id') id: number) {
     return this.productService.findById(id);
   }
