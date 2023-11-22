@@ -128,4 +128,13 @@ export class ImageController {
   async removeByProductId(@Param('productId') product_id: number) {
     return this.imageService.removeByProductId(product_id);
   }
+
+  @ApiOperation({ summary: 'Delete image from static files by file name' })
+  @Delete('delete/:id/:file_name')
+  async deleteStaticFile(
+    @Param('id') id: string,
+    @Param('file_name') file_name: string,
+  ) {
+    return this.imageService.deleteStaticFile(id, file_name);
+  }
 }

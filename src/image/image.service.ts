@@ -4,6 +4,7 @@ import { Image } from './models/image.model';
 import { FilesService } from 'src/files/files.service';
 import { ProductService } from 'src/product/product.service';
 import { ImageDto } from './dto/image.dto';
+import { unlink } from 'fs';
 
 @Injectable()
 export class ImageService {
@@ -113,6 +114,25 @@ export class ImageService {
       return { message: 'Image removed successfully', image };
     } catch (error) {
       throw new BadRequestException(error.message);
+    }
+  }
+
+  async deleteStaticFile(id: string, fileName: string): Promise<void> {
+    try {
+      const image = await this.findById(id);
+      await image.destroy();
+      const filePath = `./dist/static/${fileName}`;
+      return new Promise<void>((resolve, reject) => {
+        unlink(filePath, (error: any) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve();
+          }
+        });
+      });
+    } catch (error) {
+      console.log(error);
     }
   }
 }
