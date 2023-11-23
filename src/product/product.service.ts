@@ -5,6 +5,7 @@ import { ProductDto } from './dto/product.dto';
 import { Like } from 'src/like/models/like.model';
 import { SoldProduct } from 'src/sold-product/models/sold-product.model';
 import { Image } from 'src/image/models/image.model';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class ProductService {
@@ -117,14 +118,23 @@ export class ProductService {
     }
   }
 
-  async getBySalesmanId(salesman_id_page_limit: string) {
+  async getBySalesmanId(salesman_id_page_limit: string, quantity: string) {
     try {
       const salesman_id = salesman_id_page_limit.split(':')[0];
       const page = Number(salesman_id_page_limit.split(':')[1]);
       const limit = Number(salesman_id_page_limit.split(':')[2]);
       const offset = (page - 1) * limit;
+      let where: any = { salesman_id };
+      if (quantity == 'All') {
+      } else if (quantity == 'on_sale') {
+        where.quantity = {
+          [Op.ne]: 0,
+        };
+      } else {
+        where.quantity = 0;
+      }
       const products = await this.productRepository.findAll({
-        where: { salesman_id },
+        where,
         include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
         offset,
         limit,

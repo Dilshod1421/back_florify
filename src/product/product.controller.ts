@@ -48,9 +48,15 @@ export class ProductController {
 
   @ApiOperation({ summary: 'Get by salesman_id with pagination' })
   // @UseGuards(AuthGuard)
-  @Get('salesmanId/:salesman_id_page_limit')
-  getBySalesmanId(@Param('salesman_id_page_limit') salesman_id_page_limit: string) {
-    return this.productService.getBySalesmanId(salesman_id_page_limit);
+  @Get('salesmanId/:salesman_id_page_limit/:quantity')
+  getBySalesmanId(
+    @Param('salesman_id_page_limit') salesman_id_page_limit: string,
+    @Param('quantity') quantity: string,
+  ) {
+    return this.productService.getBySalesmanId(
+      salesman_id_page_limit,
+      quantity,
+    );
   }
 
   @ApiOperation({ summary: 'Get present products' })
