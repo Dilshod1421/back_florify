@@ -311,7 +311,7 @@ export class SalesmanService {
           }
         }
       }
-      if (image) {
+      if (image || image != undefined || image == 'delete') {
         const file_name = await this.fileService.createFile(image);
         const updated_info = await this.salesmanRepository.update(
           { ...salesmanDto, image: file_name },
@@ -324,11 +324,16 @@ export class SalesmanService {
           message: "Ma'lumotlar tahrirlandi",
           salesman: updated_info[1][0],
         };
+      } else {
+        image = image == 'delete' ? '' : salesman.image;
       }
-      const updated_info = await this.salesmanRepository.update(salesmanDto, {
-        where: { id },
-        returning: true,
-      });
+      const updated_info = await this.salesmanRepository.update(
+        { ...salesmanDto, image: image },
+        {
+          where: { id },
+          returning: true,
+        },
+      );
       return {
         message: "Ma'lumotlar tahrirlandi",
         salesman: updated_info[1][0],

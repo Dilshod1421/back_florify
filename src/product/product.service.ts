@@ -5,7 +5,7 @@ import { ProductDto } from './dto/product.dto';
 import { Like } from 'src/like/models/like.model';
 import { SoldProduct } from 'src/sold-product/models/sold-product.model';
 import { Image } from 'src/image/models/image.model';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 
 @Injectable()
 export class ProductService {
@@ -133,14 +133,36 @@ export class ProductService {
       } else {
         where.quantity = 0;
       }
+
       const products = await this.productRepository.findAll({
         where,
-        include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
         offset,
         limit,
+        attributes: {
+          include: [
+            [
+              Sequelize.literal(
+                '(SELECT COUNT(*) FROM "like" WHERE "like"."product_id" = "Product"."id")',
+              ),
+              'likeCount',
+            ],
+            [
+              Sequelize.literal(
+                '(SELECT COUNT(*) FROM "sold-product" WHERE "sold-product"."product_id" = "Product"."id")',
+              ),
+              'soldProductCount',
+            ],
+            [
+              Sequelize.literal(
+                '(SELECT COUNT(*) FROM "watched" WHERE "watched"."product_id" = "Product"."id")',
+              ),
+              'watchedCount',
+            ],
+          ],
+        },
       });
       const total_count = await this.productRepository.count({
-        where: { salesman_id },
+        where,
       });
       const total_pages = Math.ceil(total_count / limit);
       const response = {
