@@ -133,11 +133,11 @@ export class ProductService {
       } else {
         where.quantity = 0;
       }
-
       const products = await this.productRepository.findAll({
         where,
         offset,
         limit,
+        include: [{ model: Image }],
         attributes: {
           include: [
             [
