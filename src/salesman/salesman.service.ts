@@ -310,7 +310,7 @@ export class SalesmanService {
           }
         }
       }
-      if (image || image != undefined || image != 'delete') {
+      if (image != 'delete' || image || image != undefined) {
         const file_name = await this.fileService.createFile(image);
         const updated_info = await this.salesmanRepository.update(
           { ...salesmanDto, image: file_name },
