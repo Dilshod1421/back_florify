@@ -310,22 +310,23 @@ export class SalesmanService {
           }
         }
       }
-      if (image != 'delete' || image || image != undefined) {
-        const file_name = await this.fileService.createFile(image);
-        const updated_info = await this.salesmanRepository.update(
-          { ...salesmanDto, image: file_name },
-          {
-            where: { id },
-            returning: true,
-          },
-        );
-        return {
-          message: "Ma'lumotlar tahrirlandi",
-          salesman: updated_info[1][0],
-        };
-      } else {
-        image = image == 'delete' ? '' : salesman.image;
+      if (image != 'delete') {
+        if (image || image != undefined) {
+          const file_name = await this.fileService.createFile(image);
+          const updated_info = await this.salesmanRepository.update(
+            { ...salesmanDto, image: file_name },
+            {
+              where: { id },
+              returning: true,
+            },
+          );
+          return {
+            message: "Ma'lumotlar tahrirlandi",
+            salesman: updated_info[1][0],
+          };
+        }
       }
+      image = image == 'delete' ? '' : salesman.image;
       const updated_info = await this.salesmanRepository.update(
         { ...salesmanDto, image: image },
         {
