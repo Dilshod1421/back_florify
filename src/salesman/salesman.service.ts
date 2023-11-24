@@ -277,6 +277,7 @@ export class SalesmanService {
   }
 
   async update(id: string, salesmanDto: SalesmanDto, image: any) {
+    const deleteImage: any = salesmanDto;
     try {
       const { phone, username, telegram } = salesmanDto;
       const salesman = await this.findById(id);
@@ -326,7 +327,7 @@ export class SalesmanService {
           };
         }
       }
-      image = image == 'delete' ? '' : salesman.image;
+      image = deleteImage.image == 'delete' ? '' : salesman.image;
       const updated_info = await this.salesmanRepository.update(
         { ...salesmanDto, image: image },
         {
