@@ -1,4 +1,4 @@
-import {
+dimport {
   BadRequestException,
   Injectable,
   UnauthorizedException,
@@ -297,7 +297,7 @@ export class SalesmanService {
         });
         if (exist_username) {
           if (exist_username.id != salesman.id) {
-            throw new BadRequestException('Bunday telefon raqam band!');
+            throw new BadRequestException('Bunday username band!');
           }
         }
       }
@@ -307,7 +307,7 @@ export class SalesmanService {
         });
         if (exist_telegram) {
           if (exist_telegram.id != salesman.id) {
-            throw new BadRequestException('Bunday telefon raqam band!');
+            throw new BadRequestException('Bunday telegram username band!');
           }
         }
       }
