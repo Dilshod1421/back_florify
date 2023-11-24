@@ -20,4 +20,6 @@ export class SalesmanDto {
 
   address?: string;
   telegram?: string;
+  store_phone?: string;
+  store_address?: string;
 }

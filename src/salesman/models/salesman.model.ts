@@ -10,6 +10,8 @@ interface SalesmanAttributes {
   hashed_password: string;
   image: string;
   address: string;
+  store_phone: string;
+  store_address: string;
   hashed_refresh_token: string;
 }
 
@@ -53,6 +55,16 @@ export class Salesman extends Model<Salesman, SalesmanAttributes> {
     type: DataType.STRING,
   })
   image: string;
+
+  @Column({
+    type: DataType.STRING,
+  })
+  store_phone: string;
+
+  @Column({
+    type: DataType.STRING,
+  })
+  store_address: string;
 
   @Column({
     type: DataType.STRING,
