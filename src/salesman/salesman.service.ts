@@ -216,7 +216,6 @@ export class SalesmanService {
     try {
       const salesman = await this.salesmanRepository.findOne({
         where: { id },
-        include: { all: true },
       });
       if (!salesman) {
         throw new BadRequestException('Sotuvchi topilmadi!');
