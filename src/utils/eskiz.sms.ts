@@ -15,7 +15,7 @@ export async function eskizSMS(phone: string, message: string) {
       url: 'notify.eskiz.uz/api/message/sms/send',
       headers: {
         ...data.getHeaders(),
-        Authorization: 'Bearer '
+        Authorization: 'Bearer ',
       },
       data,
     };

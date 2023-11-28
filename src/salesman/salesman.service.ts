@@ -13,12 +13,12 @@ import { Response } from 'express';
 import { NewPasswordDto } from 'src/admin/dto/new-password.dto';
 import { ForgotPasswordDto } from 'src/admin/dto/forgot-password.dto';
 import { SalesmanDto } from './dto/salesman.dto';
-import { PhoneDto } from 'src/admin/dto/phone.dto';
 import { generate } from 'otp-generator';
-import { sendOTP } from 'src/utils/sendOtp';
-import { Otp } from 'src/admin/models/otp.model';
-import { VerifyOtpDto } from 'src/admin/dto/verifyOtp.dto';
 import { FilesService } from 'src/files/files.service';
+import { Otp } from 'src/otp/models/otp.model';
+import { PhoneDto } from 'src/otp/dto/phone.dto';
+import { sendSMS } from 'src/utils/sendSMS';
+import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
 
 @Injectable()
 export class SalesmanService {
@@ -37,7 +37,7 @@ export class SalesmanService {
         lowerCaseAlphabets: false,
         specialChars: false,
       });
-      await sendOTP(phoneDto.phone, code);
+      await sendSMS(phoneDto.phone, code);
       const expire_time = Date.now() + 120000;
       const exist = await this.otpRepository.findOne({
         where: { phone: phoneDto.phone },
@@ -330,6 +330,25 @@ export class SalesmanService {
       image = deleteImage.image == 'delete' ? '' : salesman.image;
       const updated_info = await this.salesmanRepository.update(
         { ...salesmanDto, image: image },
+        {
+          where: { id },
+          returning: true,
+        },
+      );
+      return {
+        message: "Ma'lumotlar tahrirlandi",
+        salesman: updated_info[1][0],
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async updateStore(id: string, store_address: string, store_phone: string) {
+    try {
+      await this.findById(id);
+      const updated_info = await this.salesmanRepository.update(
+        { store_address, store_phone },
         {
           where: { id },
           returning: true,

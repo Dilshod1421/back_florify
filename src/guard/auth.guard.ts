@@ -46,7 +46,6 @@ export class AuthGuard implements CanActivate {
             secret: process.env.ACCESS_TOKEN_KEY,
             expiresIn: process.env.ACCESS_TOKEN_TIME,
           });
-          
         }
       }
     } catch (error) {

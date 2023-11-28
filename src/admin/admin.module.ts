@@ -3,10 +3,10 @@ import { AdminService } from './admin.service';
 import { AdminController } from './admin.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Admin } from './models/admin.models';
-import { Otp } from './models/otp.model';
+import { OtpModule } from 'src/otp/otp.module';
 
 @Module({
-  imports: [SequelizeModule.forFeature([Admin, Otp])],
+  imports: [SequelizeModule.forFeature([Admin]), OtpModule],
   controllers: [AdminController],
   providers: [AdminService],
 })

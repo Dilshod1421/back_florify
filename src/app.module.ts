@@ -10,14 +10,14 @@ import { ImageModule } from './image/image.module';
 import { ClientModule } from './client/client.module';
 import { SoldProductModule } from './sold-product/sold-product.module';
 import { JwtModule } from '@nestjs/jwt';
-import { MulterModule } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
 import { FilesModule } from './files/files.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve } from 'path';
 import { LikeModule } from './like/like.module';
 import { WatchedModule } from './watched/watched.module';
 import { CartModule } from './cart/cart.module';
+import { OtpModule } from './otp/otp.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -33,18 +33,7 @@ import { CartModule } from './cart/cart.module';
       password: String(process.env.PG_PASS),
       database: process.env.PG_DB,
       autoLoadModels: true,
-      models: [],
       logging: true,
-    }),
-    MulterModule.register({
-      storage: diskStorage({
-        destination: '/uploads',
-        filename: (req, file, cb) => {
-          const unique_suffix =
-            Date.now() + '-' + Math.round(Math.random() * 1e9);
-          cb(null, file.fieldname + '-' + unique_suffix);
-        },
-      }),
     }),
     ServeStaticModule.forRoot({
       rootPath: resolve(__dirname, 'static'),
@@ -62,6 +51,8 @@ import { CartModule } from './cart/cart.module';
     LikeModule,
     WatchedModule,
     CartModule,
+    OtpModule,
+    MailModule,
   ],
 })
 export class AppModule {}

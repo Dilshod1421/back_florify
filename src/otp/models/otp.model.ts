@@ -1,8 +1,8 @@
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
 
 interface OtpAttributes {
-  code: string;
   phone: string;
+  code: string;
   expire_time: number;
 }
 
@@ -18,15 +18,15 @@ export class Otp extends Model<Otp, OtpAttributes> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
-  code: string;
+  phone: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
-    unique: true,
   })
-  phone: string;
+  code: string;
 
   @Column({
     type: DataType.BIGINT,

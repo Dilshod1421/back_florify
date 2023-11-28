@@ -8,42 +8,30 @@ import {
   Delete,
   UseGuards,
   Res,
-  Query,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
-import { CreateAdminDto } from './dto/create-admin.dto';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginAdminDto } from './dto/login-admin.dto';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { Response } from 'express';
-import { VerifyOtpDto } from './dto/verifyOtp.dto';
 import { CookieGetter } from 'src/decorators/cookieGetter.decorator';
-import { PhoneDto } from './dto/phone.dto';
 import { NewPasswordDto } from './dto/new-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { RegisterAdminDto } from './dto/register-admin.dto';
 
 @ApiTags('Admin')
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  @ApiOperation({ summary: 'Send OTP to phone number for register' })
-  @Post('sendOtp')
-  sendOtp(@Body() phoneDto: PhoneDto) {
-    return this.adminService.sendSMS(phoneDto);
-  }
-
-  @ApiOperation({ summary: 'Verify OTP' })
-  @Post('verifyOtp')
-  verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
-    return this.adminService.verifyOtp(verifyOtpDto);
-  }
-
   @ApiOperation({ summary: 'Registration a new admin' })
   @Post('register')
-  register(@Body() createAdminDto: CreateAdminDto) {
-    return this.adminService.register(createAdminDto);
+  register(
+    @Body() registerAdminDto: RegisterAdminDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.adminService.register(registerAdminDto, res);
   }
 
   @ApiOperation({ summary: 'Log in admin' })
@@ -68,32 +56,32 @@ export class AdminController {
   @ApiOperation({ summary: 'Get all admins' })
   @UseGuards(AuthGuard)
   @Get()
-  findAll() {
-    return this.adminService.findAll();
+  getAll() {
+    return this.adminService.getAll();
   }
 
-  @ApiOperation({ summary: 'Pagination admins' })
+  @ApiOperation({ summary: 'Get admins with pagination' })
   @UseGuards(AuthGuard)
-  @Get('page')
-  paginate(@Query('page') page: number) {
-    return this.adminService.paginate(page);
+  @Get('pagination/:page_limit')
+  pagination(@Param('page_limit') page_limit: string) {
+    return this.adminService.pagination(page_limit);
   }
 
   @ApiOperation({ summary: 'Get admin by ID' })
   @UseGuards(AuthGuard)
   @Get(':id')
-  findById(@Param('id') id: string) {
-    return this.adminService.findById(id);
+  getById(@Param('id') id: string) {
+    return this.adminService.getById(id);
   }
 
-  @ApiOperation({ summary: 'New password of the admin' })
+  @ApiOperation({ summary: 'New password of admin' })
   @UseGuards(AuthGuard)
   @Patch('newPassword/:id')
   newPassword(@Param('id') id: string, @Body() newPasswordDto: NewPasswordDto) {
     return this.adminService.newPassword(id, newPasswordDto);
   }
 
-  @ApiOperation({ summary: 'Forgot password' })
+  @ApiOperation({ summary: 'Forgot password for admin' })
   @UseGuards(AuthGuard)
   @Patch('forgotPassword/:id')
   forgotPassword(
@@ -105,7 +93,7 @@ export class AdminController {
 
   @ApiOperation({ summary: 'Update admin by ID' })
   @UseGuards(AuthGuard)
-  @Patch(':id')
+  @Patch('profile/:id')
   update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
     return this.adminService.update(id, updateAdminDto);
   }

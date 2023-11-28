@@ -1,6 +1,6 @@
-import { BadRequestException } from "@nestjs/common";
+import { BadRequestException } from '@nestjs/common';
 
-export async function sendOTP(phone: string, message: string) {
+export async function sendSMS(phone: string, message: string) {
   try {
     const axios = require('axios');
     const FormData = require('form-data');

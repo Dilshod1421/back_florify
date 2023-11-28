@@ -7,13 +7,13 @@ import * as cookieParser from 'cookie-parser';
 async function bootstrap() {
   try {
     const app = await NestFactory.create(AppModule);
-    const PORT = process.env.PORT || 3000;
+    const PORT = process.env.PORT || 3001;
     app.enableCors();
     app.setGlobalPrefix('api');
     app.use(cookieParser());
     app.useGlobalPipes(new ValidationPipe());
     const config = new DocumentBuilder()
-      .setTitle('NestJS')
+      .setTitle('florify')
       .setDescription('REST API')
       .setVersion('1.0.0')
       .addTag('NodeJS, NestJS, Postgres, sequelize')
@@ -32,7 +32,7 @@ async function bootstrap() {
       next();
     });
     await app.listen(PORT, () => {
-      console.log('Server listening on port', +PORT);
+      console.log('Server listening on port', PORT);
     });
   } catch (error) {
     throw new BadRequestException(error.message);

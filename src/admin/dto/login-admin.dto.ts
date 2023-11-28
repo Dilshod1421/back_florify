@@ -3,8 +3,8 @@ import { IsNotEmpty, IsString } from 'class-validator';
 
 export class LoginAdminDto {
   @ApiProperty({
-    example: '+998901234567, john@gmail.com, admin',
-    description: 'The phone number(email or username) of the admin',
+    example: 'otagek@gmail.com (+998901234567, otabek_admin)',
+    description: 'Login for admin (email or phone number or username)',
   })
   @IsNotEmpty()
   @IsString()
@@ -12,7 +12,7 @@ export class LoginAdminDto {
 
   @ApiProperty({
     example: 'Uzbek1&t0n',
-    description: 'The password of the admin',
+    description: 'The strong password of the admin',
   })
   @IsNotEmpty()
   @IsString()

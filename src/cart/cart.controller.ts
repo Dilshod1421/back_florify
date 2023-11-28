@@ -11,44 +11,42 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CartService } from './cart.service';
 import { CartDto } from './dto/cart.dto';
 
-@ApiTags('cart')
+@ApiTags('Cart')
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
 
-  @ApiOperation({ summary: 'add like to product' })
+  @ApiOperation({ summary: 'Add product to cart of client' })
   @Post()
   create(@Body() cartDto: CartDto) {
     return this.cartService.create(cartDto);
   }
 
-  @ApiOperation({ summary: 'get all likes' })
+  @ApiOperation({ summary: 'Get all products from cart' })
   @Get()
   findAll() {
     return this.cartService.findAll();
   }
 
-  @ApiOperation({ summary: 'get one by client and product ID' })
-  @Get('findOne')
-  findOne(@Body() cartDto: CartDto) {
-    return this.cartService.findOne(cartDto);
+  @ApiOperation({
+    summary: 'Get product by cliend ID and product ID',
+    description:
+      '/clientID:productID  ->  11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000:1',
+  })
+  @Get(':ids')
+  findOne(@Param() ids: string) {
+    return this.cartService.findOne(ids);
   }
 
-  @ApiOperation({ summary: 'get one by client ID' })
-  @Get('clientId/:clientId')
-  findByClientId(@Param('clientId') clientId: string) {
-    return this.cartService.findByClientId(clientId);
+  @ApiOperation({ summary: "Get products from client's cart" })
+  @Get('clientID/:clientID')
+  findByClientId(@Param('clientID') clientID: string) {
+    return this.cartService.findByClientId(clientID);
   }
 
-  @ApiOperation({ summary: 'get one by product ID' })
-  @Get('productId/:productId')
-  findByProductId(@Param('productId') productId: number) {
-    return this.cartService.findByProductId(productId);
-  }
-
-  @ApiOperation({ summary: 'delete like from product' })
+  @ApiOperation({ summary: "Delete product from client's cart" })
   @Delete()
-  remove(@Body() cartDto: CartDto) {
-    return this.cartService.remove(cartDto);
+  remove(@Param(':ids') ids: string) {
+    return this.cartService.remove(ids);
   }
 }

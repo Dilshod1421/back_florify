@@ -18,8 +18,15 @@ export class SalesmanDto {
   @IsPhoneNumber()
   phone: string;
 
+  @ApiProperty({
+    example: "Parkentskiy ko'chasi, 14",
+    description: "Address of salesman",
+  })
   address?: string;
+
+  @ApiProperty({
+    example: "user123",
+    description: "Telegram username of salesman",
+  })
   telegram?: string;
-  store_phone?: string;
-  store_address?: string;
 }

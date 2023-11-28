@@ -15,8 +15,6 @@ import {
 import { SalesmanService } from './salesman.service';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LoginSalesmanDto } from './dto/login-salesman.dto';
-import { PhoneDto } from 'src/admin/dto/phone.dto';
-import { VerifyOtpDto } from 'src/admin/dto/verifyOtp.dto';
 import { Response } from 'express';
 import { CookieGetter } from 'src/decorators/cookieGetter.decorator';
 import { SalesmanDto } from './dto/salesman.dto';
@@ -25,6 +23,8 @@ import { ForgotPasswordDto } from 'src/admin/dto/forgot-password.dto';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageValidationPipe } from 'src/pipes/image-validation.pipe';
+import { PhoneDto } from 'src/otp/dto/phone.dto';
+import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
 
 @ApiTags('Salesman')
 @Controller('salesman')
@@ -143,6 +143,17 @@ export class SalesmanController {
     @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
   ) {
     return this.salesmanService.update(id, salesmanDto, image);
+  }
+
+  @ApiOperation({ summary: 'Update salesman store info by ID' })
+  @UseGuards(AuthGuard)
+  @Patch('profile_store/:id')
+  updateStore(
+    @Param('id') id: string,
+    @Body() store_address: string,
+    @Body() store_phone: string,
+  ) {
+    return this.salesmanService.updateStore(id, store_address, store_phone);
   }
 
   @ApiOperation({ summary: 'Delete Salesman by ID' })

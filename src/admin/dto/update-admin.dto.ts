@@ -1,37 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsPhoneNumber,
-  IsString,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
 
 export class UpdateAdminDto {
   @ApiProperty({
-    example: 'Cambridge',
-    description: 'The username of the Admin',
+    example: 'alisherov@gmail.com',
+    description: 'The new email address of the admin',
   })
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(6)
-  @MaxLength(20)
-  username: string;
+  email?: string;
 
   @ApiProperty({
-    example: 'john@gmail.com',
-    description: 'The email of the Admin',
+    example: 'alisherov_admin',
+    description: 'The new username of the admin',
   })
-  @IsNotEmpty()
-  @IsEmail()
-  email: string;
+  username?: string;
 
   @ApiProperty({
-    example: '+998991234567',
-    description: 'The phone number of the Admin',
+    example: '+998990010101',
+    description: 'The new phone number of the admin',
   })
-  @IsNotEmpty()
-  @IsPhoneNumber()
-  phone: string;
+  phone?: string;
 }
