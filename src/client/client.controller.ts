@@ -13,8 +13,8 @@ import { ClientService } from './client.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { ClientDto } from './dto/client.dto';
-import { VerifyOtpDto } from 'src/admin/dto/verifyOtp.dto';
-import { PhoneDto } from 'src/admin/dto/phone.dto';
+import { PhoneDto } from 'src/otp/dto/phone.dto';
+import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
 
 @ApiTags('Client')
 @Controller('client')

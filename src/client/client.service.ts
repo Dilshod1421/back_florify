@@ -2,11 +2,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Client } from './models/client.model';
 import { ClientDto } from './dto/client.dto';
-import { PhoneDto } from 'src/admin/dto/phone.dto';
-import { Otp } from 'src/admin/models/otp.model';
 import { generate } from 'otp-generator';
-import { sendOTP } from 'src/utils/sendOtp';
-import { VerifyOtpDto } from 'src/admin/dto/verifyOtp.dto';
+import { Otp } from 'src/otp/models/otp.model';
+import { PhoneDto } from 'src/otp/dto/phone.dto';
+import { sendSMS } from 'src/utils/sendSMS';
+import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
 
 @Injectable()
 export class ClientService {
@@ -24,7 +24,7 @@ export class ClientService {
         lowerCaseAlphabets: false,
         specialChars: false,
       });
-      await sendOTP(phoneDto.phone, code);
+      await sendSMS(phoneDto.phone, code);
       const expire_time = Date.now() + 120000;
       const exist = await this.otpRepository.findOne({
         where: { phone: phoneDto.phone },
