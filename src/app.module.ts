@@ -17,7 +17,7 @@ import { LikeModule } from './like/like.module';
 import { WatchedModule } from './watched/watched.module';
 import { CartModule } from './cart/cart.module';
 import { OtpModule } from './otp/otp.module';
-// import { MailModule } from './mail/mail.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -52,7 +52,7 @@ import { OtpModule } from './otp/otp.module';
     WatchedModule,
     CartModule,
     OtpModule,
-    // MailModule,
+    MailModule,
   ],
 })
 export class AppModule {}
