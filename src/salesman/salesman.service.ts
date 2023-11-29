@@ -19,6 +19,7 @@ import { Otp } from 'src/otp/models/otp.model';
 import { PhoneDto } from 'src/otp/dto/phone.dto';
 import { sendSMS } from 'src/utils/sendSMS';
 import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
+import { StoreDto } from './dto/store.dto';
 
 @Injectable()
 export class SalesmanService {
@@ -344,16 +345,13 @@ export class SalesmanService {
     }
   }
 
-  async updateStore(id: string, store_address: string, store_phone: string) {
+  async updateStore(id: string, storeDto: StoreDto) {
     try {
       await this.findById(id);
-      const updated_info = await this.salesmanRepository.update(
-        { store_address, store_phone },
-        {
-          where: { id },
-          returning: true,
-        },
-      );
+      const updated_info = await this.salesmanRepository.update(storeDto, {
+        where: { id },
+        returning: true,
+      });
       return {
         message: "Ma'lumotlar tahrirlandi",
         salesman: updated_info[1][0],

@@ -25,6 +25,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageValidationPipe } from 'src/pipes/image-validation.pipe';
 import { PhoneDto } from 'src/otp/dto/phone.dto';
 import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
+import { StoreDto } from './dto/store.dto';
 
 @ApiTags('Salesman')
 @Controller('salesman')
@@ -148,12 +149,8 @@ export class SalesmanController {
   @ApiOperation({ summary: 'Update salesman store info by ID' })
   @UseGuards(AuthGuard)
   @Patch('profile_store/:id')
-  updateStore(
-    @Param('id') id: string,
-    @Body() store_address: string,
-    @Body() store_phone: string,
-  ) {
-    return this.salesmanService.updateStore(id, store_address, store_phone);
+  updateStore(@Param('id') id: string, @Body() storeDto: StoreDto) {
+    return this.salesmanService.updateStore(id, storeDto);
   }
 
   @ApiOperation({ summary: 'Delete Salesman by ID' })

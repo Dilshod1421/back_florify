@@ -18,7 +18,7 @@ import { MailService } from './mail.service';
           },
         },
         defaults: {
-          from: `"Main Stream" ${config.get('MAILDEV_USER')}`,
+          from: `"florify" ${config.get('MAILDEV_USER')}`,
         },
         template: {
           dir: join(__dirname, 'templates'),
