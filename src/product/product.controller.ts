@@ -7,19 +7,19 @@ import {
   Param,
   Delete,
   UseGuards,
-  Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { ProductDto } from './dto/product.dto';
+import { UpdateProducDto } from './dto/update-product.dto';
 
 @ApiTags('Product')
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @ApiOperation({ summary: 'Create new product' })
+  @ApiOperation({ summary: 'Create a new product' })
   // @UseGuards(AuthGuard)
   @Post()
   create(@Body() productDto: ProductDto) {
@@ -27,62 +27,69 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Get all products' })
-  @Get('/:page_limit')
-  findAll(@Param('page_limit') page_limit: string) {
-    return this.productService.findAll(page_limit);
+  @Get()
+  getAll() {
+    return this.productService.getAll();
   }
 
-  @ApiOperation({ summary: 'Pagination products' })
-  // @UseGuards(AuthGuard)
-  @Get('page')
-  paginate(@Query('page') page: number) {
-    return this.productService.paginate(page);
+  @ApiOperation({ summary: 'Get product by ID' })
+  @Get('id/:id')
+  getById(@Param('id') id: number) {
+    return this.productService.getById(id);
   }
 
-  @ApiOperation({ summary: 'Get by category id with pagination' })
+  @ApiOperation({ summary: 'Get products by category ID with pagination' })
   // @UseGuards(AuthGuard)
-  @Get('categoryId/:id_page_limit')
-  getByCategoryId(@Param('id_page_limit') id_page_limit: string) {
-    return this.productService.getByCategoryId(id_page_limit);
+  @Get('categoryId/:category_id/:page/:limit')
+  getByCategoryId(
+    @Param('category_id') category_id: string,
+    @Param('page') page: number,
+    @Param('limit') limit: number,
+  ) {
+    return this.productService.getByCategoryId(category_id, page, limit);
   }
 
-  @ApiOperation({ summary: 'Get by salesman_id with pagination' })
+  @ApiOperation({ summary: 'Get products by salesman ID with pagination' })
   // @UseGuards(AuthGuard)
-  @Get('salesmanId/:salesman_id_page_limit/:quantity')
+  @Get('salesmanId/:salesman_id/:page/:limit/:quantity')
   getBySalesmanId(
-    @Param('salesman_id_page_limit') salesman_id_page_limit: string,
+    @Param('salesman_id') salesman_id: string,
+    @Param('page') page: number,
+    @Param('limit') limit: number,
     @Param('quantity') quantity: string,
   ) {
     return this.productService.getBySalesmanId(
-      salesman_id_page_limit,
+      salesman_id,
+      page,
+      limit,
       quantity,
     );
   }
 
-  @ApiOperation({ summary: 'Get present products' })
-  @Get('present/:page_limit')
-  present(@Param('page_limit') page_limit: string) {
-    return this.productService.presents(page_limit);
+  @ApiOperation({ summary: 'Get products with pagination' })
+  // @UseGuards(AuthGuard)
+  @Get('pagination/:page/:limit')
+  pagination(@Param('page') page: number, @Param('limit') limit: number) {
+    return this.productService.pagination(page, limit);
   }
 
-  @ApiOperation({ summary: 'Get product by ID' })
-  // @UseGuards(AuthGuard)
-  @Get('getById/:id')
-  findOne(@Param('id') id: number) {
-    return this.productService.findById(id);
+  @ApiOperation({ summary: 'Get present products with pagination' })
+  @Get('presents/:page/:limit')
+  presents(@Param('page') page: number, @Param('limit') limit: number) {
+    return this.productService.presents(page, limit);
   }
 
   @ApiOperation({ summary: 'Update product by ID' })
   // @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: number, @Body() productDto: ProductDto) {
-    return this.productService.update(id, productDto);
+  update(@Param('id') id: number, @Body() updateProductDto: UpdateProducDto) {
+    return this.productService.update(id, updateProductDto);
   }
 
   @ApiOperation({ summary: 'Delete product by ID' })
   // @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.productService.remove(id);
+  delete(@Param('id') id: number) {
+    return this.productService.delete(id);
   }
 }

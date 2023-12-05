@@ -20,17 +20,6 @@ async function bootstrap() {
       .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('/', app, document);
-    app.use((req: any, res: any, next: any) => {
-      const start_time = Date.now();
-      res.on('finish', () => {
-        const end_time = Date.now();
-        const response_time = end_time - start_time;
-        console.log(
-          `${req.method} ${req.originalUrl} ${res.statusCode} ${response_time}ms`,
-        );
-      });
-      next();
-    });
     await app.listen(PORT, () => {
       console.log('Server listening on port', PORT);
     });

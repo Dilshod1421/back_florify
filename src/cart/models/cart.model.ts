@@ -21,23 +21,23 @@ export class Cart extends Model<Cart, CartAttributes> {
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
+    allowNull: false,
   })
   id: string;
 
   @ForeignKey(() => Client)
   @Column({
     type: DataType.UUID,
+    allowNull: false,
   })
   client_id: string;
 
   @ForeignKey(() => Product)
   @Column({
     type: DataType.INTEGER,
+    allowNull: false,
   })
   product_id: number;
-
-  @BelongsTo(() => Client)
-  client: Client;
 
   @BelongsTo(() => Product)
   product: Product;

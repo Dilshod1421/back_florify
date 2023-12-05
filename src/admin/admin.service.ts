@@ -1,4 +1,10 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdateAdminDto } from './dto/update-admin.dto';
 import { Admin } from './models/admin.models';
 import { InjectModel } from '@nestjs/sequelize';
@@ -11,6 +17,7 @@ import { NewPasswordDto } from './dto/new-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { OtpService } from 'src/otp/otp.service';
 import { RegisterAdminDto } from './dto/register-admin.dto';
+import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
 
 @Injectable()
 export class AdminService {
@@ -25,12 +32,7 @@ export class AdminService {
     res: Response,
   ): Promise<object> {
     try {
-      if (process.env.ADMIN_SECRET_KEY != registerAdminDto.secret_key) {
-        return {
-          statusCode: HttpStatus.FORBIDDEN,
-          message: "Maxsus kalit so'z noto'g'ri!",
-        };
-      }
+      await this.otpService.checkPhoneNumber(registerAdminDto.phone);
       const hashed_password = await hash(registerAdminDto.password, 7);
       const admin = await this.adminRepository.create({
         ...registerAdminDto,
@@ -44,37 +46,50 @@ export class AdminService {
       return {
         statusCode: HttpStatus.CREATED,
         message: "Admin ro'yxatdan o'tdi",
+        data: {
+          admin,
+        },
         token: access_token,
-        admin,
       };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async login(loginAdminDto: LoginAdminDto, res: Response): Promise<object> {
+  async login(loginAdminDto: LoginAdminDto): Promise<object> {
     try {
-      const { login, password } = loginAdminDto;
-      let admin: Admin;
-      admin = await this.getByEmail(login);
+      const { phone, password } = loginAdminDto;
+      const admin = await this.adminRepository.findOne({ where: { phone } });
       if (!admin) {
-        admin = await this.getByPhone(login);
-        if (!admin) {
-          admin = await this.getByUsername(login);
-          if (!admin) {
-            return {
-              statusCode: HttpStatus.NOT_FOUND,
-              message: 'Login yoki parol xato!',
-            };
-          }
-        }
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          'Telefon raqam yoki parol xato!',
+        );
       }
       const is_match_pass = await compare(password, admin.hashed_password);
       if (!is_match_pass) {
-        return {
-          statusCode: HttpStatus.FORBIDDEN,
-          message: 'Login yoki parol xato!',
-        };
+        throw new ForbiddenException(
+          HttpStatus.FORBIDDEN,
+          'Login yoki parol xato!',
+        );
+      }
+      return this.otpService.sendOTP({ phone });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async verifyLogin(
+    verifyOtpDto: VerifyOtpDto,
+    res: Response,
+  ): Promise<object> {
+    try {
+      await this.otpService.verifyOtp(verifyOtpDto);
+      const admin = await this.adminRepository.findOne({
+        where: { phone: verifyOtpDto.phone },
+      });
+      if (!admin) {
+        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Admin topilmadi!');
       }
       const { access_token, refresh_token } = await generateToken(
         { id: admin.id },
@@ -84,8 +99,10 @@ export class AdminService {
       return {
         statusCode: HttpStatus.OK,
         mesage: 'Admin tizimga kirdi',
-        access_token,
-        admin,
+        data: {
+          admin,
+        },
+        token: access_token,
       };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -97,40 +114,13 @@ export class AdminService {
       const data = await this.jwtService.verify(refresh_token, {
         secret: process.env.REFRESH_TOKEN_KEY,
       });
-      await this.getById(data.id);
+      const admin = await this.getById(data.id);
       res.clearCookie('refresh_token');
       return {
         statusCode: HttpStatus.OK,
         mesage: 'Admin tizimdan chiqdi',
-      };
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async getAll(): Promise<Admin[]> {
-    try {
-      const admins = await this.adminRepository.findAll();
-      return admins;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async pagination(page_limit: string): Promise<object> {
-    try {
-      const page = Number(page_limit.split('_')[0]);
-      const limit = Number(page_limit.split('_')[1]);
-      const offset = (page - 1) * limit;
-      const admins = await this.adminRepository.findAll({ offset, limit });
-      const total_count = await this.adminRepository.count();
-      const total_pages = Math.ceil(total_count / limit);
-      return {
-        admins,
-        pagination: {
-          currentPage: page,
-          total_pages,
-          total_count,
+        data: {
+          admin,
         },
       };
     } catch (error) {
@@ -138,40 +128,61 @@ export class AdminService {
     }
   }
 
-  async getById(id: string): Promise<Admin> {
+  async getAll(): Promise<object> {
     try {
-      const admin = await this.adminRepository.findByPk(id);
-      if (!admin) {
-        throw new BadRequestException(HttpStatus.NOT_FOUND, 'Admin topilmadi!');
+      const admins = await this.adminRepository.findAll();
+      if (!admins) {
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          "Adminlar ro'yxati bo'sh!",
+        );
       }
-      return admin;
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          admins,
+        },
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async getByEmail(email: string): Promise<Admin> {
+  async getById(id: string): Promise<object> {
     try {
-      const admin = await this.adminRepository.findOne({ where: { email } });
-      return admin;
+      const admin = await this.adminRepository.findByPk(id);
+      if (!admin) {
+        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Admin topilmadi!');
+      }
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          admin,
+        },
+      };
     } catch (error) {
-      throw new BadRequestException(error.mesage);
+      throw new BadRequestException(error.message);
     }
   }
 
-  async getByPhone(phone: string): Promise<Admin> {
+  async pagination(page: number, limit: number): Promise<object> {
     try {
-      const admin = await this.adminRepository.findOne({ where: { phone } });
-      return admin;
-    } catch (error) {
-      throw new BadRequestException(error.mesage);
-    }
-  }
-
-  async getByUsername(username: string): Promise<Admin> {
-    try {
-      const admin = await this.adminRepository.findOne({ where: { username } });
-      return admin;
+      const offset = (page - 1) * limit;
+      const admins = await this.adminRepository.findAll({ offset, limit });
+      const total_count = await this.adminRepository.count();
+      const total_pages = Math.ceil(total_count / limit);
+      const response = {
+        statusCode: HttpStatus.OK,
+        data: {
+          records: admins,
+          pagination: {
+            currentPage: page,
+            total_pages,
+            total_count,
+          },
+        },
+      };
+      return response;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -184,19 +195,22 @@ export class AdminService {
     try {
       const { old_password, new_password, confirm_new_password } =
         newPasswordDto;
-      const admin = await this.getById(id);
+      const admin = await this.adminRepository.findByPk(id);
+      if (!admin) {
+        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Admin topilmadi!');
+      }
       const is_match_pass = await compare(old_password, admin.hashed_password);
       if (!is_match_pass) {
-        return {
-          statusCode: HttpStatus.FORBIDDEN,
-          message: 'Eski parol mos kelmadi!',
-        };
+        throw new ForbiddenException(
+          HttpStatus.FORBIDDEN,
+          'Eski parol mos kelmadi!',
+        );
       }
       if (new_password != confirm_new_password) {
-        return {
-          statusCode: HttpStatus.FORBIDDEN,
-          message: 'Yangi parolni tasdiqlashda xatolik!',
-        };
+        throw new ForbiddenException(
+          HttpStatus.FORBIDDEN,
+          'Yangi parolni tasdiqlashda xatolik!',
+        );
       }
       const hashed_password = await hash(confirm_new_password, 7);
       const updated_info = await this.adminRepository.update(
@@ -205,8 +219,10 @@ export class AdminService {
       );
       return {
         statusCode: HttpStatus.OK,
-        message: 'Adminning paroli yangilandi',
-        admin: updated_info[1][0],
+        message: "Parol o'zgartirildi",
+        data: {
+          admin: updated_info[1][0],
+        },
       };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -218,10 +234,15 @@ export class AdminService {
     forgotPasswordDto: ForgotPasswordDto,
   ): Promise<object> {
     try {
+      const { phone, code, new_password, confirm_new_password } =
+        forgotPasswordDto;
+      await this.otpService.verifyOtp({ phone, code });
       await this.getById(id);
-      const { new_password, confirm_new_password } = forgotPasswordDto;
       if (new_password != confirm_new_password) {
-        throw new BadRequestException('Yangi parolni tasdiqlashda xatolik!');
+        throw new ForbiddenException(
+          HttpStatus.FORBIDDEN,
+          'Yangi parolni tasdiqlashda xatolik!',
+        );
       }
       const hashed_password = await hash(new_password, 7);
       const updated_info = await this.adminRepository.update(
@@ -230,27 +251,35 @@ export class AdminService {
       );
       return {
         statusCode: HttpStatus.OK,
-        message: 'Adminning paroli yangilandi',
-        admin: updated_info[1][0],
+        message: "Paroli o'zgartirildi",
+        data: {
+          admin: updated_info[1][0],
+        },
       };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async update(id: string, updateAdminDto: UpdateAdminDto) {
+  async updateProfile(
+    id: string,
+    updateAdminDto: UpdateAdminDto,
+  ): Promise<object> {
     try {
-      const admin = await this.getById(id);
-      const { email, phone, username } = updateAdminDto;
-      if (!email) {
-        await this.adminRepository.update(
-          { email: admin.email },
-          { where: { id }, returning: true },
-        );
+      const admin = await this.adminRepository.findByPk(id);
+      if (!admin) {
+        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Admin topilmadi!');
       }
+      const { email, phone, username } = updateAdminDto;
       if (!phone) {
         await this.adminRepository.update(
           { phone: admin.phone },
+          { where: { id }, returning: true },
+        );
+      }
+      if (!email) {
+        await this.adminRepository.update(
+          { email: admin.email },
           { where: { id }, returning: true },
         );
       }
@@ -260,25 +289,33 @@ export class AdminService {
           { where: { id }, returning: true },
         );
       }
-      const updated_info = await this.adminRepository.update(updateAdminDto, {
+      const profile = await this.adminRepository.update(updateAdminDto, {
         where: { id },
         returning: true,
       });
       return {
         statusCode: HttpStatus.OK,
         message: "Adminning ma'lumotlari tahrirlandi",
-        admin: updated_info[1][0],
+        data: {
+          admin: profile[1][0],
+        },
       };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async remove(id: string) {
+  async deleteAdmin(id: string): Promise<object> {
     try {
-      const admin = await this.getById(id);
+      const admin = await this.adminRepository.findByPk(id);
+      if (!admin) {
+        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Admin topilmadi!');
+      }
       admin.destroy();
-      return { message: "Admin ro'yxatdan o'chirildi" };
+      return {
+        statusCode: HttpStatus.ACCEPTED,
+        message: "Admin ro'yxatdan o'chirildi",
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

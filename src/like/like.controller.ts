@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { LikeService } from './like.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { LikeDto } from './dto/like.dto';
@@ -16,39 +8,44 @@ import { LikeDto } from './dto/like.dto';
 export class LikeController {
   constructor(private readonly likeService: LikeService) {}
 
-  @ApiOperation({ summary: 'add like to product' })
+  @ApiOperation({ summary: 'Add product to my favourites' })
   @Post()
   create(@Body() likeDto: LikeDto) {
     return this.likeService.create(likeDto);
   }
 
-  @ApiOperation({ summary: 'get all likes' })
-  @Get()
-  findAll() {
-    return this.likeService.findAll();
+  @ApiOperation({ summary: 'Get favourites products by client ID' })
+  @Get('clientId/:client_id')
+  getByClientId(@Param('client_id') client_id: string) {
+    return this.likeService.getByClientId(client_id);
   }
 
-  @ApiOperation({ summary: 'get one by client and product ID' })
-  @Get('findOne')
-  findOne(@Body() likeDto: LikeDto) {
-    return this.likeService.findOne(likeDto);
+  @ApiOperation({
+    summary: 'Get favourite product by client ID and product ID',
+  })
+  @Get('id/:client_id/:product_id')
+  getOne(
+    @Param('client_id') client_id: string,
+    @Param('product_id') product_id: number,
+  ) {
+    return this.likeService.getOne(client_id, product_id);
   }
 
-  @ApiOperation({ summary: 'get one by client ID' })
-  @Get('clientId/:id_page_limit')
-  findByClientId(@Param('id_page_limit') id_page_limit: string) {
-    return this.likeService.findByClientId(id_page_limit);
+  @ApiOperation({
+    summary: 'Get favourites products with pagination by client ID',
+  })
+  @Get('pagination/:client_id/:page/:limit')
+  pagination(
+    @Param('client_id') client_id: string,
+    @Param('page') page: number,
+    @Param('limit') limit: number,
+  ) {
+    return this.likeService.pagination(client_id, page, limit);
   }
 
-  @ApiOperation({ summary: 'get one by product ID' })
-  @Get('productId/:productId')
-  findByProductId(@Param('productId') productId: number) {
-    return this.likeService.findByProductId(productId);
-  }
-
-  @ApiOperation({ summary: 'delete like from product' })
+  @ApiOperation({ summary: 'Remove product from favourites' })
   @Delete()
-  remove(@Body() likeDto: LikeDto) {
-    return this.likeService.remove(likeDto);
+  delete(@Body() likeDto: LikeDto) {
+    return this.likeService.delete(likeDto);
   }
 }

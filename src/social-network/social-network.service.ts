@@ -1,54 +1,89 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { SocialNetwork } from './models/social-network.model';
 import { SocialNetworkDto } from './dto/social-network.dto';
+import { UpdateSocialDto } from './dto/update-social-network.dto';
 
 @Injectable()
 export class SocialNetworkService {
   constructor(
     @InjectModel(SocialNetwork)
-    private readonly socialNetworkRepository: typeof SocialNetwork,
+    private socialNetworkRepository: typeof SocialNetwork,
   ) {}
 
-  async create(socialNetworkDto: SocialNetworkDto) {
+  async create(socialNetworkDto: SocialNetworkDto): Promise<object> {
     try {
       const social_network = await this.socialNetworkRepository.create(
         socialNetworkDto,
       );
       return {
+        statusCode: HttpStatus.CREATED,
         message: "Ijtimoiy tarmoqdagi sahifa qo'shildi",
-        social_network,
+        data: {
+          social_network,
+        },
       };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async findAll() {
+  async getAll(): Promise<object> {
     try {
-      const social_networks = await this.socialNetworkRepository.findAll({
-        include: { all: true },
-      });
-      return social_networks;
+      const social_networks = await this.socialNetworkRepository.findAll();
+      if (!social_networks) {
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          "Ijtimoiy tarmoqdagi sahifalar ro'yxati bo'sh!",
+        );
+      }
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          social_networks,
+        },
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async paginate(page: number) {
+  async getById(id: string): Promise<object> {
     try {
-      page = Number(page);
-      const limit = 10;
+      const social_network = await this.socialNetworkRepository.findByPk(id);
+      if (!social_network) {
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          'Ijtimoiy tarmoqdagi sahifa topilmadi!',
+        );
+      }
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          social_network,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async pagination(page: number, limit: number): Promise<object> {
+    try {
       const offset = (page - 1) * limit;
       const social_networks = await this.socialNetworkRepository.findAll({
-        include: { all: true },
         offset,
         limit,
       });
       const total_count = await this.socialNetworkRepository.count();
       const total_pages = Math.ceil(total_count / limit);
-      const res = {
-        status: 200,
+      const response = {
+        status: HttpStatus.OK,
         data: {
           records: social_networks,
           pagination: {
@@ -58,48 +93,64 @@ export class SocialNetworkService {
           },
         },
       };
-      return res;
+      return response;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async findById(id: string) {
+  async update(id: string, updateSocialDto: UpdateSocialDto): Promise<object> {
     try {
-      const social_network = await this.socialNetworkRepository.findOne({
-        where: { id },
-        include: { all: true },
-      });
+      const social_network = await this.socialNetworkRepository.findByPk(id);
       if (!social_network) {
-        throw new BadRequestException('Ijtimoiy tarmoqdagi sahifa topilmadi!');
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          'Ijtimoiy tarmoqdagi sahifa topilmadi!',
+        );
       }
-      return social_network;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async update(id: string, socialNetworkDto: SocialNetworkDto) {
-    try {
-      const social_network = await this.findById(id);
+      const { name, link } = updateSocialDto;
+      if (!name) {
+        await this.socialNetworkRepository.update(
+          { name: social_network.name },
+          { where: { id }, returning: true },
+        );
+      }
+      if (!link) {
+        await this.socialNetworkRepository.update(
+          { link: social_network.link },
+          { where: { id }, returning: true },
+        );
+      }
       const updated_info = await this.socialNetworkRepository.update(
-        socialNetworkDto,
-        { where: { id: social_network.id }, returning: true },
+        updateSocialDto,
+        { where: { id }, returning: true },
       );
       return {
+        statusCode: HttpStatus.OK,
         message: 'Ijtimoiy tarmoqdagi sahifa tahrirlandi',
-        social_network: updated_info[1][0],
+        data: {
+          social_network: updated_info[1][0],
+        },
       };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async remove(id: string) {
+  async delete(id: string): Promise<object> {
     try {
-      const social_network = await this.findById(id);
+      const social_network = await this.socialNetworkRepository.findByPk(id);
+      if (!social_network) {
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          'Ijtimoiy tarmoqdagi sahifa topilmadi!',
+        );
+      }
       social_network.destroy();
-      return { message: "Ijtimoiy tarmoqdagi sahifa o'chirildi" };
+      return {
+        statusCode: HttpStatus.ACCEPTED,
+        message: "Ijtimoiy tarmoqdagi sahifa o'chirildi",
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

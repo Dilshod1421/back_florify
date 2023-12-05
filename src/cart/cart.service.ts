@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { ProductService } from 'src/product/product.service';
 import { ClientService } from 'src/client/client.service';
@@ -16,73 +21,107 @@ export class CartService {
     private readonly productService: ProductService,
   ) {}
 
-  async create(cartDto: CartDto) {
+  async create(cartDto: CartDto): Promise<object> {
     try {
       const { client_id, product_id } = cartDto;
-      await this.clientService.findById(client_id);
-      await this.productService.findById(Number(product_id));
-      const exist = await this.findOne(client_id + ':' + product_id);
-      if (exist) {
-        return "Mahsulot allaqachon savatchaga qo'shilgan!";
-      }
+      await this.clientService.getById(client_id);
+      await this.productService.getById(Number(product_id));
       const cart = await this.cartRepository.create(cartDto);
-      return { message: "Mahsulot savatchaga qo'shildi", cart };
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async findAll() {
-    try {
-      const carts = await this.cartRepository.findAll({
-        include: [{ model: Product, include: [Image] }],
-      });
-      return carts;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async findOne(ids: string) {
-    try {
-      const client_id = ids.split(':')[0];
-      const product_id = Number(ids.split(':')[1]);
-      const cart = await this.cartRepository.findOne({
-        where: {
-          [Op.and]: [{ client_id }, { product_id }],
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: "Mahsulot savatchaga qo'shildi",
+        data: {
+          cart,
         },
-        include: [{ model: Product, include: [Image] }],
-      });
-      if (!cart) {
-        throw new BadRequestException("Mahsulot mijozning savatchasida yo'q!");
-      }
-      return cart;
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async findByClientId(client_id: string) {
+  async getByClientId(client_id: string): Promise<object> {
     try {
-      const carts = await this.cartRepository.findAll({
+      const cart = await this.cartRepository.findAll({
         where: { client_id },
         include: [{ model: Product, include: [Image] }],
       });
-      if (!carts) {
-        throw new BadRequestException("Ushbu mijozning savatchasi bo'sh!");
+      if (!cart) {
+        throw new NotFoundException(HttpStatus.NOT_FOUND, "Savatcha bo'sh!");
       }
-      return carts;
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          cart,
+        },
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async remove(ids: string) {
+  async getByCartIdAndClientId(id: string, client_id: string): Promise<object> {
     try {
-      const cart = await this.findOne(ids);
+      const cart = await this.cartRepository.findAll({
+        where: { [Op.and]: [{ id }, { client_id }] },
+        include: [{ model: Product, include: [Image] }],
+      });
+      if (!cart) {
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          'Mahsulot topilmadi!',
+        );
+      }
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          cart,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async getByClientIdWithPagination(
+    client_id: string,
+    page: number,
+    limit: number,
+  ): Promise<object> {
+    try {
+      const offset = (page - 1) * limit;
+      const cart = await this.cartRepository.findAll({
+        where: { client_id },
+        offset,
+        limit,
+      });
+      const total_count = await this.cartRepository.count({
+        where: { client_id },
+      });
+      const total_pages = Math.ceil(total_count / limit);
+      const response = {
+        statusCode: HttpStatus.OK,
+        data: {
+          records: cart,
+          pagination: {
+            currentPage: page,
+            total_pages,
+            total_count,
+          },
+        },
+      };
+      return response;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async deleteCart(id: string) {
+    try {
+      const cart = await this.cartRepository.findByPk(id);
       cart.destroy();
       return {
-        message: 'Mahsulot savatchadan olib tashlandi',
+        statusCode: HttpStatus.ACCEPTED,
+        message: "Mahsulot savatchadan o'chirildi",
       };
     } catch (error) {
       throw new BadRequestException(error.message);

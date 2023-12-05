@@ -1,27 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  IsStrongPassword,
-} from 'class-validator';
+import { IsNotEmpty, IsPhoneNumber, IsStrongPassword } from 'class-validator';
 
 export class RegisterAdminDto {
   @ApiProperty({
-    example: 'myverysecretkey',
-    description: 'The secret key for creating the admin',
+    example: '+998991234567',
+    description: 'The phone number of the admin (not required)',
   })
   @IsNotEmpty()
-  @IsString()
-  secret_key: string;
-
-  @ApiProperty({
-    example: 'otabek@gmail.com',
-    description: 'The email address of the admin',
-  })
-  @IsNotEmpty()
-  @IsEmail()
-  email: string;
+  @IsPhoneNumber()
+  phone: string;
 
   @ApiProperty({
     example: 'Uzbek1&t0n',
@@ -32,10 +19,10 @@ export class RegisterAdminDto {
   password: string;
 
   @ApiProperty({
-    example: '+998991234567',
-    description: 'The phone number of the admin (not required)',
+    example: 'otabek@gmail.com',
+    description: 'The email address of the admin',
   })
-  phone?: string;
+  email?: string;
 
   @ApiProperty({
     example: 'otabek_admin',

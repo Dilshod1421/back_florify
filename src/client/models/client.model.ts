@@ -20,16 +20,19 @@ export class Client extends Model<Client, ClientAttrs> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
   phone: string;
 
   @Column({
     type: DataType.STRING,
+    allowNull: false,
   })
   name: string;
 
   @Column({
     type: DataType.STRING,
+    allowNull: false,
   })
   address: string;
 
@@ -37,5 +40,5 @@ export class Client extends Model<Client, ClientAttrs> {
     onDelete: 'CASCADE',
     hooks: true,
   })
-  likes: Like[];
+  like: Like[];
 }

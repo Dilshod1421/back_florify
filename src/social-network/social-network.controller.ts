@@ -7,19 +7,19 @@ import {
   Param,
   Delete,
   UseGuards,
-  Query,
 } from '@nestjs/common';
 import { SocialNetworkService } from './social-network.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { SocialNetworkDto } from './dto/social-network.dto';
+import { UpdateSocialDto } from './dto/update-social-network.dto';
 
-@ApiTags('Social Network')
-@Controller('social-network')
+@ApiTags('Social network')
+@Controller('socialNetwork')
 export class SocialNetworkController {
   constructor(private readonly socialNetworkService: SocialNetworkService) {}
 
-  @ApiOperation({ summary: 'Create new social network' })
+  @ApiOperation({ summary: 'Create a new social network' })
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() socialNetworkDto: SocialNetworkDto) {
@@ -29,35 +29,35 @@ export class SocialNetworkController {
   @ApiOperation({ summary: 'Get all social networks' })
   @UseGuards(AuthGuard)
   @Get()
-  findAll() {
-    return this.socialNetworkService.findAll();
-  }
-
-  @ApiOperation({ summary: 'Pagination social networks' })
-  @UseGuards(AuthGuard)
-  @Get('page')
-  paginate(@Query('page') page: number) {
-    return this.socialNetworkService.paginate(page);
+  getAll() {
+    return this.socialNetworkService.getAll();
   }
 
   @ApiOperation({ summary: 'Get social network by ID' })
   @UseGuards(AuthGuard)
   @Get(':id')
-  findById(@Param('id') id: string) {
-    return this.socialNetworkService.findById(id);
+  getById(@Param('id') id: string) {
+    return this.socialNetworkService.getById(id);
+  }
+
+  @ApiOperation({ summary: 'Pagination social networks' })
+  @UseGuards(AuthGuard)
+  @Get('pagination/:page/:limit')
+  pagination(@Param('page') page: number, @Param('limit') limit: number) {
+    return this.socialNetworkService.pagination(page, limit);
   }
 
   @ApiOperation({ summary: 'Update social network by ID' })
   @UseGuards(AuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() socialNetworkDto: SocialNetworkDto) {
-    return this.socialNetworkService.update(id, socialNetworkDto);
+  update(@Param('id') id: string, @Body() updateSocialDto: UpdateSocialDto) {
+    return this.socialNetworkService.update(id, updateSocialDto);
   }
 
   @ApiOperation({ summary: 'Delete social network by ID' })
   @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.socialNetworkService.remove(id);
+  delete(@Param('id') id: string) {
+    return this.socialNetworkService.delete(id);
   }
 }

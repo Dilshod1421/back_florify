@@ -1,7 +1,7 @@
 import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { resolve, join } from 'path';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync, unlinkSync } from 'fs';
 
 @Injectable()
 export class FilesService {
@@ -17,6 +17,17 @@ export class FilesService {
     } catch (error) {
       throw new HttpException(
         'Error creating file: ' + error.message,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async deleteFile(file_name: string) {
+    try {
+      unlinkSync(resolve('dist', 'static', file_name));
+    } catch (error) {
+      throw new HttpException(
+        'Error deleting file: ' + error.message,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

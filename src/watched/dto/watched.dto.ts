@@ -3,8 +3,8 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class WatchedDto {
   @ApiProperty({
-    example: 'adsf12300j2-adf23',
-    description: 'id of client',
+    example: '11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000',
+    description: 'ID of the client',
   })
   @IsNotEmpty()
   @IsString()
@@ -12,7 +12,7 @@ export class WatchedDto {
 
   @ApiProperty({
     example: '1',
-    description: 'id of product',
+    description: 'ID of the product',
   })
   @IsNotEmpty()
   @IsNumber()

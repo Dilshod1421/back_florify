@@ -43,9 +43,6 @@ export class Watched extends Model<Watched, WatchedAttributes> {
   })
   product_id: number;
 
-  @BelongsTo(() => Client)
-  client: Client;
-
   @BelongsTo(() => Product)
   product: Product;
 }

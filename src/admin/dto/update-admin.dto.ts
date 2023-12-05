@@ -2,6 +2,12 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateAdminDto {
   @ApiProperty({
+    example: '+998990010101',
+    description: 'The new phone number of the admin',
+  })
+  phone?: string;
+
+  @ApiProperty({
     example: 'alisherov@gmail.com',
     description: 'The new email address of the admin',
   })
@@ -12,10 +18,4 @@ export class UpdateAdminDto {
     description: 'The new username of the admin',
   })
   username?: string;
-
-  @ApiProperty({
-    example: '+998990010101',
-    description: 'The new phone number of the admin',
-  })
-  phone?: string;
 }

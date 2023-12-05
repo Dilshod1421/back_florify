@@ -15,9 +15,9 @@ import { Like } from 'src/like/models/like.model';
 
 interface ProductAttributes {
   name: string;
-  description: string;
   price: number;
   quantity: number;
+  description: string;
   color: string;
   date: string;
   salesman_id: string;
@@ -40,11 +40,6 @@ export class Product extends Model<Product, ProductAttributes> {
   name: string;
 
   @Column({
-    type: DataType.STRING,
-  })
-  description: string;
-
-  @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
@@ -55,6 +50,11 @@ export class Product extends Model<Product, ProductAttributes> {
     allowNull: false,
   })
   quantity: number;
+
+  @Column({
+    type: DataType.STRING,
+  })
+  description: string;
 
   @Column({
     type: DataType.STRING,
@@ -95,7 +95,7 @@ export class Product extends Model<Product, ProductAttributes> {
     onDelete: 'CASCADE',
     hooks: true,
   })
-  likes: Like[];
+  like: Like[];
 
   @HasMany(() => SoldProduct, {
     onDelete: 'CASCADE',

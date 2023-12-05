@@ -1,11 +1,18 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Client } from './models/client.model';
-import { ClientDto } from './dto/client.dto';
-import { generate } from 'otp-generator';
-import { Otp } from 'src/otp/models/otp.model';
+import { OtpService } from 'src/otp/otp.service';
+import { SignupClientDto } from './dto/singup-client.dto';
+import { JwtService } from '@nestjs/jwt';
+import { generateToken, writeToCookie } from 'src/utils/token';
+import { Response } from 'express';
+import { UpdateDto } from './dto/update.dto';
 import { PhoneDto } from 'src/otp/dto/phone.dto';
-import { sendSMS } from 'src/utils/sendSMS';
 import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
 
 @Injectable()
@@ -13,101 +20,146 @@ export class ClientService {
   constructor(
     @InjectModel(Client)
     private readonly clientRepository: typeof Client,
-    @InjectModel(Otp)
-    private readonly otpRepository: typeof Otp,
+    private readonly otpService: OtpService,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async sendSMS(phoneDto: PhoneDto) {
+  async register(signupDto: SignupClientDto, res: Response): Promise<object> {
     try {
-      const code = generate(4, {
-        upperCaseAlphabets: false,
-        lowerCaseAlphabets: false,
-        specialChars: false,
-      });
-      await sendSMS(phoneDto.phone, code);
-      const expire_time = Date.now() + 120000;
-      const exist = await this.otpRepository.findOne({
-        where: { phone: phoneDto.phone },
-      });
-      if (exist) {
-        const otp = await this.otpRepository.update(
-          { code, expire_time },
-          { where: { phone: phoneDto.phone }, returning: true },
-        );
-        return {
-          message: 'Telefon raqamingizga tasdiqlash kodi yuborildi',
-          code,
-          otp,
-        };
-      }
-      const otp = await this.otpRepository.create({
-        code,
-        phone: phoneDto.phone,
-        expire_time,
-      });
+      const { phone, code } = signupDto;
+      await this.otpService.verifyOtp({ phone, code });
+      const client = await this.clientRepository.create(signupDto);
+      const { access_token, refresh_token } = await generateToken(
+        { id: client.id },
+        this.jwtService,
+      );
+      await writeToCookie(refresh_token, res);
       return {
-        message: 'Telefon raqamingizga tasdiqlash kodi yuborildi',
-        code,
-        otp,
+        statusCode: HttpStatus.CREATED,
+        message: "Mijoz ro'yxatga olindi",
+        data: {
+          client,
+        },
+        token: access_token,
       };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async register(verifyOtpDto: VerifyOtpDto) {
+  async login(phoneDto: PhoneDto) {
     try {
-      const check_phone = await this.otpRepository.findOne({
-        where: { phone: verifyOtpDto.phone },
+      const client = await this.clientRepository.findOne({
+        where: { phone: phoneDto.phone },
       });
-      if (!check_phone) {
-        throw new BadRequestException('Telefon raqamda xatolik!');
-      }
-      const now = Date.now();
-      if (now > check_phone.expire_time) {
-        check_phone.destroy();
-        throw new BadRequestException(
-          'Yuborilgan parol vaqti tugadi, iltimos telefon raqamni qaytadan kiritib, yangi parol oling!',
+      if (!client) {
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          'Telefon raqam xato!',
         );
       }
-      if (verifyOtpDto.code != check_phone.code) {
-        throw new BadRequestException('Tasdiqlash paroli xato!');
+      return this.otpService.sendOTP({ phone: phoneDto.phone });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async verifyLogin(
+    verifyOtpDto: VerifyOtpDto,
+    res: Response,
+  ): Promise<object> {
+    try {
+      await this.otpService.verifyOtp(verifyOtpDto);
+      const client = await this.clientRepository.findOne({
+        where: { phone: verifyOtpDto.phone },
+      });
+      const { access_token, refresh_token } = await generateToken(
+        { id: client.id },
+        this.jwtService,
+      );
+      await writeToCookie(refresh_token, res);
+      return {
+        statusCode: HttpStatus.OK,
+        mesage: 'Mijoz tizimga kirdi',
+        data: {
+          client,
+        },
+        token: access_token,
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async logout(refresh_token: string, res: Response): Promise<object> {
+    try {
+      const data = await this.jwtService.verify(refresh_token, {
+        secret: process.env.REFRESH_TOKEN_KEY,
+      });
+      const client = await this.getById(data.id);
+      res.clearCookie('refresh_token');
+      return {
+        statusCode: HttpStatus.OK,
+        mesage: 'Mijoz tizimdan chiqdi',
+        data: {
+          client,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async getAll(): Promise<object> {
+    try {
+      const clients = await this.clientRepository.findAll({
+        include: { all: true },
+      });
+      if (!clients) {
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          "Mijozlar ro'yxati bo'sh!",
+        );
       }
-      check_phone.destroy();
-      const client = await this.clientRepository.create({
-        phone: check_phone.phone,
-      });
-      return { message: 'Tizimga kirildi', client };
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          clients,
+        },
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async findAll() {
+  async getById(id: string): Promise<object> {
     try {
-      const clients = await this.clientRepository.findAll({
+      const client = await this.clientRepository.findOne({
+        where: { id },
         include: { all: true },
       });
-      return clients;
+      if (!client) {
+        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Mijoz topilmadi!');
+      }
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          client,
+        },
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async paginate(page: number) {
+  async pagination(page: number, limit: number): Promise<object> {
     try {
-      page = Number(page);
-      const limit = 10;
       const offset = (page - 1) * limit;
-      const clients = await this.clientRepository.findAll({
-        include: { all: true },
-        offset,
-        limit,
-      });
+      const clients = await this.clientRepository.findAll({ offset, limit });
       const total_count = await this.clientRepository.count();
       const total_pages = Math.ceil(total_count / limit);
-      const res = {
-        status: 200,
+      const response = {
+        statusCode: HttpStatus.OK,
         data: {
           records: clients,
           pagination: {
@@ -117,58 +169,64 @@ export class ClientService {
           },
         },
       };
-      return res;
+      return response;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async findById(id: string) {
+  async updateProfile(id: string, updateDto: UpdateDto): Promise<object> {
     try {
-      const client = await this.clientRepository.findOne({
-        where: { id },
-        include: { all: true },
-      });
+      const client = await this.clientRepository.findByPk(id);
       if (!client) {
-        throw new BadRequestException('Mijoz topilmadi!');
+        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Mijoz topilmadi!');
       }
-      return client;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async update(id: string, clientDto: ClientDto) {
-    try {
-      const client = await this.findById(id);
-      if (clientDto.phone) {
-        const exist_phone = await this.clientRepository.findOne({
-          where: { phone: clientDto.phone },
-        });
-        if (exist_phone) {
-          if (client.id != exist_phone.id) {
-            throw new BadRequestException('Bu telefon raqam band!');
-          }
-        }
+      const { phone, name, address } = updateDto;
+      if (!phone) {
+        await this.clientRepository.update(
+          { phone: client.phone },
+          { where: { id }, returning: true },
+        );
       }
-      const updated_info = await this.clientRepository.update(clientDto, {
+      if (!name) {
+        await this.clientRepository.update(
+          { name: client.name },
+          { where: { id }, returning: true },
+        );
+      }
+      if (!address) {
+        await this.clientRepository.update(
+          { address: client.address },
+          { where: { id }, returning: true },
+        );
+      }
+      const profile = await this.clientRepository.update(updateDto, {
         where: { id },
         returning: true,
       });
       return {
+        statusCode: HttpStatus.OK,
         message: "Mijoz ma'lumotlari tahrirlandi",
-        client: updated_info[1][0],
+        data: {
+          client: profile[1][0],
+        },
       };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async remove(id: string) {
+  async deleteClient(id: string): Promise<object> {
     try {
-      const client = await this.findById(id);
+      const client = await this.clientRepository.findByPk(id);
+      if (!client) {
+        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Mijoz topilmadi!');
+      }
       client.destroy();
-      return { message: "Mijoz o'chirildi" };
+      return {
+        statusCode: HttpStatus.ACCEPTED,
+        message: "Mijoz ro'yxatdan o'chirildi",
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

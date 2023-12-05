@@ -1,5 +1,6 @@
 import {
   ExecutionContext,
+  HttpStatus,
   UnauthorizedException,
   createParamDecorator,
 } from '@nestjs/common';
@@ -9,7 +10,7 @@ export const CookieGetter = createParamDecorator(
     const request = context.switchToHttp().getRequest();
     const refresh_token = request.cookies[data];
     if (!refresh_token) {
-      throw new UnauthorizedException("Ruxsat yo'q!");
+      throw new UnauthorizedException(HttpStatus.UNAUTHORIZED, "Ruxsat yo'q!");
     }
     return refresh_token;
   },

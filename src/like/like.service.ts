@@ -1,4 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Like } from './models/like.model';
 import { LikeDto } from './dto/like.dto';
@@ -16,61 +22,108 @@ export class LikeService {
     private readonly productService: ProductService,
   ) {}
 
-  async create(likeDto: LikeDto) {
+  async create(likeDto: LikeDto): Promise<object> {
     try {
-      await this.clientService.findById(likeDto.client_id);
-      await this.productService.findById(likeDto.product_id);
-      const exist = await this.findOne(likeDto);
-      if (exist) {
-        return "Mahsulot allaqachon sevimlilar ro'yxatiga qo'shilgan!";
-      }
-      const like = await this.likeRepository.create({
-        ...likeDto,
-        is_like: true,
-      });
-      return { message: "Mahsulot sevimlilarga qo'shildi", like };
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async findAll() {
-    try {
-      const likes = await this.likeRepository.findAll({
-        include: [{ model: Product, include: [Image] }],
-      });
-      return likes;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async findOne(likeDto: LikeDto) {
-    try {
-      const like = await this.likeRepository.findOne({
+      await this.clientService.getById(likeDto.client_id);
+      await this.productService.getById(likeDto.product_id);
+      const exist = await this.likeRepository.findOne({
         where: {
           [Op.and]: [
             { client_id: likeDto.client_id },
             { product_id: likeDto.product_id },
           ],
         },
-        include: [{ model: Product, include: [Image] }],
       });
-      return like;
+      if (exist) {
+        throw new ConflictException(
+          HttpStatus.CONFLICT,
+          "Mahsulot allaqachon sevimlilar ro'yxatiga qo'shilgan!",
+        );
+      }
+      const like = await this.likeRepository.create({
+        ...likeDto,
+        is_like: true,
+      });
+      return {
+        statusCode: HttpStatus.CREATED,
+        message: "Mahsulot sevimlilarga qo'shildi",
+        data: {
+          like,
+        },
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async findByClientId(id_page_limit: string) {
+  async getByClientId(client_id: string): Promise<object> {
     try {
-      const client_id = id_page_limit.split(':')[0];
-      const page = Number(id_page_limit.split(':')[1]);
-      const limit = Number(id_page_limit.split(':')[2]);
+      const likes = await this.likeRepository.findAll({
+        where: { client_id },
+        include: [
+          {
+            model: Product,
+            include: [{ model: Image, attributes: ['image'] }],
+          },
+        ],
+      });
+      if (!likes) {
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          "Sevimlilar ro'yxati bo'sh!",
+        );
+      }
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          likes,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async getOne(client_id: string, product_id: number): Promise<object> {
+    try {
+      const like = await this.likeRepository.findOne({
+        where: {
+          [Op.and]: [{ client_id }, { product_id }],
+        },
+        include: [{ model: Product, include: [Image] }],
+      });
+      if (!like) {
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          "Mahsulot sevimlilar ro'yxatida yo'q!",
+        );
+      }
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          like,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async pagination(
+    client_id: string,
+    page: number,
+    limit: number,
+  ): Promise<object> {
+    try {
       const offset = (page - 1) * limit;
       const likes = await this.likeRepository.findAll({
         where: { client_id },
-        include: [{ model: Product, include: [Image] }],
+        include: [
+          {
+            model: Product,
+            include: [{ model: Image, attributes: ['image'] }],
+          },
+        ],
         offset,
         limit,
       });
@@ -78,8 +131,8 @@ export class LikeService {
         where: { client_id },
       });
       const total_pages = Math.ceil(total_count / limit);
-      return {
-        status: 200,
+      const response = {
+        status: HttpStatus.OK,
         data: {
           records: likes,
           pagination: {
@@ -89,38 +142,32 @@ export class LikeService {
           },
         },
       };
+      return response;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async findByProductId(product_id: number) {
+  async delete(likeDto: LikeDto): Promise<object> {
     try {
-      const likes = await this.likeRepository.findAll({
-        where: { product_id },
-        include: [{ model: Product, include: [Image] }],
+      const like = await this.likeRepository.findOne({
+        where: {
+          [Op.and]: [
+            { client_id: likeDto.client_id },
+            { product_id: likeDto.product_id },
+          ],
+        },
       });
-      if (!likes) {
-        throw new BadRequestException("Ushbu mahsulotga tegishli like yo'q!");
-      }
-      return likes;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async remove(likeDto: LikeDto) {
-    try {
-      const like = await this.findOne(likeDto);
       if (!like) {
-        throw new BadRequestException(
-          "Mahsulot mijozning sevimlilar ro'yxatida yo'q!",
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          "Mahsulot sevimlilar ro'yxatida yo'q!",
         );
       }
       like.destroy();
       return {
+        statusCode: HttpStatus.ACCEPTED,
         message: "Mahsulot sevimlilar ro'yxatidan olib tashlandi",
-        like,
       };
     } catch (error) {
       throw new BadRequestException(error.message);

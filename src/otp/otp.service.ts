@@ -1,4 +1,11 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Otp } from './models/otp.model';
 import { PhoneDto } from './dto/phone.dto';
@@ -10,7 +17,7 @@ import { VerifyOtpDto } from './dto/verifyOtp.dto';
 export class OtpService {
   constructor(@InjectModel(Otp) private otpRepository: typeof Otp) {}
 
-  async sendOTP(phoneDto: PhoneDto) {
+  async sendOTP(phoneDto: PhoneDto): Promise<object> {
     try {
       const { phone } = phoneDto;
       const code = generate(4, {
@@ -29,9 +36,11 @@ export class OtpService {
           { where: { phone }, returning: true },
         );
         return {
-          message: 'Telefon raqamingizga tasdiqlash kodi yuborildi',
-          otp: otp[1][0],
-          statusCode: HttpStatus.OK,
+          statusCode: HttpStatus.CREATED,
+          message: 'Tasdiqlash kodi yuborildi',
+          data: {
+            otp: otp[1][0],
+          },
         };
       }
       const otp = await this.otpRepository.create({
@@ -40,46 +49,59 @@ export class OtpService {
         expire_time,
       });
       return {
-        message: 'Telefon raqamingizga tasdiqlash kodi yuborildi',
-        otp,
         statusCode: HttpStatus.OK,
+        message: 'Tasdiqlash kodi yuborildi',
+        otp,
       };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async verifyOtp(verifyOtpDto: VerifyOtpDto) {
+  async verifyOtp(verifyOtpDto: VerifyOtpDto): Promise<object> {
     try {
       const { phone, code } = verifyOtpDto;
       const check = await this.otpRepository.findOne({
         where: { phone },
       });
       if (!check) {
-        return {
-          message: 'Telefon raqam topilmadi!',
-          statusCode: HttpStatus.NOT_FOUND,
-        };
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          'Telefon raqam xato!',
+        );
       }
       const now = Date.now();
       if (now >= check.expire_time) {
-        check.destroy();
-        return {
-          message: 'Sizga yuborilgan parol vaqti tugagan!',
-          statusCode: HttpStatus.UNAUTHORIZED,
-        };
+        throw new UnauthorizedException(
+          HttpStatus.UNAUTHORIZED,
+          'Parol vaqti tugagan!',
+        );
       }
       if (code != check.code) {
-        return {
-          message: 'Parol tasdiqlanmadi!',
-          statusCode: HttpStatus.FORBIDDEN,
-        };
+        throw new ForbiddenException(
+          HttpStatus.FORBIDDEN,
+          'Parol tasdiqlanmadi!',
+        );
       }
-      check.destroy();
       return {
-        message: 'Parol tasdiqlandi',
         statusCode: HttpStatus.OK,
+        message: 'Parol tasdiqlandi',
       };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async checkPhoneNumber(phone: string): Promise<object> {
+    try {
+      const otp = await this.otpRepository.findOne({ where: { phone } });
+      if (!otp) {
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          "Bu telefon raqami ro'yxatga olinmagan!",
+        );
+      }
+      return otp;
     } catch (error) {
       throw new BadRequestException(error.message);
     }

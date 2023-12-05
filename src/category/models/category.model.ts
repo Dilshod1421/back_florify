@@ -18,6 +18,7 @@ export class Category extends Model<Category, CategoryAttrs> {
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
+    allowNull: false,
   })
   id: string;
 
@@ -59,6 +60,7 @@ export class Category extends Model<Category, CategoryAttrs> {
 
   @Column({
     type: DataType.STRING,
+    allowNull: false,
   })
   image: string;
 

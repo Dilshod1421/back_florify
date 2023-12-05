@@ -2,9 +2,9 @@ import { Column, DataType, Model, Table } from 'sequelize-typescript';
 
 interface AdminAttributes {
   id: string;
-  email: string;
-  hashed_password: string;
   phone: string;
+  hashed_password: string;
+  email: string;
   username: string;
 }
 
@@ -24,7 +24,7 @@ export class Admin extends Model<Admin, AdminAttributes> {
     allowNull: false,
     unique: true,
   })
-  email: string;
+  phone: string;
 
   @Column({
     type: DataType.STRING,
@@ -37,7 +37,7 @@ export class Admin extends Model<Admin, AdminAttributes> {
     unique: true,
     allowNull: true,
   })
-  phone: string;
+  email: string;
 
   @Column({
     type: DataType.STRING,

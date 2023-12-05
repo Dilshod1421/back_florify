@@ -19,6 +19,7 @@ import { CookieGetter } from 'src/decorators/cookieGetter.decorator';
 import { NewPasswordDto } from './dto/new-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { RegisterAdminDto } from './dto/register-admin.dto';
+import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
 
 @ApiTags('Admin')
 @Controller('admin')
@@ -34,17 +35,23 @@ export class AdminController {
     return this.adminService.register(registerAdminDto, res);
   }
 
-  @ApiOperation({ summary: 'Log in admin' })
+  @ApiOperation({ summary: 'Login admin with send OTP' })
   @Post('login')
-  login(
-    @Body() loginAdminDto: LoginAdminDto,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    return this.adminService.login(loginAdminDto, res);
+  login(@Body() loginAdminDto: LoginAdminDto) {
+    return this.adminService.login(loginAdminDto);
   }
 
-  @ApiOperation({ summary: 'Log out admin' })
-  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Verify login admin' })
+  @Post('verifyLogin')
+  verifLogin(
+    @Body() verifyOtpDto: VerifyOtpDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.adminService.verifyLogin(verifyOtpDto, res);
+  }
+
+  @ApiOperation({ summary: 'Logout admin' })
+  // @UseGuards(AuthGuard)
   @Post('logout')
   logout(
     @CookieGetter('refresh_token') refresh_token: string,
@@ -54,35 +61,35 @@ export class AdminController {
   }
 
   @ApiOperation({ summary: 'Get all admins' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get()
   getAll() {
     return this.adminService.getAll();
   }
 
-  @ApiOperation({ summary: 'Get admins with pagination' })
-  @UseGuards(AuthGuard)
-  @Get('pagination/:page_limit')
-  pagination(@Param('page_limit') page_limit: string) {
-    return this.adminService.pagination(page_limit);
-  }
-
   @ApiOperation({ summary: 'Get admin by ID' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get(':id')
   getById(@Param('id') id: string) {
     return this.adminService.getById(id);
   }
 
+  @ApiOperation({ summary: 'Get admins with pagination' })
+  // @UseGuards(AuthGuard)
+  @Get('pagination/:page/:limit')
+  pagination(@Param('page') page: number, @Param('limit') limit: number) {
+    return this.adminService.pagination(page, limit);
+  }
+
   @ApiOperation({ summary: 'New password of admin' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Patch('newPassword/:id')
   newPassword(@Param('id') id: string, @Body() newPasswordDto: NewPasswordDto) {
     return this.adminService.newPassword(id, newPasswordDto);
   }
 
   @ApiOperation({ summary: 'Forgot password for admin' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Patch('forgotPassword/:id')
   forgotPassword(
     @Param('id') id: string,
@@ -91,17 +98,20 @@ export class AdminController {
     return this.adminService.forgotPassword(id, forgotPasswordDto);
   }
 
-  @ApiOperation({ summary: 'Update admin by ID' })
-  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Update admin profile by ID' })
+  // @UseGuards(AuthGuard)
   @Patch('profile/:id')
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(id, updateAdminDto);
+  updateProfile(
+    @Param('id') id: string,
+    @Body() updateAdminDto: UpdateAdminDto,
+  ) {
+    return this.adminService.updateProfile(id, updateAdminDto);
   }
 
   @ApiOperation({ summary: 'Delete admin by ID' })
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.adminService.remove(id);
+  deleteAdmin(@Param('id') id: string) {
+    return this.adminService.deleteAdmin(id);
   }
 }

@@ -1,30 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
 
-export class CategoryDto {
+export class UpdateCategoryDto {
   @ApiProperty({
     example: 'Buket',
     description: 'UZ name of category',
   })
-  @IsNotEmpty()
-  @IsString()
-  uz: string;
+  uz?: string;
 
   @ApiProperty({
     example: 'Букет',
     description: 'RU name of category',
   })
-  @IsNotEmpty()
-  @IsString()
-  ru: string;
+  ru?: string;
 
   @ApiProperty({
     example: 'Bouquet',
     description: 'EN name of category',
   })
-  @IsNotEmpty()
-  @IsString()
-  en: string;
+  en?: string;
 
   @ApiProperty({
     example: 'Buketdagi gullar',

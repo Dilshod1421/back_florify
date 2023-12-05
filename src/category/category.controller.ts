@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Query,
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
@@ -66,20 +65,20 @@ export class CategoryController {
 
   @ApiOperation({ summary: 'Get all categories' })
   @Get()
-  findAll() {
-    return this.categoryService.findAll();
-  }
-
-  @ApiOperation({ summary: 'Pagination categories' })
-  @Get('page')
-  paginate(@Query('page') page: number) {
-    return this.categoryService.paginate(page);
+  getAll() {
+    return this.categoryService.getAll();
   }
 
   @ApiOperation({ summary: 'Get category by ID' })
   @Get(':id')
-  findById(@Param('id') id: string) {
-    return this.categoryService.findById(id);
+  getById(@Param('id') id: string) {
+    return this.categoryService.getById(id);
+  }
+
+  @ApiOperation({ summary: 'Get categories with pagination' })
+  @Get('pagination/:page/:limit')
+  pagination(@Param('page') page: number, @Param('limit') limit: number) {
+    return this.categoryService.pagination(page, limit);
   }
 
   @ApiOperation({ summary: 'Update category by ID' })
@@ -119,7 +118,7 @@ export class CategoryController {
   update(
     @Param('id') id: string,
     @Body() categoryDto: CategoryDto,
-    @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
+    @UploadedFile(new ImageValidationPipe()) image?: Express.Multer.File,
   ) {
     return this.categoryService.update(id, categoryDto, image);
   }
@@ -127,7 +126,7 @@ export class CategoryController {
   @ApiOperation({ summary: 'Delete category by ID' })
   // @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoryService.remove(id);
+  delete(@Param('id') id: string) {
+    return this.categoryService.delete(id);
   }
 }

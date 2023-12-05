@@ -22,6 +22,7 @@ export class Like extends Model<Like, LikeAttributes> {
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
+    allowNull: false,
   })
   id: string;
 
@@ -42,9 +43,6 @@ export class Like extends Model<Like, LikeAttributes> {
     type: DataType.INTEGER,
   })
   product_id: number;
-
-  @BelongsTo(() => Client)
-  client: Client;
 
   @BelongsTo(() => Product)
   product: Product;

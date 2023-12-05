@@ -22,6 +22,7 @@ export class Image extends Model<Image, ImageAttrs> {
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
+    allowNull: false,
   })
   id: string;
 

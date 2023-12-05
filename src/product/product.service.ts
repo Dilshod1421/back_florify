@@ -1,55 +1,43 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Product } from './models/product.model';
 import { ProductDto } from './dto/product.dto';
-import { Like } from 'src/like/models/like.model';
-import { SoldProduct } from 'src/sold-product/models/sold-product.model';
 import { Image } from 'src/image/models/image.model';
-import { Op, Sequelize } from 'sequelize';
+import { Op } from 'sequelize';
+import { SalesmanService } from 'src/salesman/salesman.service';
+import { CategoryService } from 'src/category/category.service';
+import { UpdateProducDto } from './dto/update-product.dto';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class ProductService {
   constructor(
-    @InjectModel(Product)
-    private readonly productRepository: typeof Product,
+    @InjectModel(Product) private productRepository: typeof Product,
+    @InjectModel(Image) private imageRepository: typeof Image,
+    private readonly salesmanService: SalesmanService,
+    private readonly categoryService: CategoryService,
+    private readonly fileService: FilesService,
   ) {}
 
-  async create(productDto: ProductDto) {
+  async create(productDto: ProductDto): Promise<object> {
     try {
+      await this.salesmanService.getById(productDto.salesman_id);
+      await this.categoryService.getById(productDto.category_id);
       const date = new Date().toISOString().slice(0, 10);
       const product = await this.productRepository.create({
         ...productDto,
         date,
       });
-      return { message: "Mahsulot qo'shildi", product };
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async findAll(page_limit: string) {
-    try {
-      const page = Number(page_limit.split(':')[0]);
-      const limit = Number(page_limit.split(':')[1]);
-      const offset = (page - 1) * limit;
-      console.log(page, limit, offset);
-      const products = await this.productRepository.findAll({
-        include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
-        order: [['id', 'DESC']],
-        offset,
-        limit,
-      });
-      const total_count = await this.productRepository.count();
-      const total_pages = Math.ceil(total_count / limit);
       return {
-        status: 200,
+        statusCode: HttpStatus.CREATED,
+        message: "Mahsulot qo'shildi",
         data: {
-          records: products,
-          pagination: {
-            currentPage: page,
-            total_pages,
-            total_count,
-          },
+          product,
         },
       };
     } catch (error) {
@@ -57,43 +45,60 @@ export class ProductService {
     }
   }
 
-  async paginate(page: number) {
+  async getAll(): Promise<object> {
     try {
-      const limit = 10;
-      const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
-        include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
-        offset,
-        limit,
+        include: [{ model: Image, attributes: ['image'] }],
       });
-      const total_count = await this.productRepository.count();
-      const total_pages = Math.ceil(total_count / limit);
-      const response = {
-        status: 200,
+      if (!products) {
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          "Mahsulotlar ro'yxati bo'sh!",
+        );
+      }
+      return {
+        statusCode: HttpStatus.OK,
         data: {
-          records: products,
-          pagination: {
-            currentPage: page,
-            total_pages,
-            total_count,
-          },
+          products,
         },
       };
-      return response;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async getByCategoryId(id_page_limit: string) {
+  async getById(id: number): Promise<object> {
     try {
-      const category_id = id_page_limit.split(':')[0];
-      const page = Number(id_page_limit.split(':')[1]);
-      const limit = Number(id_page_limit.split(':')[2]);
+      const product = await this.productRepository.findByPk(id, {
+        include: [{ model: Image, attributes: ['image'] }],
+      });
+      if (!product) {
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          'Mahsulot topilmadi!',
+        );
+      }
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          product,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async getByCategoryId(
+    category_id: string,
+    page: number,
+    limit: number,
+  ): Promise<object> {
+    try {
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
         where: { category_id },
-        include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
+        include: [{ model: Image, attributes: ['image'] }],
         offset,
         limit,
       });
@@ -102,7 +107,7 @@ export class ProductService {
       });
       const total_pages = Math.ceil(total_count / limit);
       const response = {
-        status: 200,
+        status: HttpStatus.OK,
         data: {
           records: products,
           pagination: {
@@ -118,15 +123,16 @@ export class ProductService {
     }
   }
 
-  async getBySalesmanId(salesman_id_page_limit: string, quantity: string) {
+  async getBySalesmanId(
+    salesman_id: string,
+    page: number,
+    limit: number,
+    quantity: string,
+  ): Promise<object> {
     try {
-      const salesman_id = salesman_id_page_limit.split(':')[0];
-      const page = Number(salesman_id_page_limit.split(':')[1]);
-      const limit = Number(salesman_id_page_limit.split(':')[2]);
       const offset = (page - 1) * limit;
       let where: any = { salesman_id };
-      if (quantity == 'All') {
-      } else if (quantity == 'on_sale') {
+      if (quantity == 'on_sale') {
         where.quantity = {
           [Op.ne]: 0,
         };
@@ -137,36 +143,14 @@ export class ProductService {
         where,
         offset,
         limit,
-        include: [{ model: Image }],
-        attributes: {
-          include: [
-            [
-              Sequelize.literal(
-                '(SELECT COUNT(*) FROM "like" WHERE "like"."product_id" = "Product"."id")',
-              ),
-              'likeCount',
-            ],
-            [
-              Sequelize.literal(
-                '(SELECT COUNT(*) FROM "sold-product" WHERE "sold-product"."product_id" = "Product"."id")',
-              ),
-              'soldProductCount',
-            ],
-            [
-              Sequelize.literal(
-                '(SELECT COUNT(*) FROM "watched" WHERE "watched"."product_id" = "Product"."id")',
-              ),
-              'watchedCount',
-            ],
-          ],
-        },
+        include: [{ model: Image, attributes: ['image'] }],
       });
       const total_count = await this.productRepository.count({
         where,
       });
       const total_pages = Math.ceil(total_count / limit);
       const response = {
-        status: 200,
+        status: HttpStatus.OK,
         data: {
           records: products,
           pagination: {
@@ -182,23 +166,18 @@ export class ProductService {
     }
   }
 
-  async presents(page_limit: string) {
+  async pagination(page: number, limit: number): Promise<object> {
     try {
-      const date = new Date().toISOString().slice(0, 10);
-      const page = Number(page_limit.split(':')[0]);
-      const limit = Number(page_limit.split(':')[1]);
       const offset = (page - 1) * limit;
-      console.log(page, limit, offset);
       const products = await this.productRepository.findAll({
-        where: { date },
-        include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
+        include: [{ model: Image, attributes: ['image'] }],
         offset,
         limit,
       });
       const total_count = await this.productRepository.count();
       const total_pages = Math.ceil(total_count / limit);
-      return {
-        status: 200,
+      const response = {
+        status: HttpStatus.OK,
         data: {
           records: products,
           pagination: {
@@ -208,47 +187,135 @@ export class ProductService {
           },
         },
       };
+      return response;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async findById(id: number) {
+  async presents(page: number, limit: number): Promise<object> {
     try {
-      const product = await this.productRepository.findOne({
-        where: { id },
-        include: [{ model: Like }, { model: SoldProduct }, { model: Image }],
+      const date = new Date().toISOString().slice(0, 10);
+      const offset = (page - 1) * limit;
+      console.log(page, limit, offset);
+      const products = await this.productRepository.findAll({
+        where: { date },
+        include: [{ model: Image, attributes: ['image'] }],
+        offset,
+        limit,
       });
-      if (!product) {
-        throw new BadRequestException('Mahsulot topilmadi!');
+      const total_count = await this.productRepository.count();
+      const total_pages = Math.ceil(total_count / limit);
+      const response = {
+        status: HttpStatus.OK,
+        data: {
+          records: products,
+          pagination: {
+            currentPage: page,
+            total_pages,
+            total_count,
+          },
+        },
+      };
+      return response;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async update(id: number, updateProductDto: UpdateProducDto): Promise<object> {
+    try {
+      const product = await this.productRepository.findByPk(id);
+      const {
+        name,
+        price,
+        quantity,
+        description,
+        color,
+        salesman_id,
+        category_id,
+      } = updateProductDto;
+      if (!name) {
+        await this.productRepository.update(
+          { name: product.name },
+          { where: { id }, returning: true },
+        );
       }
-      return product;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async update(id: number, productDto: ProductDto) {
-    try {
-      const product = await this.findById(id);
-      const updated_info = await this.productRepository.update(productDto, {
-        where: { id: product.id },
-        returning: true,
-      });
+      if (!price) {
+        await this.productRepository.update(
+          { price: product.price },
+          { where: { id }, returning: true },
+        );
+      }
+      if (!quantity) {
+        await this.productRepository.update(
+          { quantity: product.quantity },
+          { where: { id }, returning: true },
+        );
+      }
+      if (!description) {
+        await this.productRepository.update(
+          { description: product.description },
+          { where: { id }, returning: true },
+        );
+      }
+      if (!color) {
+        await this.productRepository.update(
+          { color: product.color },
+          { where: { id }, returning: true },
+        );
+      }
+      if (!salesman_id) {
+        await this.productRepository.update(
+          { salesman_id: product.salesman_id },
+          { where: { id }, returning: true },
+        );
+      }
+      if (!category_id) {
+        await this.productRepository.update(
+          { category_id: product.category_id },
+          { where: { id }, returning: true },
+        );
+      }
+      const updated_info = await this.productRepository.update(
+        updateProductDto,
+        {
+          where: { id },
+          returning: true,
+        },
+      );
       return {
+        statusCode: HttpStatus.OK,
         message: 'Mahsulot tafsilotlari tahrirlandi',
-        product: updated_info[1][0],
+        data: {
+          product: updated_info[1][0],
+        },
       };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async remove(id: number) {
+  async delete(id: number): Promise<object> {
     try {
-      const product = await this.findById(id);
-      await product.destroy();
-      return { message: "Mahsulot o'chirildi" };
+      const product = await this.productRepository.findByPk(id);
+      if (!product) {
+        throw new NotFoundException(
+          HttpStatus.NOT_FOUND,
+          'Mahsulot topilmadi!',
+        );
+      }
+      product.destroy();
+      const images = await this.imageRepository.findAll({
+        where: { product_id: id },
+      });
+      for (let i = 0; i < images.length; i++) {
+        await this.fileService.deleteFile(images[i].image);
+      }
+      return {
+        statusCode: HttpStatus.ACCEPTED,
+        message: "Mahsulot o'chirildi",
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

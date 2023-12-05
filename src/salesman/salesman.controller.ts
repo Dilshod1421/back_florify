@@ -6,25 +6,24 @@ import {
   Patch,
   Param,
   Delete,
-  Res,
   UseGuards,
-  Query,
+  Res,
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
-import { SalesmanService } from './salesman.service';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { LoginSalesmanDto } from './dto/login-salesman.dto';
+import { AuthGuard } from 'src/guard/auth.guard';
 import { Response } from 'express';
 import { CookieGetter } from 'src/decorators/cookieGetter.decorator';
+import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
 import { SalesmanDto } from './dto/salesman.dto';
-import { NewPasswordDto } from 'src/admin/dto/new-password.dto';
-import { ForgotPasswordDto } from 'src/admin/dto/forgot-password.dto';
-import { AuthGuard } from 'src/guard/auth.guard';
+import { SalesmanService } from './salesman.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageValidationPipe } from 'src/pipes/image-validation.pipe';
-import { PhoneDto } from 'src/otp/dto/phone.dto';
-import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
+import { LoginSalesmanDto } from './dto/login-salesman.dto';
+import { NewPasswordDto } from 'src/admin/dto/new-password.dto';
+import { ForgotPasswordDto } from 'src/admin/dto/forgot-password.dto';
+import { UpdateSalesmanDto } from './dto/update-salesman.dto';
 import { StoreDto } from './dto/store.dto';
 
 @ApiTags('Salesman')
@@ -32,38 +31,61 @@ import { StoreDto } from './dto/store.dto';
 export class SalesmanController {
   constructor(private readonly salesmanService: SalesmanService) {}
 
-  @ApiOperation({ summary: 'Send otp to phone number of the salesman' })
-  // @UseGuards(AuthGuard)
-  @Post('sendOtp')
-  sendOtp(@Body() phoneDto: PhoneDto) {
-    return this.salesmanService.sendOtp(phoneDto);
+  @ApiOperation({ summary: 'Registration a new salesman' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        phone: {
+          type: 'string',
+        },
+        password: {
+          type: 'string',
+        },
+        username: {
+          type: 'string',
+        },
+        address: {
+          type: 'string',
+        },
+        telegram: {
+          type: 'string',
+        },
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @Post('register')
+  @UseInterceptors(FileInterceptor('image'))
+  register(
+    @Body() salesmanDto: SalesmanDto,
+    @Res({ passthrough: true }) res: Response,
+    @UploadedFile(new ImageValidationPipe()) image?: Express.Multer.File,
+  ) {
+    return this.salesmanService.register(salesmanDto, res, image);
   }
 
-  @ApiOperation({ summary: 'Verify otp of the salesman' })
-  // @UseGuards(AuthGuard)
-  @Post('verifyOtp')
-  verifyOtp(@Body() verifyOtpDto: VerifyOtpDto) {
-    return this.salesmanService.verifyOtp(verifyOtpDto);
-  }
-
-  @ApiOperation({ summary: 'Create new salesman' })
-  // @UseGuards(AuthGuard)
-  @Post('create')
-  create(@Body() addSalesmanDto: LoginSalesmanDto) {
-    return this.salesmanService.create(addSalesmanDto);
-  }
-
-  @ApiOperation({ summary: 'Log in salesman' })
+  @ApiOperation({ summary: 'Login salesman with send OTP' })
   @Post('login')
-  login(
-    @Body() loginSalesmanDto: LoginSalesmanDto,
+  login(@Body() loginDto: LoginSalesmanDto) {
+    return this.salesmanService.login(loginDto);
+  }
+
+  @ApiOperation({ summary: 'Verify login salesman' })
+  @Post('verifyLogin')
+  verifLogin(
+    @Body() verifyOtpDto: VerifyOtpDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.salesmanService.login(loginSalesmanDto, res);
+    return this.salesmanService.verifyLogin(verifyOtpDto, res);
   }
 
-  @ApiOperation({ summary: 'Log out salesman' })
-  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Logout salesman' })
+  // @UseGuards(AuthGuard)
   @Post('logout')
   logout(
     @CookieGetter('refresh_token') refresh_token: string,
@@ -75,88 +97,89 @@ export class SalesmanController {
   @ApiOperation({ summary: 'Get all salesmans' })
   // @UseGuards(AuthGuard)
   @Get()
-  findAll() {
-    return this.salesmanService.findAll();
-  }
-
-  @ApiOperation({ summary: 'Pagination salesmans' })
-  // @UseGuards(AuthGuard)
-  @Get('page')
-  paginate(@Query('page') page: number) {
-    return this.salesmanService.paginate(page);
+  getAll() {
+    return this.salesmanService.getAll();
   }
 
   @ApiOperation({ summary: 'Get salesman by ID' })
   // @UseGuards(AuthGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.salesmanService.findById(id);
+  getById(@Param('id') id: string) {
+    return this.salesmanService.getById(id);
   }
 
-  @ApiOperation({ summary: 'New password of the salesman' })
-  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Get salesmans with pagination' })
+  // @UseGuards(AuthGuard)
+  @Get('pagination/:page/:limit')
+  pagination(@Param('page') page: number, @Param('limit') limit: number) {
+    return this.salesmanService.pagination(page, limit);
+  }
+
+  @ApiOperation({ summary: 'New password of salesman' })
+  // @UseGuards(AuthGuard)
   @Patch('newPassword/:id')
-  newPassword(@Param('id') id: string, newPasswordDto: NewPasswordDto) {
+  newPassword(@Param('id') id: string, @Body() newPasswordDto: NewPasswordDto) {
     return this.salesmanService.newPassword(id, newPasswordDto);
   }
 
-  @ApiOperation({ summary: 'Forgot password salesman' })
+  @ApiOperation({ summary: 'Forgot password for salesman' })
   // @UseGuards(AuthGuard)
   @Patch('forgotPassword/:id')
   forgotPassword(
     @Param('id') id: string,
-    forgotPasswordDto: ForgotPasswordDto,
+    @Body() forgotPasswordDto: ForgotPasswordDto,
   ) {
     return this.salesmanService.forgotPassword(id, forgotPasswordDto);
   }
 
-  @ApiOperation({ summary: 'Update salesman by ID' })
-  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Update salesman profile by ID' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        image: {
-          type: 'string',
-          format: 'binary',
-        },
-        username: {
-          type: 'string',
-        },
         phone: {
           type: 'string',
         },
-        telegram: {
+        password: {
+          type: 'string',
+        },
+        username: {
           type: 'string',
         },
         address: {
           type: 'string',
         },
+        telegram: {
+          type: 'string',
+        },
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
       },
     },
   })
+  // @UseGuards(AuthGuard)
   @Patch('profile/:id')
-  @UseInterceptors(FileInterceptor('image'))
-  update(
+  updateProfile(
     @Param('id') id: string,
-    @Body() salesmanDto: SalesmanDto,
-    @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
+    @Body() updateDto: UpdateSalesmanDto,
+    @UploadedFile(new ImageValidationPipe()) image?: Express.Multer.File,
   ) {
-    return this.salesmanService.update(id, salesmanDto, image);
+    return this.salesmanService.updateProfile(id, updateDto, image);
   }
 
-  @ApiOperation({ summary: 'Update salesman store info by ID' })
-  @UseGuards(AuthGuard)
-  @Patch('profile_store/:id')
+  @ApiOperation({ summary: 'Update store information' })
+  @Patch('store/:id')
   updateStore(@Param('id') id: string, @Body() storeDto: StoreDto) {
     return this.salesmanService.updateStore(id, storeDto);
   }
 
-  @ApiOperation({ summary: 'Delete Salesman by ID' })
-  @UseGuards(AuthGuard)
+  @ApiOperation({ summary: 'Delete salesman by ID' })
+  // @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.salesmanService.remove(id);
+  delete(@Param('id') id: string) {
+    return this.salesmanService.delete(id);
   }
 }

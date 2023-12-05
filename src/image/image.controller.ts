@@ -20,7 +20,7 @@ import { ImageDto } from './dto/image.dto';
 export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 
-  @ApiOperation({ summary: 'Create new mage' })
+  @ApiOperation({ summary: 'Create a new mage' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -29,6 +29,9 @@ export class ImageController {
         image: {
           type: 'string',
           format: 'binary',
+        },
+        product_id: {
+          type: 'number',
         },
         name: {
           type: 'string',
@@ -50,20 +53,26 @@ export class ImageController {
 
   @ApiOperation({ summary: 'Get all images' })
   @Get()
-  async findAll() {
-    return this.imageService.findAll();
+  async getAll() {
+    return this.imageService.getAll();
   }
 
   @ApiOperation({ summary: 'Get image by ID' })
   @Get('id/:id')
-  async findById(@Param('id') id: string) {
-    return this.imageService.findById(id);
+  async getById(@Param('id') id: string) {
+    return this.imageService.getById(id);
   }
 
   @ApiOperation({ summary: 'Get image by ID' })
-  @Get('productId/:id')
-  async findByProductId(@Param('productId') product_id: number) {
-    return this.imageService.findByProductId(product_id);
+  @Get('productId/:product_id')
+  async getByProductId(@Param('product_id') product_id: number) {
+    return this.imageService.getByProductId(product_id);
+  }
+
+  @ApiOperation({ summary: 'Get images with pagination' })
+  @Get('pagination/:page/:limit')
+  async pagination(@Param('page') page: number, @Param('limit') limit: number) {
+    return this.imageService.pagination(page, limit);
   }
 
   @ApiOperation({ summary: 'Update image by ID' })
@@ -76,6 +85,9 @@ export class ImageController {
           type: 'string',
           format: 'binary',
         },
+        product_id: {
+          type: 'number',
+        },
         name: {
           type: 'string',
         },
@@ -85,56 +97,25 @@ export class ImageController {
       },
     },
   })
-  @Patch('id/:id')
+  @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
   async updateById(
     @Param('id') id: string,
     @Body() imageDto: ImageDto,
     @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
   ) {
-    return this.imageService.updateById(id, imageDto, image);
-  }
-
-  @ApiOperation({ summary: 'Update image by product ID' })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        image: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
-  @Patch('productId')
-  @UseInterceptors(FileInterceptor('image'))
-  async updateByProductId(
-    @Body() imageDto: ImageDto,
-    @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
-  ) {
-    return this.imageService.updateByProductId(imageDto, image);
+    return this.imageService.updateImage(id, imageDto, image);
   }
 
   @ApiOperation({ summary: 'Delete image by ID' })
   @Delete('id/:id')
-  async removeById(@Param('id') id: string) {
-    return this.imageService.removeById(id);
+  async deleteById(@Param('id') id: string) {
+    return this.imageService.deleteById(id);
   }
 
-  @ApiOperation({ summary: 'Delete image by ID' })
-  @Delete('productId/:id')
-  async removeByProductId(@Param('productId') product_id: number) {
-    return this.imageService.removeByProductId(product_id);
-  }
-
-  @ApiOperation({ summary: 'Delete image from static files by file name' })
-  @Delete('delete/:id/:file_name')
-  async deleteStaticFile(
-    @Param('id') id: string,
-    @Param('file_name') file_name: string,
-  ) {
-    return this.imageService.deleteStaticFile(id, file_name);
+  @ApiOperation({ summary: 'Delete image by product ID' })
+  @Delete('productId/:product_id')
+  async deleteByProductId(@Param('product_id') product_id: number) {
+    return this.imageService.deleteByProductId(product_id);
   }
 }
