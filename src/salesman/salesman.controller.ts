@@ -52,7 +52,7 @@ export class SalesmanController {
         telegram: {
           type: 'string',
         },
-        image: {
+        file: {
           type: 'string',
           format: 'binary',
         },
@@ -60,13 +60,13 @@ export class SalesmanController {
     },
   })
   @Post('register')
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FileInterceptor('file'))
   register(
     @Body() salesmanDto: SalesmanDto,
-    @Res({ passthrough: true }) res: Response,
-    @UploadedFile(new ImageValidationPipe()) image?: Express.Multer.File,
+    @Res({passthrough: true}) res: Response,
+    @UploadedFile(new ImageValidationPipe()) file?: Express.Multer.File,
   ) {
-    return this.salesmanService.register(salesmanDto, res, image);
+    return this.salesmanService.register(salesmanDto,res, file);
   }
 
   @ApiOperation({ summary: 'Login salesman with send OTP' })
@@ -141,9 +141,6 @@ export class SalesmanController {
         phone: {
           type: 'string',
         },
-        password: {
-          type: 'string',
-        },
         username: {
           type: 'string',
         },
@@ -165,7 +162,7 @@ export class SalesmanController {
   updateProfile(
     @Param('id') id: string,
     @Body() updateDto: UpdateSalesmanDto,
-    @UploadedFile(new ImageValidationPipe()) image?: Express.Multer.File,
+    @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
   ) {
     return this.salesmanService.updateProfile(id, updateDto, image);
   }

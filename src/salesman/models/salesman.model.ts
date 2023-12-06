@@ -39,14 +39,12 @@ export class Salesman extends Model<Salesman, SalesmanAttributes> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: true,
     unique: true,
   })
   username: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: true,
     unique: true,
   })
   telegram: string;
@@ -63,7 +61,6 @@ export class Salesman extends Model<Salesman, SalesmanAttributes> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: true,
     unique: true,
   })
   store_phone: string;

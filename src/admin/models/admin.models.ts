@@ -35,14 +35,12 @@ export class Admin extends Model<Admin, AdminAttributes> {
   @Column({
     type: DataType.STRING,
     unique: true,
-    allowNull: true,
   })
   email: string;
 
   @Column({
     type: DataType.STRING,
     unique: true,
-    allowNull: true,
   })
   username: string;
 }

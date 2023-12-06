@@ -32,6 +32,7 @@ export class AdminController {
     @Body() registerAdminDto: RegisterAdminDto,
     @Res({ passthrough: true }) res: Response,
   ) {
+    console.log(registerAdminDto);
     return this.adminService.register(registerAdminDto, res);
   }
 

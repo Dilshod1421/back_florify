@@ -22,7 +22,7 @@ import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
 @Injectable()
 export class AdminService {
   constructor(
-    @InjectModel(Admin) private adminRepository: typeof Admin,
+    @InjectModel(Admin) private readonly adminRepository: typeof Admin,
     private readonly otpService: OtpService,
     private readonly jwtService: JwtService,
   ) {}
@@ -131,11 +131,8 @@ export class AdminService {
   async getAll(): Promise<object> {
     try {
       const admins = await this.adminRepository.findAll();
-      if (!admins) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          "Adminlar ro'yxati bo'sh!",
-        );
+      if (!admins.length) {
+        throw new NotFoundException("Adminlar ro'yxati bo'sh!");
       }
       return {
         statusCode: HttpStatus.OK,

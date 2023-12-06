@@ -3,7 +3,7 @@ import { IsNotEmpty, IsPhoneNumber, IsStrongPassword } from 'class-validator';
 
 export class RegisterAdminDto {
   @ApiProperty({
-    example: '+998991234567',
+    example: '+998901234567',
     description: 'The phone number of the admin (not required)',
   })
   @IsNotEmpty()

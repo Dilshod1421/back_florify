@@ -48,11 +48,12 @@ export class SalesmanService {
           hashed_password,
           image: image_name,
         });
+      } else if (!file) {
+        salesman = await this.salesmanRepository.create({
+          ...salesmanDto,
+          hashed_password,
+        });
       }
-      salesman = await this.salesmanRepository.create({
-        ...salesmanDto,
-        hashed_password,
-      });
       const { access_token, refresh_token } = await generateToken(
         { id: salesman.id },
         this.jwtService,
@@ -326,12 +327,6 @@ export class SalesmanService {
           'Sotuvchi topilmadi!',
         );
       }
-      if (!file) {
-        await this.salesmanRepository.update(
-          { image: salesman.image },
-          { where: { id }, returning: true },
-        );
-      }
       const { phone, username, address, telegram } = updateDto;
       if (!phone) {
         await this.salesmanRepository.update(
@@ -357,22 +352,37 @@ export class SalesmanService {
           { where: { id }, returning: true },
         );
       }
-      const file_name = await this.fileService.createFile(file);
-      const profile = await this.salesmanRepository.update(
-        { ...updateDto, image: file_name },
-        {
-          where: { id },
-          returning: true,
-        },
-      );
-      await this.fileService.deleteFile(salesman.image);
-      return {
-        statusCode: HttpStatus.OK,
-        message: "Sotuvchining ma'lumotlari tahrirlandi",
-        data: {
-          salesman: profile[1][0],
-        },
-      };
+      if (!file) {
+        const profile = await this.salesmanRepository.update(
+          { image: salesman.image, ...updateDto },
+          { where: { id }, returning: true },
+        );
+        return {
+          statusCode: HttpStatus.OK,
+          message: "Sotuvchining ma'lumotlari tahrirlandi",
+          data: {
+            salesman: profile[1][0],
+          },
+        };
+      }
+      if (file) {
+        const file_name = await this.fileService.createFile(file);
+        const profile = await this.salesmanRepository.update(
+          { ...updateDto, image: file_name },
+          {
+            where: { id },
+            returning: true,
+          },
+        );
+        await this.fileService.deleteFile(salesman.image);
+        return {
+          statusCode: HttpStatus.OK,
+          message: "Sotuvchining ma'lumotlari tahrirlandi",
+          data: {
+            salesman: profile[1][0],
+          },
+        };
+      }
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -421,8 +431,8 @@ export class SalesmanService {
           'Sotuvchi topilmadi!',
         );
       }
-      salesman.destroy();
       await this.fileService.deleteFile(salesman.image);
+      salesman.destroy();
       return {
         statusCode: HttpStatus.ACCEPTED,
         message: "Sotuvchi ro'yxatdan o'chirildi",
