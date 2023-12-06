@@ -16,6 +16,7 @@ import { AuthGuard } from 'src/guard/auth.guard';
 import { CategoryDto } from './dto/category.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageValidationPipe } from 'src/pipes/image-validation.pipe';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @ApiTags('Category')
 @Controller('category')
@@ -46,7 +47,7 @@ export class CategoryController {
         en_description: {
           type: 'string',
         },
-        image: {
+        file: {
           type: 'string',
           format: 'binary',
         },
@@ -55,12 +56,12 @@ export class CategoryController {
   })
   // @UseGuards(AuthGuard)
   @Post()
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FileInterceptor('file'))
   create(
     @Body() categoryDto: CategoryDto,
-    @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
+    @UploadedFile(new ImageValidationPipe()) file: Express.Multer.File,
   ) {
-    return this.categoryService.create(categoryDto, image);
+    return this.categoryService.create(categoryDto, file);
   }
 
   @ApiOperation({ summary: 'Get all categories' })
@@ -105,7 +106,7 @@ export class CategoryController {
         en_description: {
           type: 'string',
         },
-        image: {
+        file: {
           type: 'string',
           format: 'binary',
         },
@@ -114,13 +115,13 @@ export class CategoryController {
   })
   // @UseGuards(AuthGuard)
   @Patch(':id')
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(FileInterceptor('file'))
   update(
     @Param('id') id: string,
-    @Body() categoryDto: CategoryDto,
-    @UploadedFile(new ImageValidationPipe()) image?: Express.Multer.File,
+    @Body() updateDto: UpdateCategoryDto,
+    @UploadedFile(new ImageValidationPipe()) file: Express.Multer.File,
   ) {
-    return this.categoryService.update(id, categoryDto, image);
+    return this.categoryService.update(id, updateDto, file);
   }
 
   @ApiOperation({ summary: 'Delete category by ID' })

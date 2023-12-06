@@ -16,7 +16,7 @@ import { CartDto } from './dto/cart.dto';
 @Injectable()
 export class CartService {
   constructor(
-    @InjectModel(Cart) private readonly cartRepository: typeof Cart,
+    @InjectModel(Cart) private cartRepository: typeof Cart,
     private readonly clientService: ClientService,
     private readonly productService: ProductService,
   ) {}
@@ -41,17 +41,17 @@ export class CartService {
 
   async getByClientId(client_id: string): Promise<object> {
     try {
-      const cart = await this.cartRepository.findAll({
+      const carts = await this.cartRepository.findAll({
         where: { client_id },
         include: [{ model: Product, include: [Image] }],
       });
-      if (!cart) {
-        throw new NotFoundException(HttpStatus.NOT_FOUND, "Savatcha bo'sh!");
+      if (!carts.length) {
+        throw new NotFoundException("Savatcha bo'sh!");
       }
       return {
         statusCode: HttpStatus.OK,
         data: {
-          cart,
+          carts,
         },
       };
     } catch (error) {
@@ -61,20 +61,17 @@ export class CartService {
 
   async getByCartIdAndClientId(id: string, client_id: string): Promise<object> {
     try {
-      const cart = await this.cartRepository.findAll({
+      const carts = await this.cartRepository.findAll({
         where: { [Op.and]: [{ id }, { client_id }] },
         include: [{ model: Product, include: [Image] }],
       });
-      if (!cart) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Mahsulot topilmadi!',
-        );
+      if (!carts.length) {
+        throw new NotFoundException('Mahsulot topilmadi!');
       }
       return {
         statusCode: HttpStatus.OK,
         data: {
-          cart,
+          carts,
         },
       };
     } catch (error) {
@@ -89,7 +86,7 @@ export class CartService {
   ): Promise<object> {
     try {
       const offset = (page - 1) * limit;
-      const cart = await this.cartRepository.findAll({
+      const carts = await this.cartRepository.findAll({
         where: { client_id },
         offset,
         limit,
@@ -101,7 +98,7 @@ export class CartService {
       const response = {
         statusCode: HttpStatus.OK,
         data: {
-          records: cart,
+          records: carts,
           pagination: {
             currentPage: page,
             total_pages,
@@ -118,6 +115,9 @@ export class CartService {
   async deleteCart(id: string) {
     try {
       const cart = await this.cartRepository.findByPk(id);
+      if (!cart) {
+        throw new NotFoundException('Mahsulot topilmadi!');
+      }
       cart.destroy();
       return {
         statusCode: HttpStatus.ACCEPTED,

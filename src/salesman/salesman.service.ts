@@ -42,11 +42,11 @@ export class SalesmanService {
       const hashed_password = await hash(salesmanDto.password, 7);
       let salesman: any;
       if (file) {
-        const image_name = await this.fileService.createFile(file);
+        const file_name = await this.fileService.createFile(file);
         salesman = await this.salesmanRepository.create({
           ...salesmanDto,
           hashed_password,
-          image: image_name,
+          image: file_name,
         });
       } else if (!file) {
         salesman = await this.salesmanRepository.create({
@@ -79,17 +79,11 @@ export class SalesmanService {
         where: { phone },
       });
       if (!salesman) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Telefon raqam yoki parol xato!',
-        );
+        throw new NotFoundException('Telefon raqam yoki parol xato!');
       }
       const is_match_pass = await compare(password, salesman.hashed_password);
       if (!is_match_pass) {
-        throw new ForbiddenException(
-          HttpStatus.FORBIDDEN,
-          'Login yoki parol xato!',
-        );
+        throw new ForbiddenException('Login yoki parol xato!');
       }
       return this.otpService.sendOTP({ phone });
     } catch (error) {
@@ -107,10 +101,7 @@ export class SalesmanService {
         where: { phone: verifyOtpDto.phone },
       });
       if (!salesman) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Sotuvchi topilmadi!',
-        );
+        throw new NotFoundException('Sotuvchi topilmadi!');
       }
       const { access_token, refresh_token } = await generateToken(
         { id: salesman.id },
@@ -159,11 +150,8 @@ export class SalesmanService {
           },
         ],
       });
-      if (!salesmans) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          "Adminlar ro'yxati bo'sh!",
-        );
+      if (!salesmans.length) {
+        throw new NotFoundException("Adminlar ro'yxati bo'sh!");
       }
       return {
         statusCode: HttpStatus.OK,
@@ -187,10 +175,7 @@ export class SalesmanService {
         ],
       });
       if (!salesman) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Sotuvchi topilmadi!',
-        );
+        throw new NotFoundException('Sotuvchi topilmadi!');
       }
       return {
         statusCode: HttpStatus.OK,
@@ -244,26 +229,17 @@ export class SalesmanService {
         newPasswordDto;
       const salesman = await this.salesmanRepository.findByPk(id);
       if (!salesman) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Sotuvchi topilmadi!',
-        );
+        throw new NotFoundException('Sotuvchi topilmadi!');
       }
       const is_match_pass = await compare(
         old_password,
         salesman.hashed_password,
       );
       if (!is_match_pass) {
-        throw new ForbiddenException(
-          HttpStatus.FORBIDDEN,
-          'Eski parol mos kelmadi!',
-        );
+        throw new ForbiddenException('Eski parol mos kelmadi!');
       }
       if (new_password != confirm_new_password) {
-        throw new ForbiddenException(
-          HttpStatus.FORBIDDEN,
-          'Yangi parolni tasdiqlashda xatolik!',
-        );
+        throw new ForbiddenException('Yangi parolni tasdiqlashda xatolik!');
       }
       const hashed_password = await hash(confirm_new_password, 7);
       const updated_info = await this.salesmanRepository.update(
@@ -272,7 +248,7 @@ export class SalesmanService {
       );
       return {
         statusCode: HttpStatus.OK,
-        message: "Paroli o'zgartirildi",
+        message: "Parol o'zgartirildi",
         data: {
           salesman: updated_info[1][0],
         },
@@ -292,10 +268,7 @@ export class SalesmanService {
       await this.otpService.verifyOtp({ phone, code });
       await this.getById(id);
       if (new_password != confirm_new_password) {
-        throw new ForbiddenException(
-          HttpStatus.FORBIDDEN,
-          'Yangi parolni tasdiqlashda xatolik!',
-        );
+        throw new ForbiddenException('Yangi parolni tasdiqlashda xatolik!');
       }
       const hashed_password = await hash(new_password, 7);
       const updated_info = await this.salesmanRepository.update(
@@ -304,7 +277,7 @@ export class SalesmanService {
       );
       return {
         statusCode: HttpStatus.OK,
-        message: "Paroli o'zgartirildi",
+        message: "Parol o'zgartirildi",
         data: {
           salesman: updated_info[1][0],
         },
@@ -322,67 +295,54 @@ export class SalesmanService {
     try {
       const salesman = await this.salesmanRepository.findByPk(id);
       if (!salesman) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Sotuvchi topilmadi!',
-        );
+        throw new NotFoundException('Sotuvchi topilmadi!');
       }
       const { phone, username, address, telegram } = updateDto;
+      let dto = {};
       if (!phone) {
-        await this.salesmanRepository.update(
-          { phone: salesman.phone },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { phone: salesman.phone });
       }
       if (!username) {
-        await this.salesmanRepository.update(
-          { username: salesman.username },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { username: salesman.username });
       }
       if (!address) {
-        await this.salesmanRepository.update(
-          { address: salesman.address },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { address: salesman.address });
       }
       if (!telegram) {
-        await this.salesmanRepository.update(
-          { telegram: salesman.telegram },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { telegram: salesman.telegram });
       }
+      let obj = {};
       if (!file) {
-        const profile = await this.salesmanRepository.update(
-          { image: salesman.image, ...updateDto },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { image: salesman.image });
+        obj = Object.assign(updateDto, dto);
+        const update = await this.salesmanRepository.update(obj, {
+          where: { id },
+          returning: true,
+        });
         return {
           statusCode: HttpStatus.OK,
-          message: "Sotuvchining ma'lumotlari tahrirlandi",
+          message: "Sotuvchi ma'lumotlari tahrirlandi",
           data: {
-            salesman: profile[1][0],
+            salesman: update[1][0],
           },
         };
       }
-      if (file) {
-        const file_name = await this.fileService.createFile(file);
-        const profile = await this.salesmanRepository.update(
-          { ...updateDto, image: file_name },
-          {
-            where: { id },
-            returning: true,
-          },
-        );
-        await this.fileService.deleteFile(salesman.image);
-        return {
-          statusCode: HttpStatus.OK,
-          message: "Sotuvchining ma'lumotlari tahrirlandi",
-          data: {
-            salesman: profile[1][0],
-          },
-        };
-      }
+      await this.fileService.deleteFile(salesman.image);
+      const file_name = await this.fileService.createFile(file);
+      const image_obj = { image: file_name };
+      obj = Object.assign(obj, updateDto);
+      obj = Object.assign(obj, image_obj);
+      const update = await this.salesmanRepository.update(obj, {
+        where: { id },
+        returning: true,
+      });
+      return {
+        statusCode: HttpStatus.OK,
+        message: "Kategoriya ma'lumotlari tahrirlandi",
+        data: {
+          category: update[1][0],
+        },
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -392,21 +352,18 @@ export class SalesmanService {
     try {
       const store = await this.salesmanRepository.findByPk(id);
       if (!store) {
-        throw new NotFoundException(HttpStatus.NOT_FOUND, "Do'kon topilmadi!");
+        throw new NotFoundException("Do'kon topilmadi!");
       }
-      if (!storeDto.store_address) {
-        await this.salesmanRepository.update(
-          { store_address: storeDto.store_address },
-          { where: { id }, returning: true },
-        );
+      const { store_phone, store_address } = storeDto;
+      let dto: {};
+      if (store_phone) {
+        dto = Object.assign(dto, { store_phone: store.store_phone });
       }
-      if (!storeDto.store_phone) {
-        await this.salesmanRepository.update(
-          { store_phone: storeDto.store_phone },
-          { where: { id }, returning: true },
-        );
+      if (!store_address) {
+        dto = Object.assign(dto, { storeDto: store.store_address });
       }
-      const update = await this.salesmanRepository.update(storeDto, {
+      const obj = Object.assign(dto, storeDto);
+      const update_info = await this.salesmanRepository.update(obj, {
         where: { id },
         returning: true,
       });
@@ -414,7 +371,7 @@ export class SalesmanService {
         statusCode: HttpStatus.OK,
         message: "Do'kon ma'lumotlari tahrirlandi",
         data: {
-          store: update[1][0],
+          salesman: update_info[1][0],
         },
       };
     } catch (error) {
@@ -426,10 +383,7 @@ export class SalesmanService {
     try {
       const salesman = await this.salesmanRepository.findByPk(id);
       if (!salesman) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Sotuvchi topilmadi!',
-        );
+        throw new NotFoundException('Sotuvchi topilmadi!');
       }
       await this.fileService.deleteFile(salesman.image);
       salesman.destroy();

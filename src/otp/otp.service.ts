@@ -65,23 +65,14 @@ export class OtpService {
         where: { phone },
       });
       if (!check) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Telefon raqam xato!',
-        );
+        throw new NotFoundException('Telefon raqam xato!');
       }
       const now = Date.now();
       if (now >= check.expire_time) {
-        throw new UnauthorizedException(
-          HttpStatus.UNAUTHORIZED,
-          'Parol vaqti tugagan!',
-        );
+        throw new UnauthorizedException('Parol vaqti tugagan!');
       }
       if (code != check.code) {
-        throw new ForbiddenException(
-          HttpStatus.FORBIDDEN,
-          'Parol tasdiqlanmadi!',
-        );
+        throw new ForbiddenException('Parol tasdiqlanmadi!');
       }
       return {
         statusCode: HttpStatus.OK,
@@ -96,10 +87,7 @@ export class OtpService {
     try {
       const otp = await this.otpRepository.findOne({ where: { phone } });
       if (!otp) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          "Bu telefon raqami ro'yxatga olinmagan!",
-        );
+        throw new NotFoundException("Bu telefon raqami ro'yxatga olinmagan!");
       }
       return otp;
     } catch (error) {

@@ -10,11 +10,12 @@ import { CategoryDto } from './dto/category.dto';
 import { Product } from 'src/product/models/product.model';
 import { Image } from 'src/image/models/image.model';
 import { FilesService } from 'src/files/files.service';
+import { UpdateCategoryDto } from './dto/update-category.dto';
 
 @Injectable()
 export class CategoryService {
   constructor(
-    @InjectModel(Category) private readonly categoryRepository: typeof Category,
+    @InjectModel(Category) private categoryRepository: typeof Category,
     private readonly fileService: FilesService,
   ) {}
 
@@ -47,11 +48,8 @@ export class CategoryService {
           },
         ],
       });
-      if (!categories) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          "Kategoriyalar ro'yxati bo'sh!",
-        );
+      if (!categories.length) {
+        throw new NotFoundException("Kategoriyalar ro'yxati bo'sh!");
       }
       return {
         statusCode: HttpStatus.OK,
@@ -70,16 +68,12 @@ export class CategoryService {
         include: [
           {
             model: Product,
-            through: {},
             include: [{ model: Image, attributes: ['image'] }],
           },
         ],
       });
       if (!category) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Kategoriya topilmadi!',
-        );
+        throw new NotFoundException('Kategoriya topilmadi!');
       }
       return {
         statusCode: HttpStatus.OK,
@@ -126,74 +120,65 @@ export class CategoryService {
 
   async update(
     id: string,
-    categoryDto: CategoryDto,
+    updateDto: UpdateCategoryDto,
     file: any,
   ): Promise<object> {
     try {
-      const { uz, ru, en, uz_description, ru_description, en_description } =
-        categoryDto;
       const category = await this.categoryRepository.findByPk(id);
       if (!category) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Kategoriya topilmadi!',
-        );
+        throw new NotFoundException('Kategoriya topilmadi!');
       }
-      if (!file) {
-        await this.categoryRepository.update(
-          { image: category.image },
-          { where: { id }, returning: true },
-        );
-      }
+      const { uz, ru, en, uz_description, ru_description, en_description } =
+        updateDto;
+      let dto = {};
       if (!uz) {
-        await this.categoryRepository.update(
-          { uz: category.uz },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { uz: category.uz });
       }
       if (!ru) {
-        await this.categoryRepository.update(
-          { ru: category.ru },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { ru: category.ru });
       }
       if (!en) {
-        await this.categoryRepository.update(
-          { en: category.en },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { en: category.en });
       }
       if (!uz_description) {
-        await this.categoryRepository.update(
-          { uz_description: category.uz_description },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { uz_description: category.uz_description });
       }
       if (!ru_description) {
-        await this.categoryRepository.update(
-          { ru_description: category.ru_description },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { ru_description: category.ru_description });
       }
       if (!en_description) {
-        await this.categoryRepository.update(
-          { en_description: category.en_description },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { en_description: category.en_description });
       }
-      await this.fileService.deleteFile(category.image);
-      const updated_info = await this.categoryRepository.update(
-        { ...categoryDto, image: file },
-        {
+      let obj = {};
+      if (!file) {
+        dto = Object.assign(dto, { image: category.image });
+        obj = Object.assign(updateDto, dto);
+        const update = await this.categoryRepository.update(obj, {
           where: { id },
           returning: true,
-        },
-      );
+        });
+        return {
+          statusCode: HttpStatus.OK,
+          message: "Kategoriya ma'lumotlari tahrirlandi",
+          data: {
+            category: update[1][0],
+          },
+        };
+      }
+      await this.fileService.deleteFile(category.image);
+      const file_name = await this.fileService.createFile(file);
+      const image_obj = { image: file_name };
+      obj = Object.assign(obj, updateDto);
+      obj = Object.assign(obj, image_obj);
+      const update = await this.categoryRepository.update(obj, {
+        where: { id },
+        returning: true,
+      });
       return {
         statusCode: HttpStatus.OK,
         message: "Kategoriya ma'lumotlari tahrirlandi",
         data: {
-          category: updated_info[1][0],
+          category: update[1][0],
         },
       };
     } catch (error) {
@@ -205,13 +190,10 @@ export class CategoryService {
     try {
       const category = await this.categoryRepository.findByPk(id);
       if (!category) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Kategoriya topilmadi!',
-        );
+        throw new NotFoundException('Kategoriya topilmadi!');
       }
-      category.destroy();
       await this.fileService.deleteFile(category.image);
+      category.destroy();
       return {
         statusCode: HttpStatus.ACCEPTED,
         message: "Kategoriya ro'yxatdan o'chirildi",

@@ -4,7 +4,7 @@ import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 export class ProductDto {
   @ApiProperty({
     example: 'Rose',
-    description: 'Name of the product',
+    description: 'Name of product',
   })
   @IsNotEmpty()
   @IsString()
@@ -12,7 +12,7 @@ export class ProductDto {
 
   @ApiProperty({
     example: 25,
-    description: 'Price of the product',
+    description: 'Price of product',
   })
   @IsNotEmpty()
   @IsNumber()
@@ -21,7 +21,7 @@ export class ProductDto {
 
   @ApiProperty({
     example: 25,
-    description: 'The price of the product',
+    description: 'Quantity of product',
   })
   @IsNotEmpty()
   @IsNumber()
@@ -30,19 +30,19 @@ export class ProductDto {
 
   @ApiProperty({
     example: 'Some description',
-    description: 'Description of the product',
+    description: 'Description of product',
   })
   description?: string;
 
   @ApiProperty({
     example: 'Red',
-    description: 'Color of the product',
+    description: 'Color of product',
   })
   color?: string;
 
   @ApiProperty({
     example: 'de53c13b-45as-4e0b-86b2-25ce4c5a2177',
-    description: 'Salesman ID of the product',
+    description: 'Salesman ID of product',
   })
   @IsNotEmpty()
   @IsString()
@@ -50,7 +50,7 @@ export class ProductDto {
 
   @ApiProperty({
     example: 'de53c13b-45as-4e0b-86b2-25ce4c5a2177',
-    description: 'Category ID of the product',
+    description: 'Category ID of product',
   })
   @IsNotEmpty()
   @IsString()

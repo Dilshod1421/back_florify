@@ -14,6 +14,7 @@ import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ImageValidationPipe } from 'src/pipes/image-validation.pipe';
 import { ImageDto } from './dto/image.dto';
+import { ImageUpdateDto } from './dto/image-update.dto';
 
 @ApiTags('Image')
 @Controller('image')
@@ -101,10 +102,10 @@ export class ImageController {
   @UseInterceptors(FileInterceptor('image'))
   async updateById(
     @Param('id') id: string,
-    @Body() imageDto: ImageDto,
+    @Body() imageUpdateDto: ImageUpdateDto,
     @UploadedFile(new ImageValidationPipe()) image: Express.Multer.File,
   ) {
-    return this.imageService.updateImage(id, imageDto, image);
+    return this.imageService.updateImage(id, imageUpdateDto, image);
   }
 
   @ApiOperation({ summary: 'Delete image by ID' })

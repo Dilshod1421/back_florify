@@ -50,11 +50,8 @@ export class ProductService {
       const products = await this.productRepository.findAll({
         include: [{ model: Image, attributes: ['image'] }],
       });
-      if (!products) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          "Mahsulotlar ro'yxati bo'sh!",
-        );
+      if (!products.length) {
+        throw new NotFoundException("Mahsulotlar ro'yxati bo'sh!");
       }
       return {
         statusCode: HttpStatus.OK,
@@ -73,10 +70,7 @@ export class ProductService {
         include: [{ model: Image, attributes: ['image'] }],
       });
       if (!product) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Mahsulot topilmadi!',
-        );
+        throw new NotFoundException('Mahsulot topilmadi!');
       }
       return {
         statusCode: HttpStatus.OK,
@@ -226,6 +220,9 @@ export class ProductService {
   async update(id: number, updateProductDto: UpdateProducDto): Promise<object> {
     try {
       const product = await this.productRepository.findByPk(id);
+      if (!product) {
+        throw new NotFoundException('Mahsulot topilmaadi!');
+      }
       const {
         name,
         price,
@@ -235,60 +232,40 @@ export class ProductService {
         salesman_id,
         category_id,
       } = updateProductDto;
+      let dto = {};
       if (!name) {
-        await this.productRepository.update(
-          { name: product.name },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { name: product.name });
       }
       if (!price) {
-        await this.productRepository.update(
-          { price: product.price },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { price: product.price });
       }
       if (!quantity) {
-        await this.productRepository.update(
-          { quantity: product.quantity },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { quantity: product.quantity });
       }
       if (!description) {
-        await this.productRepository.update(
-          { description: product.description },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { description: product.description });
       }
       if (!color) {
-        await this.productRepository.update(
-          { color: product.color },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { color: product.color });
       }
       if (!salesman_id) {
-        await this.productRepository.update(
-          { salesman_id: product.salesman_id },
-          { where: { id }, returning: true },
-        );
+        await this.salesmanService.getById(salesman_id);
+        dto = Object.assign(dto, { salesman_id: product.salesman_id });
       }
       if (!category_id) {
-        await this.productRepository.update(
-          { category_id: product.category_id },
-          { where: { id }, returning: true },
-        );
+        await this.salesmanService.getById(category_id);
+        dto = Object.assign(dto, { category_id: product.category_id });
       }
-      const updated_info = await this.productRepository.update(
-        updateProductDto,
-        {
-          where: { id },
-          returning: true,
-        },
-      );
+      const obj = Object.assign(updateProductDto, dto);
+      const update = await this.imageRepository.update(obj, {
+        where: { id },
+        returning: true,
+      });
       return {
         statusCode: HttpStatus.OK,
-        message: 'Mahsulot tafsilotlari tahrirlandi',
+        message: "Mahsulot ma'lumotlari tahrirlandi",
         data: {
-          product: updated_info[1][0],
+          product: update[1][0],
         },
       };
     } catch (error) {
@@ -300,18 +277,15 @@ export class ProductService {
     try {
       const product = await this.productRepository.findByPk(id);
       if (!product) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Mahsulot topilmadi!',
-        );
+        throw new NotFoundException('Mahsulot topilmadi!');
       }
-      product.destroy();
       const images = await this.imageRepository.findAll({
         where: { product_id: id },
       });
       for (let i = 0; i < images.length; i++) {
         await this.fileService.deleteFile(images[i].image);
       }
+      product.destroy();
       return {
         statusCode: HttpStatus.ACCEPTED,
         message: "Mahsulot o'chirildi",

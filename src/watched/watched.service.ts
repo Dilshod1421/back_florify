@@ -17,7 +17,7 @@ import { WatchedDto } from './dto/watched.dto';
 @Injectable()
 export class WatchedService {
   constructor(
-    @InjectModel(Watched) private readonly watchedRepository: typeof Watched,
+    @InjectModel(Watched) private watchedRepository: typeof Watched,
     private readonly clientService: ClientService,
     private readonly productService: ProductService,
   ) {}
@@ -31,7 +31,6 @@ export class WatchedService {
       );
       if (exist) {
         throw new ConflictException(
-          HttpStatus.CONFLICT,
           "Mahsulot allaqachon ko'rilganlar ro'yxatiga qo'shilgan!",
         );
       }
@@ -62,11 +61,8 @@ export class WatchedService {
           },
         ],
       });
-      if (!watcheds) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          "Ko'rilganlar ro'yxati bo'sh!",
-        );
+      if (!watcheds.length) {
+        throw new NotFoundException("Ko'rilganlar ro'yxati bo'sh!");
       }
       return {
         statusCode: HttpStatus.OK,
@@ -91,10 +87,7 @@ export class WatchedService {
         include: [{ model: Product, include: [Image] }],
       });
       if (!watcheds) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          "Mahsulot ko'rilganlar ro'yxatida yo'q!",
-        );
+        throw new NotFoundException("Mahsulot ko'rilganlar ro'yxatida yo'q!");
       }
       return {
         statusCode: HttpStatus.OK,
@@ -157,10 +150,7 @@ export class WatchedService {
         },
       });
       if (!like) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          "Mahsulot ko'rilganlar ro'yxatida yo'q!",
-        );
+        throw new NotFoundException("Mahsulot ko'rilganlar ro'yxatida yo'q!");
       }
       like.destroy();
       return {

@@ -9,6 +9,7 @@ import { Image } from './models/image.model';
 import { FilesService } from 'src/files/files.service';
 import { ProductService } from 'src/product/product.service';
 import { ImageDto } from './dto/image.dto';
+import { ImageUpdateDto } from './dto/image-update.dto';
 
 @Injectable()
 export class ImageService {
@@ -43,11 +44,8 @@ export class ImageService {
       const images = await this.imageRepository.findAll({
         include: { all: true },
       });
-      if (!images) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          "Rasmlar ro'yxati bo'sh!",
-        );
+      if (!images.length) {
+        throw new NotFoundException("Rasmlar ro'yxati bo'sh!");
       }
       return {
         statusCode: HttpStatus.OK,
@@ -66,7 +64,7 @@ export class ImageService {
         include: { all: true },
       });
       if (!image) {
-        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Rasm topilmadi!');
+        throw new NotFoundException('Rasm topilmadi!');
       }
       return {
         statusCode: HttpStatus.OK,
@@ -81,20 +79,17 @@ export class ImageService {
 
   async getByProductId(product_id: number): Promise<object> {
     try {
-      const image = await this.imageRepository.findOne({
+      const images = await this.imageRepository.findAll({
         where: { product_id },
         include: { all: true },
       });
-      if (!image) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Mahsulotning rasmi topilmadi!',
-        );
+      if (!images.length) {
+        throw new NotFoundException('Mahsulotning rasmlari topilmadi!');
       }
       return {
         statusCode: HttpStatus.OK,
         data: {
-          image,
+          images,
         },
       };
     } catch (error) {
@@ -131,25 +126,56 @@ export class ImageService {
 
   async updateImage(
     id: string,
-    imageDto: ImageDto,
+    imageUpdateDto: ImageUpdateDto,
     file: any,
   ): Promise<object> {
     try {
       const image = await this.imageRepository.findByPk(id);
       if (!image) {
-        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Rasm topilmadi!');
+        throw new NotFoundException('Rasm topilmadi!');
+      }
+      const { name, size, product_id } = imageUpdateDto;
+      let dto = {};
+      if (!name) {
+        dto = Object.assign(dto, { name: image.name });
+      }
+      if (!size) {
+        dto = Object.assign(dto, { size: image.size });
+      }
+      if (!product_id) {
+        await this.productService.getById(product_id);
+        dto = Object.assign(dto, { product_id: image.product_id });
+      }
+      let obj = {};
+      if (!file) {
+        dto = Object.assign(dto, { image: image.image });
+        obj = Object.assign(imageUpdateDto, dto);
+        const update = await this.imageRepository.update(obj, {
+          where: { id },
+          returning: true,
+        });
+        return {
+          statusCode: HttpStatus.OK,
+          message: 'Rasm tahrirlandi',
+          data: {
+            image: update[1][0],
+          },
+        };
       }
       await this.fileService.deleteFile(image.image);
       const file_name = await this.fileService.createFile(file);
-      const new_image = await this.imageRepository.update(
-        { ...imageDto, image: file_name },
-        { where: { id }, returning: true },
-      );
+      const image_obj = { image: file_name };
+      obj = Object.assign(obj, imageUpdateDto);
+      obj = Object.assign(obj, image_obj);
+      const update = await this.imageRepository.update(obj, {
+        where: { id },
+        returning: true,
+      });
       return {
         statusCode: HttpStatus.OK,
         message: 'Rasm tahrirlandi',
         data: {
-          image: new_image,
+          image: update[1][0],
         },
       };
     } catch (error) {
@@ -161,10 +187,10 @@ export class ImageService {
     try {
       const image = await this.imageRepository.findByPk(id);
       if (!image) {
-        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Rasm topilmadi!');
+        throw new NotFoundException('Rasm topilmadi!');
       }
-      await image.destroy();
       await this.fileService.deleteFile(image.image);
+      await image.destroy();
       return {
         statusCode: HttpStatus.ACCEPTED,
         message: "Rasm o'chirildi",
@@ -176,19 +202,16 @@ export class ImageService {
 
   async deleteByProductId(product_id: number): Promise<object> {
     try {
-      const image = await this.imageRepository.findAll({
+      const images = await this.imageRepository.findAll({
         where: { product_id },
       });
-      if (!image) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Mahsulotning rasmlari topilmadi!',
-        );
+      if (!images.length) {
+        throw new NotFoundException('Mahsulotning rasmlari topilmadi!');
+      }
+      for (let i = 0; i < images.length; i++) {
+        await this.fileService.deleteFile(images[i].image);
       }
       await this.imageRepository.destroy({ where: { product_id } });
-      for (let i = 0; i < image.length; i++) {
-        await this.fileService.deleteFile(image[i].image);
-      }
       return {
         statusCode: HttpStatus.ACCEPTED,
         message: "Mahsulot rasmlari o'chirildi",

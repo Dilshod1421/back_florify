@@ -44,17 +44,17 @@ export class Category extends Model<Category, CategoryAttrs> {
   en: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.TEXT,
   })
   uz_description: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.TEXT,
   })
   ru_description: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.TEXT,
   })
   en_description: string;
 

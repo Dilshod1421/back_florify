@@ -4,7 +4,7 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 export class LikeDto {
   @ApiProperty({
     example: '11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000',
-    description: 'ID of the client',
+    description: 'ID of client',
   })
   @IsNotEmpty()
   @IsString()
@@ -12,7 +12,7 @@ export class LikeDto {
 
   @ApiProperty({
     example: '1',
-    description: 'ID of the product',
+    description: 'ID of product',
   })
   @IsNotEmpty()
   @IsNumber()

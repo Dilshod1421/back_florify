@@ -17,7 +17,7 @@ import { Image } from 'src/image/models/image.model';
 @Injectable()
 export class LikeService {
   constructor(
-    @InjectModel(Like) private readonly likeRepository: typeof Like,
+    @InjectModel(Like) private likeRepository: typeof Like,
     private readonly clientService: ClientService,
     private readonly productService: ProductService,
   ) {}
@@ -36,7 +36,6 @@ export class LikeService {
       });
       if (exist) {
         throw new ConflictException(
-          HttpStatus.CONFLICT,
           "Mahsulot allaqachon sevimlilar ro'yxatiga qo'shilgan!",
         );
       }
@@ -67,11 +66,8 @@ export class LikeService {
           },
         ],
       });
-      if (!likes) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          "Sevimlilar ro'yxati bo'sh!",
-        );
+      if (!likes.length) {
+        throw new NotFoundException("Sevimlilar ro'yxati bo'sh!");
       }
       return {
         statusCode: HttpStatus.OK,
@@ -93,10 +89,7 @@ export class LikeService {
         include: [{ model: Product, include: [Image] }],
       });
       if (!like) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          "Mahsulot sevimlilar ro'yxatida yo'q!",
-        );
+        throw new NotFoundException("Mahsulot sevimlilar ro'yxatida yo'q!");
       }
       return {
         statusCode: HttpStatus.OK,
@@ -159,10 +152,7 @@ export class LikeService {
         },
       });
       if (!like) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          "Mahsulot sevimlilar ro'yxatida yo'q!",
-        );
+        throw new NotFoundException("Mahsulot sevimlilar ro'yxatida yo'q!");
       }
       like.destroy();
       return {

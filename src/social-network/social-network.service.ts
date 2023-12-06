@@ -36,9 +36,8 @@ export class SocialNetworkService {
   async getAll(): Promise<object> {
     try {
       const social_networks = await this.socialNetworkRepository.findAll();
-      if (!social_networks) {
+      if (!social_networks.length) {
         throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
           "Ijtimoiy tarmoqdagi sahifalar ro'yxati bo'sh!",
         );
       }
@@ -57,10 +56,7 @@ export class SocialNetworkService {
     try {
       const social_network = await this.socialNetworkRepository.findByPk(id);
       if (!social_network) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Ijtimoiy tarmoqdagi sahifa topilmadi!',
-        );
+        throw new NotFoundException('Ijtimoiy tarmoqdagi sahifa topilmadi!');
       }
       return {
         statusCode: HttpStatus.OK,
@@ -103,28 +99,21 @@ export class SocialNetworkService {
     try {
       const social_network = await this.socialNetworkRepository.findByPk(id);
       if (!social_network) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Ijtimoiy tarmoqdagi sahifa topilmadi!',
-        );
+        throw new NotFoundException('Ijtimoiy tarmoqdagi sahifa topilmadi!');
       }
       const { name, link } = updateSocialDto;
+      let dto: {};
       if (!name) {
-        await this.socialNetworkRepository.update(
-          { name: social_network.name },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { name: social_network.name });
       }
       if (!link) {
-        await this.socialNetworkRepository.update(
-          { link: social_network.link },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { name: social_network.link });
       }
-      const updated_info = await this.socialNetworkRepository.update(
-        updateSocialDto,
-        { where: { id }, returning: true },
-      );
+      const obj = Object.assign(dto, updateSocialDto);
+      const updated_info = await this.socialNetworkRepository.update(obj, {
+        where: { id },
+        returning: true,
+      });
       return {
         statusCode: HttpStatus.OK,
         message: 'Ijtimoiy tarmoqdagi sahifa tahrirlandi',
@@ -141,10 +130,7 @@ export class SocialNetworkService {
     try {
       const social_network = await this.socialNetworkRepository.findByPk(id);
       if (!social_network) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Ijtimoiy tarmoqdagi sahifa topilmadi!',
-        );
+        throw new NotFoundException('Ijtimoiy tarmoqdagi sahifa topilmadi!');
       }
       social_network.destroy();
       return {

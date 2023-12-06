@@ -64,7 +64,7 @@ export class SalesmanController {
   register(
     @Body() salesmanDto: SalesmanDto,
     @Res({passthrough: true}) res: Response,
-    @UploadedFile(new ImageValidationPipe()) file?: Express.Multer.File,
+    @UploadedFile(new ImageValidationPipe()) file: Express.Multer.File,
   ) {
     return this.salesmanService.register(salesmanDto,res, file);
   }

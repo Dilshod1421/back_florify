@@ -22,7 +22,7 @@ import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
 @Injectable()
 export class AdminService {
   constructor(
-    @InjectModel(Admin) private readonly adminRepository: typeof Admin,
+    @InjectModel(Admin) private adminRepository: typeof Admin,
     private readonly otpService: OtpService,
     private readonly jwtService: JwtService,
   ) {}
@@ -61,17 +61,11 @@ export class AdminService {
       const { phone, password } = loginAdminDto;
       const admin = await this.adminRepository.findOne({ where: { phone } });
       if (!admin) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Telefon raqam yoki parol xato!',
-        );
+        throw new NotFoundException('Telefon raqam yoki parol xato!');
       }
       const is_match_pass = await compare(password, admin.hashed_password);
       if (!is_match_pass) {
-        throw new ForbiddenException(
-          HttpStatus.FORBIDDEN,
-          'Login yoki parol xato!',
-        );
+        throw new ForbiddenException('Login yoki parol xato!');
       }
       return this.otpService.sendOTP({ phone });
     } catch (error) {
@@ -89,7 +83,7 @@ export class AdminService {
         where: { phone: verifyOtpDto.phone },
       });
       if (!admin) {
-        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Admin topilmadi!');
+        throw new NotFoundException('Admin topilmadi!');
       }
       const { access_token, refresh_token } = await generateToken(
         { id: admin.id },
@@ -149,7 +143,7 @@ export class AdminService {
     try {
       const admin = await this.adminRepository.findByPk(id);
       if (!admin) {
-        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Admin topilmadi!');
+        throw new NotFoundException('Admin topilmadi!');
       }
       return {
         statusCode: HttpStatus.OK,
@@ -194,20 +188,14 @@ export class AdminService {
         newPasswordDto;
       const admin = await this.adminRepository.findByPk(id);
       if (!admin) {
-        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Admin topilmadi!');
+        throw new NotFoundException('Admin topilmadi!');
       }
       const is_match_pass = await compare(old_password, admin.hashed_password);
       if (!is_match_pass) {
-        throw new ForbiddenException(
-          HttpStatus.FORBIDDEN,
-          'Eski parol mos kelmadi!',
-        );
+        throw new ForbiddenException('Eski parol mos kelmadi!');
       }
       if (new_password != confirm_new_password) {
-        throw new ForbiddenException(
-          HttpStatus.FORBIDDEN,
-          'Yangi parolni tasdiqlashda xatolik!',
-        );
+        throw new ForbiddenException('Yangi parolni tasdiqlashda xatolik!');
       }
       const hashed_password = await hash(confirm_new_password, 7);
       const updated_info = await this.adminRepository.update(
@@ -236,10 +224,7 @@ export class AdminService {
       await this.otpService.verifyOtp({ phone, code });
       await this.getById(id);
       if (new_password != confirm_new_password) {
-        throw new ForbiddenException(
-          HttpStatus.FORBIDDEN,
-          'Yangi parolni tasdiqlashda xatolik!',
-        );
+        throw new ForbiddenException('Yangi parolni tasdiqlashda xatolik!');
       }
       const hashed_password = await hash(new_password, 7);
       const updated_info = await this.adminRepository.update(
@@ -265,36 +250,29 @@ export class AdminService {
     try {
       const admin = await this.adminRepository.findByPk(id);
       if (!admin) {
-        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Admin topilmadi!');
+        throw new NotFoundException('Admin topilmadi!');
       }
-      const { email, phone, username } = updateAdminDto;
+      const { phone, email, username } = updateAdminDto;
+      let dto = {};
       if (!phone) {
-        await this.adminRepository.update(
-          { phone: admin.phone },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { phone: admin.phone });
       }
       if (!email) {
-        await this.adminRepository.update(
-          { email: admin.email },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { email: admin.email });
       }
       if (!username) {
-        await this.adminRepository.update(
-          { username: admin.username },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { username: admin.username });
       }
-      const profile = await this.adminRepository.update(updateAdminDto, {
+      const obj = Object.assign(updateAdminDto, dto);
+      const update = await this.adminRepository.update(obj, {
         where: { id },
         returning: true,
       });
       return {
         statusCode: HttpStatus.OK,
-        message: "Adminning ma'lumotlari tahrirlandi",
+        message: "Admin ma'lumotlari tahrirlandi",
         data: {
-          admin: profile[1][0],
+          admin: update[1][0],
         },
       };
     } catch (error) {
@@ -306,7 +284,7 @@ export class AdminService {
     try {
       const admin = await this.adminRepository.findByPk(id);
       if (!admin) {
-        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Admin topilmadi!');
+        throw new NotFoundException('Admin topilmadi!');
       }
       admin.destroy();
       return {

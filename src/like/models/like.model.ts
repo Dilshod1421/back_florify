@@ -29,6 +29,7 @@ export class Like extends Model<Like, LikeAttributes> {
   @Column({
     type: DataType.BOOLEAN,
     defaultValue: false,
+    allowNull: false,
   })
   is_like: boolean;
 

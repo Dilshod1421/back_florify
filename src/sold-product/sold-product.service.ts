@@ -7,9 +7,8 @@ import { SoldProductDto } from './dto/sold-product.dto';
 @Injectable()
 export class SoldProductService {
   constructor(
-    @InjectModel(SoldProduct)
-    private readonly soldProductRepository: typeof SoldProduct,
-    @InjectModel(Product) private readonly productRepository: typeof Product,
+    @InjectModel(SoldProduct) private soldProductRepository: typeof SoldProduct,
+    @InjectModel(Product) private productRepository: typeof Product,
   ) {}
 
   async create(soldProductDto: SoldProductDto) {

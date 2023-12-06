@@ -18,8 +18,7 @@ import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
 @Injectable()
 export class ClientService {
   constructor(
-    @InjectModel(Client)
-    private readonly clientRepository: typeof Client,
+    @InjectModel(Client) private clientRepository: typeof Client,
     private readonly otpService: OtpService,
     private readonly jwtService: JwtService,
   ) {}
@@ -47,16 +46,13 @@ export class ClientService {
     }
   }
 
-  async login(phoneDto: PhoneDto) {
+  async login(phoneDto: PhoneDto): Promise<object> {
     try {
       const client = await this.clientRepository.findOne({
         where: { phone: phoneDto.phone },
       });
       if (!client) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          'Telefon raqam xato!',
-        );
+        throw new NotFoundException('Telefon raqam xato!');
       }
       return this.otpService.sendOTP({ phone: phoneDto.phone });
     } catch (error) {
@@ -115,11 +111,8 @@ export class ClientService {
       const clients = await this.clientRepository.findAll({
         include: { all: true },
       });
-      if (!clients) {
-        throw new NotFoundException(
-          HttpStatus.NOT_FOUND,
-          "Mijozlar ro'yxati bo'sh!",
-        );
+      if (!clients.length) {
+        throw new NotFoundException("Mijozlar ro'yxati bo'sh!");
       }
       return {
         statusCode: HttpStatus.OK,
@@ -139,7 +132,7 @@ export class ClientService {
         include: { all: true },
       });
       if (!client) {
-        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Mijoz topilmadi!');
+        throw new NotFoundException('Mijoz topilmadi!');
       }
       return {
         statusCode: HttpStatus.OK,
@@ -182,25 +175,18 @@ export class ClientService {
         throw new NotFoundException(HttpStatus.NOT_FOUND, 'Mijoz topilmadi!');
       }
       const { phone, name, address } = updateDto;
+      let dto = {};
       if (!phone) {
-        await this.clientRepository.update(
-          { phone: client.phone },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { phone: client.phone });
       }
       if (!name) {
-        await this.clientRepository.update(
-          { name: client.name },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { name: client.name });
       }
       if (!address) {
-        await this.clientRepository.update(
-          { address: client.address },
-          { where: { id }, returning: true },
-        );
+        dto = Object.assign(dto, { address: client.address });
       }
-      const profile = await this.clientRepository.update(updateDto, {
+      const obj = Object.assign(updateDto, dto);
+      const profile = await this.clientRepository.update(obj, {
         where: { id },
         returning: true,
       });
@@ -220,7 +206,7 @@ export class ClientService {
     try {
       const client = await this.clientRepository.findByPk(id);
       if (!client) {
-        throw new NotFoundException(HttpStatus.NOT_FOUND, 'Mijoz topilmadi!');
+        throw new NotFoundException('Mijoz topilmadi!');
       }
       client.destroy();
       return {
