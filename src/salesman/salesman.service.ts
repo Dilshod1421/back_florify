@@ -327,7 +327,10 @@ export class SalesmanService {
           },
         };
       }
-      await this.fileService.deleteFile(salesman.image);
+      if (salesman.image) {
+        console.log(salesman.image);
+        await this.fileService.deleteFile(salesman.image);
+      }
       const file_name = await this.fileService.createFile(file);
       const image_obj = { image: file_name };
       obj = Object.assign(obj, updateDto);
@@ -338,9 +341,9 @@ export class SalesmanService {
       });
       return {
         statusCode: HttpStatus.OK,
-        message: "Kategoriya ma'lumotlari tahrirlandi",
+        message: "Sotuvchi ma'lumotlari tahrirlandi",
         data: {
-          category: update[1][0],
+          salesman: update[1][0],
         },
       };
     } catch (error) {
