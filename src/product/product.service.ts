@@ -48,7 +48,7 @@ export class ProductService {
   async getAll(): Promise<object> {
     try {
       const products = await this.productRepository.findAll({
-        include: [{ model: Image, attributes: ['image'] }],
+        include: { model: Image, attributes: ['image'] },
       });
       if (!products.length) {
         throw new NotFoundException("Mahsulotlar ro'yxati bo'sh!");
@@ -67,7 +67,7 @@ export class ProductService {
   async getById(id: number): Promise<object> {
     try {
       const product = await this.productRepository.findByPk(id, {
-        include: [{ model: Image, attributes: ['image'] }],
+        include: { model: Image, attributes: ['image'] },
       });
       if (!product) {
         throw new NotFoundException('Mahsulot topilmadi!');
@@ -92,7 +92,7 @@ export class ProductService {
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
         where: { category_id },
-        include: [{ model: Image, attributes: ['image'] }],
+        include: { model: Image, attributes: ['image'] },
         offset,
         limit,
       });
@@ -137,7 +137,7 @@ export class ProductService {
         where,
         offset,
         limit,
-        include: [{ model: Image, attributes: ['image'] }],
+        include: { model: Image, attributes: ['image'] },
       });
       const total_count = await this.productRepository.count({
         where,
@@ -164,7 +164,7 @@ export class ProductService {
     try {
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
-        include: [{ model: Image, attributes: ['image'] }],
+        include: { model: Image, attributes: ['image'] },
         offset,
         limit,
       });
@@ -194,7 +194,7 @@ export class ProductService {
       console.log(page, limit, offset);
       const products = await this.productRepository.findAll({
         where: { date },
-        include: [{ model: Image, attributes: ['image'] }],
+        include: { model: Image, attributes: ['image'] },
         offset,
         limit,
       });
