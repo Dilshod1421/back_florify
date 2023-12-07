@@ -249,15 +249,19 @@ export class ProductService {
         dto = Object.assign(dto, { color: product.color });
       }
       if (!salesman_id) {
-        await this.salesmanService.getById(salesman_id);
         dto = Object.assign(dto, { salesman_id: product.salesman_id });
       }
       if (!category_id) {
-        await this.salesmanService.getById(category_id);
         dto = Object.assign(dto, { category_id: product.category_id });
       }
+      if (salesman_id) {
+        await this.salesmanService.getById(salesman_id);
+      }
+      if (category_id) {
+        await this.categoryService.getById(category_id);
+      }
       const obj = Object.assign(updateProductDto, dto);
-      const update = await this.imageRepository.update(obj, {
+      const update = await this.productRepository.update(obj, {
         where: { id },
         returning: true,
       });
