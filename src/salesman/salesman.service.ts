@@ -299,6 +299,7 @@ export class SalesmanService {
       }
       const { phone, username, address, telegram } = updateDto;
       let dto = {};
+      let deleteImage: any = updateDto;
       if (!phone) {
         dto = Object.assign(dto, { phone: salesman.phone });
       }
@@ -327,9 +328,9 @@ export class SalesmanService {
           },
         };
       }
-      if (file == 'delete') {
+      if (deleteImage.file == 'delete') {
         await this.fileService.deleteFile(salesman.image);
-      } else if (file != 'delete') {
+      } else if (file) {
         if (salesman.image) {
           await this.fileService.deleteFile(salesman.image);
         }
