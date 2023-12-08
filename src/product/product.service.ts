@@ -126,6 +126,9 @@ export class ProductService {
     try {
       const offset = (page - 1) * limit;
       let where: any = { salesman_id };
+      if (quantity == 'All') {
+        where = { salesman_id };
+      }
       if (quantity == 'on_sale') {
         where.quantity = {
           [Op.ne]: 0,
