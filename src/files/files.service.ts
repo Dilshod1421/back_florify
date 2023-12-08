@@ -8,7 +8,7 @@ export class FilesService {
   async createFile(file: any): Promise<string> {
     try {
       const file_name = v4() + '.jpg';
-      const file_path = resolve(__dirname, '..', 'static');
+      const file_path = resolve(__dirname, '..', '..', 'static');
       if (!existsSync(file_path)) {
         mkdirSync(file_path, { recursive: true });
       }
@@ -24,7 +24,7 @@ export class FilesService {
 
   async deleteFile(file_name: string) {
     try {
-      unlinkSync(resolve('dist', 'static', file_name));
+      unlinkSync(resolve(__dirname, '..', '..', 'static', file_name));
     } catch (error) {
       throw new HttpException(
         'Error deleting file: ' + error.message,
