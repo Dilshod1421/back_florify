@@ -19,6 +19,5 @@ export class ImageDto {
     description: 'ID of the product',
   })
   @IsNotEmpty()
-  @IsNumber()
   product_id: number;
 }
