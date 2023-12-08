@@ -313,7 +313,9 @@ export class SalesmanService {
         dto = Object.assign(dto, { telegram: salesman.telegram });
       }
       let obj = {};
-      if (!file) {
+      if (deleteImage.file == 'delete') {
+        await this.fileService.deleteFile(salesman.image);
+      } else if (!file) {
         dto = Object.assign(dto, { image: salesman.image });
         obj = Object.assign(updateDto, dto);
         const update = await this.salesmanRepository.update(obj, {
@@ -327,9 +329,6 @@ export class SalesmanService {
             salesman: update[1][0],
           },
         };
-      }
-      if (deleteImage.file == 'delete') {
-        await this.fileService.deleteFile(salesman.image);
       } else if (file) {
         if (salesman.image) {
           await this.fileService.deleteFile(salesman.image);
