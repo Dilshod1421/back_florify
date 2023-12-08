@@ -124,11 +124,33 @@ export class ProductService {
     quantity: string,
   ): Promise<object> {
     try {
+      await this.salesmanService.getById(salesman_id);
       const offset = (page - 1) * limit;
-      let where: any = { salesman_id };
       if (quantity == 'All') {
-        where = { salesman_id };
+        const products = await this.productRepository.findAll({
+          where: { salesman_id },
+          include: { model: Image, attributes: ['image'] },
+          offset,
+          limit,
+        });
+        const total_count = await this.productRepository.count({
+          where: { salesman_id },
+        });
+        const total_pages = Math.ceil(total_count / limit);
+        const response = {
+          status: HttpStatus.OK,
+          data: {
+            records: products,
+            pagination: {
+              currentPage: page,
+              total_pages,
+              total_count,
+            },
+          },
+        };
+        return response;
       }
+      let where: any = { salesman_id };
       if (quantity == 'on_sale') {
         where.quantity = {
           [Op.ne]: 0,
