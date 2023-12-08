@@ -299,7 +299,6 @@ export class SalesmanService {
       }
       const { phone, username, address, telegram } = updateDto;
       let dto = {};
-      let deleteImage: any = updateDto;
       if (!phone) {
         dto = Object.assign(dto, { phone: salesman.phone });
       }
@@ -313,9 +312,7 @@ export class SalesmanService {
         dto = Object.assign(dto, { telegram: salesman.telegram });
       }
       let obj = {};
-      if (deleteImage.file == 'delete') {
-        await this.fileService.deleteFile(salesman.image);
-      } else if (!file) {
+      if (!file) {
         dto = Object.assign(dto, { image: salesman.image });
         obj = Object.assign(updateDto, dto);
         const update = await this.salesmanRepository.update(obj, {
@@ -329,14 +326,13 @@ export class SalesmanService {
             salesman: update[1][0],
           },
         };
-      } else if (file) {
-        if (salesman.image) {
-          await this.fileService.deleteFile(salesman.image);
-        }
-        const file_name = await this.fileService.createFile(file);
-        const image_obj = { image: file_name };
-        obj = Object.assign(obj, image_obj);
       }
+      if (salesman.image) {
+        await this.fileService.deleteFile(salesman.image);
+      }
+      const file_name = await this.fileService.createFile(file);
+      const image_obj = { image: file_name };
+      obj = Object.assign(obj, image_obj);
       obj = Object.assign(obj, updateDto);
       const update = await this.salesmanRepository.update(obj, {
         where: { id },
@@ -378,6 +374,29 @@ export class SalesmanService {
         message: "Do'kon ma'lumotlari tahrirlandi",
         data: {
           salesman: update_info[1][0],
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async deleteImage(id: string): Promise<object> {
+    try {
+      const salesman = await this.salesmanRepository.findByPk(id);
+      if (!salesman) {
+        throw new NotFoundException('Sotuvchi topilmadi!');
+      }
+      await this.fileService.deleteFile(salesman.image);
+      const update = await this.salesmanRepository.update(
+        { image: null },
+        { where: { id }, returning: true },
+      );
+      return {
+        statusCode: HttpStatus.OK,
+        message: "Sotuvchining rasmi o'chirilid",
+        data: {
+          salesman: update[1][0],
         },
       };
     } catch (error) {

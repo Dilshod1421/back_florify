@@ -174,6 +174,13 @@ export class SalesmanController {
     return this.salesmanService.updateStore(id, storeDto);
   }
 
+  @ApiOperation({ summary: 'Delete image of salesman by ID' })
+  // @UseGuards(AuthGuard)
+  @Delete('image/:id')
+  deleteImage(@Param('id') id: string) {
+    return this.salesmanService.deleteImage(id);
+  }
+
   @ApiOperation({ summary: 'Delete salesman by ID' })
   // @UseGuards(AuthGuard)
   @Delete(':id')
