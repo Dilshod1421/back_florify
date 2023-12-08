@@ -34,7 +34,7 @@ import { WatchedModule } from './watched/watched.module';
       logging: true,
     }),
     ServeStaticModule.forRoot({
-      rootPath: resolve(__dirname, 'static'),
+      rootPath: resolve(__dirname, '..', 'static'),
     }),
     JwtModule.register({ global: true }),
     AdminModule,
