@@ -327,14 +327,17 @@ export class SalesmanService {
           },
         };
       }
-      if (salesman.image) {
-        console.log(salesman.image);
+      if (file == 'delete') {
         await this.fileService.deleteFile(salesman.image);
+      } else if (file != 'delete') {
+        if (salesman.image) {
+          await this.fileService.deleteFile(salesman.image);
+        }
+        const file_name = await this.fileService.createFile(file);
+        const image_obj = { image: file_name };
+        obj = Object.assign(obj, image_obj);
       }
-      const file_name = await this.fileService.createFile(file);
-      const image_obj = { image: file_name };
       obj = Object.assign(obj, updateDto);
-      obj = Object.assign(obj, image_obj);
       const update = await this.salesmanRepository.update(obj, {
         where: { id },
         returning: true,
