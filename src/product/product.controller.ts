@@ -43,7 +43,7 @@ export class ProductController {
   @Get('categoryId/:category_id/:page/:limit')
   getByCategoryId(
     @Param('category_id') category_id: string,
-    @Param('clientId') client_id: string,
+    @Param('client_id') client_id: string,
     @Param('page') page: number,
     @Param('limit') limit: number,
   ) {
