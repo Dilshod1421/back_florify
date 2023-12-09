@@ -43,10 +43,16 @@ export class ProductController {
   @Get('categoryId/:category_id/:page/:limit')
   getByCategoryId(
     @Param('category_id') category_id: string,
+    @Param('clientId') client_id: string,
     @Param('page') page: number,
     @Param('limit') limit: number,
   ) {
-    return this.productService.getByCategoryId(category_id, page, limit);
+    return this.productService.getByCategoryId(
+      category_id,
+      client_id,
+      page,
+      limit,
+    );
   }
 
   @ApiOperation({ summary: 'Get products by salesman ID with pagination' })

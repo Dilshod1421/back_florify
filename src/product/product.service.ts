@@ -13,6 +13,7 @@ import { SalesmanService } from 'src/salesman/salesman.service';
 import { CategoryService } from 'src/category/category.service';
 import { UpdateProducDto } from './dto/update-product.dto';
 import { FilesService } from 'src/files/files.service';
+import { Like } from 'src/like/models/like.model';
 
 @Injectable()
 export class ProductService {
@@ -85,6 +86,7 @@ export class ProductService {
 
   async getByCategoryId(
     category_id: string,
+    client_id: string,
     page: number,
     limit: number,
   ): Promise<object> {
@@ -92,7 +94,10 @@ export class ProductService {
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
         where: { category_id },
-        include: { model: Image, attributes: ['image'] },
+        include: [
+          { model: Image, attributes: ['image'] },
+          { model: Like, attributes: ['is_like'], where: { client_id } },
+        ],
         offset,
         limit,
       });

@@ -151,7 +151,7 @@ export class SalesmanService {
         ],
       });
       if (!salesmans.length) {
-        throw new NotFoundException("Adminlar ro'yxati bo'sh!");
+        throw new NotFoundException("Sotuvchilar ro'yxati bo'sh!");
       }
       return {
         statusCode: HttpStatus.OK,
@@ -357,14 +357,14 @@ export class SalesmanService {
         throw new NotFoundException("Do'kon topilmadi!");
       }
       const { store_phone, store_address } = storeDto;
-      let dto: {};
-      if (store_phone) {
+      let dto = {};
+      if (!store_phone) {
         dto = Object.assign(dto, { store_phone: store.store_phone });
       }
       if (!store_address) {
         dto = Object.assign(dto, { storeDto: store.store_address });
       }
-      const obj = Object.assign(dto, storeDto);
+      let obj = Object.assign(dto, storeDto);
       const update_info = await this.salesmanRepository.update(obj, {
         where: { id },
         returning: true,
