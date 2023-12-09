@@ -14,7 +14,6 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { PhoneDto } from 'src/otp/dto/phone.dto';
 import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
-import { SignupClientDto } from './dto/singup-client.dto';
 import { Response } from 'express';
 import { CookieGetter } from 'src/decorators/cookieGetter.decorator';
 import { UpdateDto } from './dto/update.dto';
@@ -27,10 +26,10 @@ export class ClientController {
   @ApiOperation({ summary: 'Registration a new client' })
   @Post('register')
   register(
-    @Body() signupClientDto: SignupClientDto,
+    @Body() verifyOtpDto: VerifyOtpDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    return this.clientService.register(signupClientDto, res);
+    return this.clientService.register(verifyOtpDto, res);
   }
 
   @ApiOperation({ summary: 'Login client with send OTP' })

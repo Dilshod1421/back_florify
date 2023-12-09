@@ -26,13 +26,11 @@ export class Client extends Model<Client, ClientAttrs> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
   })
   name: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
   })
   address: string;
 

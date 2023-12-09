@@ -7,13 +7,13 @@ import {
 import { InjectModel } from '@nestjs/sequelize';
 import { Client } from './models/client.model';
 import { OtpService } from 'src/otp/otp.service';
-import { SignupClientDto } from './dto/singup-client.dto';
 import { JwtService } from '@nestjs/jwt';
 import { generateToken, writeToCookie } from 'src/utils/token';
 import { Response } from 'express';
 import { UpdateDto } from './dto/update.dto';
 import { PhoneDto } from 'src/otp/dto/phone.dto';
 import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
+import { Like } from 'src/like/models/like.model';
 
 @Injectable()
 export class ClientService {
@@ -23,11 +23,12 @@ export class ClientService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(signupDto: SignupClientDto, res: Response): Promise<object> {
+  async register(verifyOtpDto: VerifyOtpDto, res: Response): Promise<object> {
     try {
-      const { phone, code } = signupDto;
-      await this.otpService.verifyOtp({ phone, code });
-      const client = await this.clientRepository.create(signupDto);
+      await this.otpService.verifyOtp(verifyOtpDto);
+      const client = await this.clientRepository.create({
+        phone: verifyOtpDto.phone,
+      });
       const { access_token, refresh_token } = await generateToken(
         { id: client.id },
         this.jwtService,
@@ -109,7 +110,7 @@ export class ClientService {
   async getAll(): Promise<object> {
     try {
       const clients = await this.clientRepository.findAll({
-        include: { all: true },
+        include: { model: Like, attributes: ['is_like', 'product_id'] },
       });
       if (!clients.length) {
         throw new NotFoundException("Mijozlar ro'yxati bo'sh!");
@@ -129,7 +130,7 @@ export class ClientService {
     try {
       const client = await this.clientRepository.findOne({
         where: { id },
-        include: { all: true },
+        include: { model: Like, attributes: ['is_like', 'product_id'] },
       });
       if (!client) {
         throw new NotFoundException('Mijoz topilmadi!');
@@ -148,7 +149,11 @@ export class ClientService {
   async pagination(page: number, limit: number): Promise<object> {
     try {
       const offset = (page - 1) * limit;
-      const clients = await this.clientRepository.findAll({ offset, limit });
+      const clients = await this.clientRepository.findAll({
+        include: { model: Like, attributes: ['is_like', 'product_id'] },
+        offset,
+        limit,
+      });
       const total_count = await this.clientRepository.count();
       const total_pages = Math.ceil(total_count / limit);
       const response = {
