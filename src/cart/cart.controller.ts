@@ -16,7 +16,7 @@ export class CartController {
 
   @ApiOperation({ summary: "Get products from client's cart" })
   @Get('clientId/:client_id')
-  getByClientId(@Param('clientId') client_id: string) {
+  getByClientId(@Param('client_id') client_id: string) {
     return this.cartService.getByClientId(client_id);
   }
 
