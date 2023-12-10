@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsPhoneNumber, IsString, IsStrongPassword, Length } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsPhoneNumber,
+  IsString,
+  IsStrongPassword,
+  Length,
+} from 'class-validator';
 
 export class ForgotPasswordDto {
   @ApiProperty({
