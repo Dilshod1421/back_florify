@@ -26,6 +26,24 @@ export class ClientService {
   async register(verifyOtpDto: VerifyOtpDto, res: Response): Promise<object> {
     try {
       await this.otpService.verifyOtp(verifyOtpDto);
+      const exist = await this.clientRepository.findOne({
+        where: { phone: verifyOtpDto.phone },
+      });
+      if (exist) {
+        const { access_token, refresh_token } = await generateToken(
+          { id: exist.id },
+          this.jwtService,
+        );
+        await writeToCookie(refresh_token, res);
+        return {
+          statusCode: HttpStatus.OK,
+          mesage: 'Mijoz tizimga kirdi',
+          data: {
+            client: exist,
+          },
+          token: access_token,
+        };
+      }
       const client = await this.clientRepository.create({
         phone: verifyOtpDto.phone,
       });
