@@ -44,9 +44,6 @@ export class ImageService {
       const images = await this.imageRepository.findAll({
         include: { all: true },
       });
-      if (!images.length) {
-        throw new NotFoundException("Rasmlar ro'yxati bo'sh!");
-      }
       return {
         statusCode: HttpStatus.OK,
         data: {
@@ -83,9 +80,6 @@ export class ImageService {
         where: { product_id },
         include: { all: true },
       });
-      if (!images.length) {
-        throw new NotFoundException('Mahsulotning rasmlari topilmadi!');
-      }
       return {
         statusCode: HttpStatus.OK,
         data: {

@@ -36,11 +36,6 @@ export class SocialNetworkService {
   async getAll(): Promise<object> {
     try {
       const social_networks = await this.socialNetworkRepository.findAll();
-      if (!social_networks.length) {
-        throw new NotFoundException(
-          "Ijtimoiy tarmoqdagi sahifalar ro'yxati bo'sh!",
-        );
-      }
       return {
         statusCode: HttpStatus.OK,
         data: {

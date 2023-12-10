@@ -66,9 +66,6 @@ export class LikeService {
           },
         ],
       });
-      if (!likes.length) {
-        throw new NotFoundException("Sevimlilar ro'yxati bo'sh!");
-      }
       return {
         statusCode: HttpStatus.OK,
         data: {

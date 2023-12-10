@@ -45,9 +45,6 @@ export class CartService {
         where: { client_id },
         include: [{ model: Product, include: [Image] }],
       });
-      if (!carts.length) {
-        throw new NotFoundException("Savatcha bo'sh!");
-      }
       return {
         statusCode: HttpStatus.OK,
         data: {
@@ -61,17 +58,17 @@ export class CartService {
 
   async getByCartIdAndClientId(id: string, client_id: string): Promise<object> {
     try {
-      const carts = await this.cartRepository.findAll({
+      const cart = await this.cartRepository.findOne({
         where: { [Op.and]: [{ id }, { client_id }] },
         include: [{ model: Product, include: [Image] }],
       });
-      if (!carts.length) {
+      if (!cart) {
         throw new NotFoundException('Mahsulot topilmadi!');
       }
       return {
         statusCode: HttpStatus.OK,
         data: {
-          carts,
+          cart,
         },
       };
     } catch (error) {

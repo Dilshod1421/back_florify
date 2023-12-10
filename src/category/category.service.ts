@@ -48,9 +48,6 @@ export class CategoryService {
           },
         ],
       });
-      if (!categories.length) {
-        throw new NotFoundException("Kategoriyalar ro'yxati bo'sh!");
-      }
       return {
         statusCode: HttpStatus.OK,
         data: {

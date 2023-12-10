@@ -51,9 +51,6 @@ export class ProductService {
       const products = await this.productRepository.findAll({
         include: { model: Image, attributes: ['image'] },
       });
-      if (!products.length) {
-        throw new NotFoundException("Mahsulotlar ro'yxati bo'sh!");
-      }
       return {
         statusCode: HttpStatus.OK,
         data: {
@@ -86,7 +83,6 @@ export class ProductService {
 
   async getByCategoryId(
     category_id: string,
-    client_id: string,
     page: number,
     limit: number,
   ): Promise<object> {

@@ -125,9 +125,6 @@ export class AdminService {
   async getAll(): Promise<object> {
     try {
       const admins = await this.adminRepository.findAll();
-      if (!admins.length) {
-        throw new NotFoundException("Adminlar ro'yxati bo'sh!");
-      }
       return {
         statusCode: HttpStatus.OK,
         data: {

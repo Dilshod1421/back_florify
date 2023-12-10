@@ -77,11 +77,11 @@ export class Salesman extends Model<Salesman, SalesmanAttributes> {
     onDelete: 'CASCADE',
     hooks: true,
   })
-  product: Product[];
+  products: Product[];
 
   @HasMany(() => SoldProduct, {
     onDelete: 'CASCADE',
     hooks: true,
   })
-  sold_product: SoldProduct[];
+  sold_products: SoldProduct[];
 }

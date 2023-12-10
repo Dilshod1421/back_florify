@@ -26,9 +26,15 @@ export class WatchedService {
     try {
       await this.clientService.getById(watchedDto.client_id);
       await this.productService.getById(watchedDto.product_id);
-      const exist = await this.getOne(
-        watchedDto.client_id + '_' + watchedDto.product_id,
-      );
+      const exist = await this.watchedRepository.findOne({
+        where: {
+          [Op.and]: [
+            { client_id: watchedDto.client_id },
+            { product_id: watchedDto.product_id },
+          ],
+        },
+        include: [{ model: Product, include: [Image] }],
+      });
       if (exist) {
         throw new ConflictException(
           "Mahsulot allaqachon ko'rilganlar ro'yxatiga qo'shilgan!",
@@ -61,9 +67,6 @@ export class WatchedService {
           },
         ],
       });
-      if (!watcheds.length) {
-        throw new NotFoundException("Ko'rilganlar ro'yxati bo'sh!");
-      }
       return {
         statusCode: HttpStatus.OK,
         data: {
@@ -75,11 +78,8 @@ export class WatchedService {
     }
   }
 
-  async getOne(clienId_productId: string): Promise<object> {
+  async getOne(client_id: string, product_id: number): Promise<object> {
     try {
-      const array = clienId_productId.split('_');
-      const client_id = array[0];
-      const product_id = Number(array[1]);
       const watcheds = await this.watchedRepository.findOne({
         where: {
           [Op.and]: [{ client_id }, { product_id }],
@@ -100,12 +100,12 @@ export class WatchedService {
     }
   }
 
-  async pagination(clientId_page_limit: string): Promise<object> {
+  async pagination(
+    client_id: string,
+    page: number,
+    limit: number,
+  ): Promise<object> {
     try {
-      const array = clientId_page_limit.split('_');
-      const client_id = array[0];
-      const page = Number(array[1]);
-      const limit = Number(array[2]);
       const offset = (page - 1) * limit;
       const watcheds = await this.watchedRepository.findAll({
         where: { client_id },

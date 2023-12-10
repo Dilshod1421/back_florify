@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Query,
 } from '@nestjs/common';
 import { SoldProductService } from './sold-product.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -30,21 +29,21 @@ export class SoldProductController {
   @UseGuards(AuthGuard)
   @Get()
   findAll() {
-    return this.soldProductService.findAll();
-  }
-
-  @ApiOperation({ summary: 'Pagination sold products' })
-  @UseGuards(AuthGuard)
-  @Get('page')
-  paginate(@Query('page') page: number) {
-    return this.soldProductService.paginate(page);
+    return this.soldProductService.getAll();
   }
 
   @ApiOperation({ summary: 'Get sold product by ID' })
   @UseGuards(AuthGuard)
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.soldProductService.findById(id);
+    return this.soldProductService.getById(id);
+  }
+
+  @ApiOperation({ summary: 'Pagination sold products' })
+  @UseGuards(AuthGuard)
+  @Get('pagination/:page/:limit')
+  paginate(@Param('page') page: number, @Param('limit') limit: number) {
+    return this.soldProductService.pagination(page, limit);
   }
 
   @ApiOperation({ summary: 'Update sold product by ID' })

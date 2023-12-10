@@ -68,5 +68,5 @@ export class Category extends Model<Category, CategoryAttrs> {
     onDelete: 'CASCADE',
     hooks: true,
   })
-  product: Product[];
+  products: Product[];
 }

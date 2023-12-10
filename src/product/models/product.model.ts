@@ -89,17 +89,17 @@ export class Product extends Model<Product, ProductAttributes> {
     onDelete: 'CASCADE',
     hooks: true,
   })
-  image: Image[];
+  images: Image[];
 
   @HasMany(() => Like, {
     onDelete: 'CASCADE',
     hooks: true,
   })
-  like: Like[];
+  likes: Like[];
 
   @HasMany(() => SoldProduct, {
     onDelete: 'CASCADE',
     hooks: true,
   })
-  sold_product: SoldProduct[];
+  sold_products: SoldProduct[];
 }

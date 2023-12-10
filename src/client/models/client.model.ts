@@ -38,5 +38,5 @@ export class Client extends Model<Client, ClientAttrs> {
     onDelete: 'CASCADE',
     hooks: true,
   })
-  like: Like[];
+  likes: Like[];
 }

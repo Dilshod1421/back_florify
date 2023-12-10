@@ -150,9 +150,6 @@ export class SalesmanService {
           },
         ],
       });
-      if (!salesmans.length) {
-        throw new NotFoundException("Sotuvchilar ro'yxati bo'sh!");
-      }
       return {
         statusCode: HttpStatus.OK,
         data: {

@@ -23,17 +23,24 @@ export class WatchedController {
   @ApiOperation({
     summary: 'Get watched product by client ID and product ID',
   })
-  @Get('id/:clientId_productId')
-  getOne(@Param('clientId_productId') clientId_productId: string) {
-    return this.watchedService.getOne(clientId_productId);
+  @Get('id/:client_id/:product_id')
+  getOne(
+    @Param('client_id') client_id: string,
+    @Param('product_id') product_id: number,
+  ) {
+    return this.watchedService.getOne(client_id, product_id);
   }
 
   @ApiOperation({
     summary: 'Get wathced products with pagination by client ID',
   })
-  @Get('pagination/:clientId_page_limit')
-  pagination(@Param('clientId_page_limit') clientId_page_limit: string) {
-    return this.watchedService.pagination(clientId_page_limit);
+  @Get('pagination/:client_id/:page/:limit')
+  pagination(
+    @Param('client_id') client_id: string,
+    @Param('page') page: number,
+    @Param('limit') limit: number,
+  ) {
+    return this.watchedService.pagination(client_id, page, limit);
   }
 
   @ApiOperation({ summary: 'Remove product from watched' })

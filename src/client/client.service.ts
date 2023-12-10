@@ -112,9 +112,6 @@ export class ClientService {
       const clients = await this.clientRepository.findAll({
         include: { model: Like, attributes: ['is_like', 'product_id'] },
       });
-      if (!clients.length) {
-        throw new NotFoundException("Mijozlar ro'yxati bo'sh!");
-      }
       return {
         statusCode: HttpStatus.OK,
         data: {

@@ -30,7 +30,7 @@ export class SoldProductService {
     }
   }
 
-  async findAll() {
+  async getAll() {
     try {
       const sold_products = await this.soldProductRepository.findAll({
         include: { all: true },
@@ -41,10 +41,22 @@ export class SoldProductService {
     }
   }
 
-  async paginate(page: number) {
+  async getById(id: string) {
     try {
-      page = Number(page);
-      const limit = 10;
+      const sold_product = await this.soldProductRepository.findOne({
+        where: { id },
+      });
+      if (!sold_product) {
+        throw new BadRequestException('Sotilgan mahsulot topilmadi!');
+      }
+      return sold_product;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async pagination(page: number, limit) {
+    try {
       const offset = (page - 1) * limit;
       const sold_products = await this.soldProductRepository.findAll({
         include: { all: true },
@@ -70,23 +82,9 @@ export class SoldProductService {
     }
   }
 
-  async findById(id: string) {
-    try {
-      const sold_product = await this.soldProductRepository.findOne({
-        where: { id },
-      });
-      if (!sold_product) {
-        throw new BadRequestException('Sotilgan mahsulot topilmadi!');
-      }
-      return sold_product;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
   async update(id: string, soldProductDto: SoldProductDto) {
     try {
-      const sold_product = await this.findById(id);
+      const sold_product = await this.getById(id);
       const updated_info = await this.soldProductRepository.update(
         soldProductDto,
         { where: { id: sold_product.id }, returning: true },
@@ -110,7 +108,7 @@ export class SoldProductService {
 
   async remove(id: string) {
     try {
-      const sold_product = await this.findById(id);
+      const sold_product = await this.getById(id);
       sold_product.destroy();
       return { message: "Sotilgan mahsulot o'chirildi" };
     } catch (error) {
