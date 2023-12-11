@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   HttpStatus,
   Injectable,
   NotFoundException,
@@ -26,6 +27,12 @@ export class CartService {
       const { client_id, product_id } = cartDto;
       await this.clientService.getById(client_id);
       await this.productService.getById(Number(product_id));
+      const exist = await this.cartRepository.findOne({
+        where: { [Op.and]: [{ client_id }, { product_id }] },
+      });
+      if (!exist) {
+        throw new ConflictException("Mahsulot allaqachon savatga qo'shilgan!");
+      }
       const cart = await this.cartRepository.create(cartDto);
       return {
         statusCode: HttpStatus.CREATED,
