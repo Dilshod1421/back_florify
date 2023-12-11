@@ -92,7 +92,7 @@ export class ProductService {
         where: { category_id },
         include: [
           { model: Image, attributes: ['image'] },
-          { model: Like, attributes: ['is_like'] },
+          { model: Like, attributes: ['is_like', 'client_id'] },
         ],
         offset,
         limit,
