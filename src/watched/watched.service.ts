@@ -13,6 +13,7 @@ import { Product } from 'src/product/models/product.model';
 import { Image } from 'src/image/models/image.model';
 import { Watched } from './models/watched.model';
 import { WatchedDto } from './dto/watched.dto';
+import { Like } from 'src/like/models/like.model';
 
 @Injectable()
 export class WatchedService {
@@ -33,7 +34,6 @@ export class WatchedService {
             { product_id: watchedDto.product_id },
           ],
         },
-        include: [{ model: Product, include: [Image] }],
       });
       if (exist) {
         throw new ConflictException(
@@ -63,7 +63,10 @@ export class WatchedService {
         include: [
           {
             model: Product,
-            include: [{ model: Image, attributes: ['image'] }],
+            include: [
+              { model: Image, attributes: ['image'] },
+              { model: Like, attributes: ['is_like', 'client_id'] },
+            ],
           },
         ],
       });
@@ -84,7 +87,10 @@ export class WatchedService {
         where: {
           [Op.and]: [{ client_id }, { product_id }],
         },
-        include: [{ model: Product, include: [Image] }],
+        include: [
+          { model: Image, attributes: ['image'] },
+          { model: Like, attributes: ['is_like', 'client_id'] },
+        ],
       });
       if (!watcheds) {
         throw new NotFoundException("Mahsulot ko'rilganlar ro'yxatida yo'q!");
@@ -112,7 +118,10 @@ export class WatchedService {
         include: [
           {
             model: Product,
-            include: [{ model: Image, attributes: ['image'] }],
+            include: [
+              { model: Image, attributes: ['image'] },
+              { model: Like, attributes: ['is_like', 'client_id'] },
+            ],
           },
         ],
         offset,

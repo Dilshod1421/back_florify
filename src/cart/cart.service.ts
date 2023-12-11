@@ -30,7 +30,7 @@ export class CartService {
       const exist = await this.cartRepository.findOne({
         where: { [Op.and]: [{ client_id }, { product_id }] },
       });
-      if (!exist) {
+      if (exist) {
         throw new ConflictException("Mahsulot allaqachon savatga qo'shilgan!");
       }
       const cart = await this.cartRepository.create(cartDto);

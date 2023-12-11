@@ -163,7 +163,10 @@ export class ProductService {
         where,
         offset,
         limit,
-        include: { model: Image, attributes: ['image'] },
+        include: [
+          { model: Image, attributes: ['image'] },
+          { model: Like, attributes: ['is_like', 'client_id'] },
+        ],
       });
       const total_count = await this.productRepository.count({
         where,
@@ -190,7 +193,10 @@ export class ProductService {
     try {
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
-        include: { model: Image, attributes: ['image'] },
+        include: [
+          { model: Image, attributes: ['image'] },
+          { model: Like, attributes: ['is_like', 'client_id'] },
+        ],
         offset,
         limit,
       });
@@ -220,7 +226,10 @@ export class ProductService {
       console.log(page, limit, offset);
       const products = await this.productRepository.findAll({
         where: { date },
-        include: { model: Image, attributes: ['image'] },
+        include: [
+          { model: Image, attributes: ['image'] },
+          { model: Like, attributes: ['is_like', 'client_id'] },
+        ],
         offset,
         limit,
       });
