@@ -11,6 +11,7 @@ import { Product } from 'src/product/models/product.model';
 
 interface CartAttributes {
   id: string;
+  quantity: number;
   client_id: string;
   product_id: number;
 }
@@ -25,17 +26,20 @@ export class Cart extends Model<Cart, CartAttributes> {
   })
   id: string;
 
+  @Column({
+    type: DataType.INTEGER,
+  })
+  quantity: number;
+
   @ForeignKey(() => Client)
   @Column({
     type: DataType.UUID,
-    allowNull: false,
   })
   client_id: string;
 
   @ForeignKey(() => Product)
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
   })
   product_id: number;
 
