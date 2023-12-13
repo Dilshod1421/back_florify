@@ -126,7 +126,7 @@ export class LikeService {
         data: {
           records: likes,
           pagination: {
-            currentPage: page,
+            currentPage: Number(page),
             total_pages,
             total_count,
           },

@@ -176,7 +176,7 @@ export class ClientService {
         data: {
           records: clients,
           pagination: {
-            currentPage: page,
+            currentPage: Number(page),
             total_pages,
             total_count,
           },

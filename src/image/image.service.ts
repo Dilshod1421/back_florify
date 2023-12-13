@@ -106,7 +106,7 @@ export class ImageService {
         data: {
           records: images,
           pagination: {
-            currentPage: page,
+            currentPage: Number(page),
             total_pages,
             total_count,
           },

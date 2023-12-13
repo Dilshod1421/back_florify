@@ -164,7 +164,7 @@ export class AdminService {
         data: {
           records: admins,
           pagination: {
-            currentPage: page,
+            currentPage: Number(page),
             total_pages,
             total_count,
           },

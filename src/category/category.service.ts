@@ -103,7 +103,7 @@ export class CategoryService {
         data: {
           records: categories,
           pagination: {
-            currentPage: page,
+            currentPage: Number(page),
             total_pages,
             total_count,
           },

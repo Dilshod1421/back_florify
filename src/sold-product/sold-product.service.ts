@@ -70,7 +70,7 @@ export class SoldProductService {
         data: {
           records: sold_products,
           pagination: {
-            currentPage: page,
+            currentPage: Number(page),
             total_pages,
             total_count,
           },

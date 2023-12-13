@@ -205,7 +205,7 @@ export class SalesmanService {
         data: {
           records: salesmans,
           pagination: {
-            currentPage: page,
+            currentPage: Number(page),
             total_pages,
             total_count,
           },

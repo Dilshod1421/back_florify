@@ -136,7 +136,7 @@ export class WatchedService {
         data: {
           records: watcheds,
           pagination: {
-            currentPage: page,
+            currentPage: Number(page),
             total_pages,
             total_count,
           },

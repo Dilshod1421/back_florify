@@ -78,7 +78,7 @@ export class SocialNetworkService {
         data: {
           records: social_networks,
           pagination: {
-            currentPage: page,
+            currentPage: Number(page),
             total_pages,
             total_count,
           },

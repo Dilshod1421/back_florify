@@ -106,7 +106,7 @@ export class ProductService {
         data: {
           records: products,
           pagination: {
-            currentPage: page,
+            currentPage: Number(page),
             total_pages,
             total_count,
           },
@@ -143,7 +143,7 @@ export class ProductService {
           data: {
             records: products,
             pagination: {
-              currentPage: page,
+              currentPage: Number(page),
               total_pages,
               total_count,
             },
@@ -177,7 +177,7 @@ export class ProductService {
         data: {
           records: products,
           pagination: {
-            currentPage: page,
+            currentPage: Number(page),
             total_pages,
             total_count,
           },
@@ -207,7 +207,7 @@ export class ProductService {
         data: {
           records: products,
           pagination: {
-            currentPage: page,
+            currentPage: Number(page),
             total_pages,
             total_count,
           },
@@ -240,7 +240,7 @@ export class ProductService {
         data: {
           records: products,
           pagination: {
-            currentPage: page,
+            currentPage: Number(page),
             total_pages,
             total_count,
           },
