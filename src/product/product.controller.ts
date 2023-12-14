@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -77,6 +78,12 @@ export class ProductController {
   @Get('presents/:page/:limit')
   presents(@Param('page') page: number, @Param('limit') limit: number) {
     return this.productService.presents(page, limit);
+  }
+
+  @ApiOperation({ summary: 'Search products' })
+  @Get('search')
+  searchProduct(@Query('query') query: string) {
+    return this.productService.searchProduct(query);
   }
 
   @ApiOperation({ summary: 'Update product by ID' })

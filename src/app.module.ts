@@ -17,6 +17,7 @@ import { SalesmanModule } from './salesman/salesman.module';
 import { SocialNetworkModule } from './social-network/social-network.module';
 import { SoldProductModule } from './sold-product/sold-product.module';
 import { WatchedModule } from './watched/watched.module';
+import { CommentModule } from './comment/comment.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,6 +42,7 @@ import { WatchedModule } from './watched/watched.module';
     CartModule,
     CategoryModule,
     ClientModule,
+    CommentModule,
     FilesModule,
     ImageModule,
     LikeModule,

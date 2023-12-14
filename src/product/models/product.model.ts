@@ -12,6 +12,7 @@ import { Category } from '../../category/models/category.model';
 import { SoldProduct } from '../../sold-product/models/sold-product.model';
 import { Image } from 'src/image/models/image.model';
 import { Like } from 'src/like/models/like.model';
+import { Comment } from 'src/comment/models/comment.model';
 
 interface ProductAttributes {
   name: string;
@@ -102,4 +103,10 @@ export class Product extends Model<Product, ProductAttributes> {
     hooks: true,
   })
   sold_products: SoldProduct[];
+
+  @HasMany(() => Comment, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
+  comments: Comment[];
 }

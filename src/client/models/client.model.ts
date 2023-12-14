@@ -1,4 +1,5 @@
 import { Column, DataType, Model, Table, HasMany } from 'sequelize-typescript';
+import { Comment } from 'src/comment/models/comment.model';
 import { Like } from 'src/like/models/like.model';
 
 interface ClientAttrs {
@@ -39,4 +40,10 @@ export class Client extends Model<Client, ClientAttrs> {
     hooks: true,
   })
   likes: Like[];
+
+  @HasMany(() => Comment, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
+  comments: Comment[];
 }

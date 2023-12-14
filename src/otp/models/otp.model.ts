@@ -1,6 +1,7 @@
 import { Column, DataType, Model, Table } from 'sequelize-typescript';
 
 interface OtpAttributes {
+  id: string;
   phone: string;
   code: string;
   expire_time: number;
@@ -9,11 +10,11 @@ interface OtpAttributes {
 @Table({ tableName: 'otp' })
 export class Otp extends Model<Otp, OtpAttributes> {
   @Column({
-    type: DataType.INTEGER,
-    autoIncrement: true,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
     primaryKey: true,
   })
-  id: number;
+  id: string;
 
   @Column({
     type: DataType.STRING,

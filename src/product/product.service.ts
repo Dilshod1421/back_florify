@@ -252,6 +252,26 @@ export class ProductService {
     }
   }
 
+  async searchProduct(query: string): Promise<object> {
+    try {
+      const products = await this.productRepository.findAll({
+        where: { name: { [Op.like]: `%${query}%` } },
+        include: [
+          { model: Image, attributes: ['image'] },
+          { model: Like, attributes: ['is_like', 'client_id'] },
+        ],
+      });
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          products,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
   async update(id: number, updateProductDto: UpdateProducDto): Promise<object> {
     try {
       const product = await this.productRepository.findByPk(id);
