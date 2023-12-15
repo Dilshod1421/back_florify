@@ -255,7 +255,7 @@ export class ProductService {
   async searchProduct(query: string): Promise<object> {
     try {
       const products = await this.productRepository.findAll({
-        where: { name: { [Op.like]: `%${query}%` } },
+        where: { name: { [Op.iLike]: `%${query}%` } },
         include: [
           { model: Image, attributes: ['image'] },
           { model: Like, attributes: ['is_like', 'client_id'] },

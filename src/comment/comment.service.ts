@@ -54,6 +54,23 @@ export class CommentService {
     }
   }
 
+  async getByClientId(client_id: string): Promise<object> {
+    try {
+      const comments = await this.commentRepository.findAll({
+        where: { client_id },
+        include: { model: Product, include: [Image] },
+      });
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          comments,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
   async getByProductId(product_id: number): Promise<object> {
     try {
       const comments = await this.commentRepository.findAll({

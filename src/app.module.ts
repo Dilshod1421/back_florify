@@ -18,6 +18,7 @@ import { SocialNetworkModule } from './social-network/social-network.module';
 import { SoldProductModule } from './sold-product/sold-product.module';
 import { WatchedModule } from './watched/watched.module';
 import { CommentModule } from './comment/comment.module';
+import { AdvertisingModule } from './advertising/advertising.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -39,6 +40,7 @@ import { CommentModule } from './comment/comment.module';
     }),
     JwtModule.register({ global: true }),
     AdminModule,
+    AdvertisingModule,
     CartModule,
     CategoryModule,
     ClientModule,

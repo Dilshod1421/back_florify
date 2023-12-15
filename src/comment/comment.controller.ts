@@ -29,6 +29,12 @@ export class CommentController {
     return this.commentService.getAll();
   }
 
+  @ApiOperation({ summary: 'Get comments by client ID' })
+  @Get('clientId/:client_id')
+  getByClientId(@Param('client_id') client_id: string) {
+    return this.commentService.getByClientId(client_id);
+  }
+
   @ApiOperation({ summary: 'Get comments by product ID' })
   @Get('productId/:product_id')
   getByProductId(@Param('product_id') product_id: number) {
