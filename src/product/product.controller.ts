@@ -81,9 +81,9 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Search products' })
-  @Get('search')
-  searchProduct(@Query('query') query: string) {
-    return this.productService.searchProduct(query);
+  @Get('search/:page')
+  searchProduct(@Query('query') query: string, @Param('page') page: number) {
+    return this.productService.searchProduct(query, page);
   }
 
   @ApiOperation({ summary: 'Update product by ID' })

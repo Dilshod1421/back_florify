@@ -223,7 +223,6 @@ export class ProductService {
     try {
       const date = new Date().toISOString().slice(0, 10);
       const offset = (page - 1) * limit;
-      console.log(page, limit, offset);
       const products = await this.productRepository.findAll({
         where: { date },
         include: [
@@ -252,21 +251,33 @@ export class ProductService {
     }
   }
 
-  async searchProduct(query: string): Promise<object> {
+  async searchProduct(query: string, page: number): Promise<object> {
     try {
+      const limit = 10;
+      const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
         where: { name: { [Op.iLike]: `%${query}%` } },
         include: [
           { model: Image, attributes: ['image'] },
           { model: Like, attributes: ['is_like', 'client_id'] },
         ],
+        offset,
+        limit,
       });
-      return {
-        statusCode: HttpStatus.OK,
+      const total_count = await this.productRepository.count();
+      const total_pages = Math.ceil(total_count / limit);
+      const response = {
+        status: HttpStatus.OK,
         data: {
-          products,
+          records: products,
+          pagination: {
+            currentPage: Number(page),
+            total_pages,
+            total_count,
+          },
         },
       };
+      return response;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
