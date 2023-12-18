@@ -8,7 +8,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Product } from './models/product.model';
 import { ProductDto } from './dto/product.dto';
 import { Image } from 'src/image/models/image.model';
-import { Op } from 'sequelize';
+import { FindOptions, Op } from 'sequelize';
 import { SalesmanService } from 'src/salesman/salesman.service';
 import { CategoryService } from 'src/category/category.service';
 import { UpdateProducDto } from './dto/update-product.dto';
@@ -341,6 +341,10 @@ export class ProductService {
     } catch (error) {
       throw new BadRequestException(error.message);
     }
+  }
+
+  async findByOptions(opts: FindOptions<Product>) {
+    return await this.productRepository.findAll(opts);
   }
 
   async delete(id: number): Promise<object> {

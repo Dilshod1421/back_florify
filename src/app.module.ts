@@ -19,6 +19,8 @@ import { SoldProductModule } from './sold-product/sold-product.module';
 import { WatchedModule } from './watched/watched.module';
 import { CommentModule } from './comment/comment.module';
 import { AdvertisingModule } from './advertising/advertising.module';
+import { OrdersModule } from './orders/orders.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -54,6 +56,7 @@ import { AdvertisingModule } from './advertising/advertising.module';
     SocialNetworkModule,
     SoldProductModule,
     WatchedModule,
+    OrdersModule,
   ],
 })
 export class AppModule {}
