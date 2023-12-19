@@ -6,14 +6,17 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guard/auth.guard';
 
 @ApiTags('Order')
 @Controller('orders')
+// @UseGuards(AuthGuard)
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
@@ -38,6 +41,8 @@ export class OrdersController {
   @ApiOperation({ summary: 'Edit order by ID' })
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+    console.log(updateOrderDto);
+
     return this.ordersService.update(id, updateOrderDto);
   }
 

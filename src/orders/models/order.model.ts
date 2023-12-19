@@ -14,6 +14,10 @@ export enum OrderStatus {
   CANCELLED = 'CANCELLED',
   PENDING = 'PENDING',
 }
+export enum PaymentType {
+  ONLINE = 'ONLINE',
+  WHEN_DELIVERED = 'WHEN_DELIVERED',
+}
 
 @Table({ tableName: 'order' })
 export class Order extends Model<Order, CreateOrderDto> {
@@ -48,4 +52,38 @@ export class Order extends Model<Order, CreateOrderDto> {
     allowNull: false,
   })
   totalAmount: number;
+
+  @Column({ type: DataType.STRING })
+  to_whom_bouquet: string;
+
+  @Column({ type: DataType.STRING })
+  customer_firstname: string;
+
+  @Column({ type: DataType.STRING })
+  customer_lastname: string;
+
+  @Column({ type: DataType.STRING })
+  customer_phone: string;
+
+  @Column({ type: DataType.STRING, defaultValue: '' })
+  receiver_name: string;
+
+  @Column({ type: DataType.STRING, defaultValue: '' })
+  receiver_phone: string;
+
+  @Column({ type: DataType.STRING })
+  full_address: string;
+
+  @Column({ type: DataType.STRING, defaultValue: '' })
+  comment_for_courier: string;
+
+  @Column({ type: DataType.STRING })
+  delivery_time: string;
+
+  @Column(
+    DataType.ENUM({
+      values: Object.keys(PaymentType),
+    }),
+  )
+  payment_type: PaymentType;
 }

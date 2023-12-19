@@ -11,7 +11,7 @@ async function bootstrap() {
     app.enableCors();
     app.setGlobalPrefix('api');
     app.use(cookieParser());
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
     const config = new DocumentBuilder()
       .setTitle('florify')
       .setDescription('REST API')
