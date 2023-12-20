@@ -13,7 +13,7 @@ export class TransactionDto {
   @ApiProperty({
     example: '11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000',
     description: 'Transaction id to update the transaction',
-    required: false
+    required: false,
   })
   @IsOptional()
   @IsString()
@@ -44,7 +44,7 @@ export class TransactionDto {
   currency: string;
 
   @ApiProperty({
-    example: { email:"example@gmail.com", data: { myProp: "myProp" } },
+    example: { email: 'example@gmail.com', data: { myProp: 'myProp' } },
     description: 'additional info object for transaction',
   })
   @IsNotEmpty()

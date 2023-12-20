@@ -91,7 +91,7 @@ export class CreateOrderDto {
   @ApiProperty({
     example: 'Uchqun',
     description: 'fullname of recipient',
-    required: false
+    required: false,
   })
   @IsOptional()
   @IsString()
@@ -100,7 +100,7 @@ export class CreateOrderDto {
   @ApiProperty({
     example: '+998907001133',
     description: 'phone of recipient',
-    required: false
+    required: false,
   })
   @IsOptional()
   @IsString()
@@ -117,7 +117,7 @@ export class CreateOrderDto {
   @ApiProperty({
     example: 'Call me when you receive it',
     description: 'comment for courier',
-    required: false
+    required: false,
   })
   @IsOptional()
   @IsString()

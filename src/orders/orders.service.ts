@@ -110,10 +110,7 @@ export class OrdersService {
   async updateStatus(id: string, status: OrderStatus): Promise<void> {
     try {
       await this.findById(id);
-      await this.orderRepository.update(
-        { status }, 
-        { where: { id } }
-      );
+      await this.orderRepository.update({ status }, { where: { id } });
     } catch (error) {
       throw new BadRequestException(error.message);
     }

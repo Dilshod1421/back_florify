@@ -1,4 +1,9 @@
-import { BadRequestException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { TransactionDto } from './dto/transaction.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Transaction, TransactionStatus } from './models/transaction.model';
@@ -16,7 +21,7 @@ export class TransactionService {
 
   async create(transactionDto: TransactionDto) {
     try {
-      let {id, ...updateTransactionDto} = transactionDto;
+      let { id, ...updateTransactionDto } = transactionDto;
       if (id) {
         const exist = await this.findById(id);
         if (exist) {
@@ -26,19 +31,25 @@ export class TransactionService {
           });
         }
       } else {
-        const { id: newId } = await this.transactionRepository.create(updateTransactionDto, {
-          returning: true
-        });
+        const { id: newId } = await this.transactionRepository.create(
+          updateTransactionDto,
+          {
+            returning: true,
+          },
+        );
         id = newId;
       }
       let orderStatus;
-      if ( transactionDto.status === TransactionStatus.SUCCESS ) {
+      if (transactionDto.status === TransactionStatus.SUCCESS) {
         orderStatus = OrderStatus.PAID;
-      } else if ( transactionDto.status === TransactionStatus.FAIL ) {
+      } else if (transactionDto.status === TransactionStatus.FAIL) {
         orderStatus = OrderStatus.CANCELLED;
       }
 
-      await this.orderService.updateStatus(transactionDto.order_id, orderStatus);
+      await this.orderService.updateStatus(
+        transactionDto.order_id,
+        orderStatus,
+      );
 
       return await this.findById(id);
     } catch (error) {
@@ -55,7 +66,7 @@ export class TransactionService {
   async findById(id: string): Promise<object> {
     try {
       const transaction = await this.transactionRepository.findByPk(id, {
-        include: [Order]
+        include: [Order],
       });
       if (!transaction) {
         throw new NotFoundException('Transaction topilmadi!');
