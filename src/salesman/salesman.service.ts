@@ -38,7 +38,6 @@ export class SalesmanService {
     file: any,
   ): Promise<object> {
     try {
-      await this.otpService.checkPhoneNumber(salesmanDto.phone);
       const hashed_password = await hash(salesmanDto.password, 7);
       let salesman: any;
       if (file) {
