@@ -5,10 +5,8 @@ interface CategoryAttrs {
   id: string;
   uz: string;
   ru: string;
-  en: string;
   uz_description: string;
   ru_description: string;
-  en_description: string;
   image: string;
 }
 
@@ -37,13 +35,6 @@ export class Category extends Model<Category, CategoryAttrs> {
   ru: string;
 
   @Column({
-    type: DataType.STRING,
-    allowNull: false,
-    unique: true,
-  })
-  en: string;
-
-  @Column({
     type: DataType.TEXT,
   })
   uz_description: string;
@@ -52,11 +43,6 @@ export class Category extends Model<Category, CategoryAttrs> {
     type: DataType.TEXT,
   })
   ru_description: string;
-
-  @Column({
-    type: DataType.TEXT,
-  })
-  en_description: string;
 
   @Column({
     type: DataType.STRING,

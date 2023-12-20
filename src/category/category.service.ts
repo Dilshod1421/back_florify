@@ -125,8 +125,7 @@ export class CategoryService {
       if (!category) {
         throw new NotFoundException('Kategoriya topilmadi!');
       }
-      const { uz, ru, en, uz_description, ru_description, en_description } =
-        updateDto;
+      const { uz, ru, uz_description, ru_description } = updateDto;
       let dto = {};
       if (!uz) {
         dto = Object.assign(dto, { uz: category.uz });
@@ -134,17 +133,11 @@ export class CategoryService {
       if (!ru) {
         dto = Object.assign(dto, { ru: category.ru });
       }
-      if (!en) {
-        dto = Object.assign(dto, { en: category.en });
-      }
       if (!uz_description) {
         dto = Object.assign(dto, { uz_description: category.uz_description });
       }
       if (!ru_description) {
         dto = Object.assign(dto, { ru_description: category.ru_description });
-      }
-      if (!en_description) {
-        dto = Object.assign(dto, { en_description: category.en_description });
       }
       let obj = {};
       if (!file) {

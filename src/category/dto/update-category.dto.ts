@@ -14,12 +14,6 @@ export class UpdateCategoryDto {
   ru?: string;
 
   @ApiProperty({
-    example: 'Bouquet',
-    description: 'EN name of category',
-  })
-  en?: string;
-
-  @ApiProperty({
     example: 'Buketdagi gullar',
     description: 'UZ description of category',
   })
@@ -30,10 +24,4 @@ export class UpdateCategoryDto {
     description: 'RU description of category',
   })
   ru_description?: string;
-
-  @ApiProperty({
-    example: 'Flowers in a bouquet',
-    description: 'EN description of category',
-  })
-  en_description?: string;
 }

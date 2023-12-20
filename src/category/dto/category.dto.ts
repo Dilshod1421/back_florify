@@ -19,14 +19,6 @@ export class CategoryDto {
   ru: string;
 
   @ApiProperty({
-    example: 'Bouquet',
-    description: 'EN name of category',
-  })
-  @IsNotEmpty()
-  @IsString()
-  en: string;
-
-  @ApiProperty({
     example: 'Buketdagi gullar',
     description: 'UZ description of category',
   })
@@ -37,10 +29,4 @@ export class CategoryDto {
     description: 'RU description of category',
   })
   ru_description?: string;
-
-  @ApiProperty({
-    example: 'Flowers in a bouquet',
-    description: 'EN description of category',
-  })
-  en_description?: string;
 }
