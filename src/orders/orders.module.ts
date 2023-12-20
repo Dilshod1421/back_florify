@@ -10,5 +10,6 @@ import { ClientModule } from 'src/client/client.module';
   imports: [SequelizeModule.forFeature([Order]), ClientModule, ProductModule],
   controllers: [OrdersController],
   providers: [OrdersService],
+  exports: [OrdersService],
 })
 export class OrdersModule {}

@@ -45,19 +45,11 @@ export class UpdateOrderDto {
   @IsArray()
   @ArrayMinSize(1)
   items?: UpdateOrderItemDto[];
-  // @ApiProperty({
-  //   example: OrderStatus.PENDING,
-  //   description: 'status of the order',
-  //   enum: OrderStatus,
-  //   required: false,
-  // })
-  // @IsOptional()
-  // @IsEnum(OrderStatus)
-  // status?: OrderStatus;
 
   @ApiProperty({
     example: 'Я сам',
     description: 'Who is the bouquet for?',
+    required: false
   })
   @IsOptional()
   @IsString()
@@ -66,6 +58,7 @@ export class UpdateOrderDto {
   @ApiProperty({
     example: 'Obid',
     description: 'firstname of customer',
+    required: false
   })
   @IsOptional()
   @IsString()
@@ -74,6 +67,7 @@ export class UpdateOrderDto {
   @ApiProperty({
     example: 'Obidov',
     description: 'lastname of customer',
+    required: false
   })
   @IsOptional()
   @IsString()
@@ -82,6 +76,7 @@ export class UpdateOrderDto {
   @ApiProperty({
     example: '+998907001122',
     description: 'phone of customer',
+    required: false
   })
   @IsOptional()
   @IsString()
@@ -90,6 +85,7 @@ export class UpdateOrderDto {
   @ApiProperty({
     example: 'Uchqun',
     description: 'fullname of recipient',
+    required: false
   })
   @IsOptional()
   @IsString()
@@ -98,6 +94,7 @@ export class UpdateOrderDto {
   @ApiProperty({
     example: '+998907001133',
     description: 'phone of recipient',
+    required: false
   })
   @IsOptional()
   @IsString()
@@ -106,6 +103,7 @@ export class UpdateOrderDto {
   @ApiProperty({
     example: 'Toshkent sh. Yunusobod t. 6-kvartal 23kv',
     description: 'full address',
+    required: false
   })
   @IsOptional()
   @IsString()
@@ -114,6 +112,7 @@ export class UpdateOrderDto {
   @ApiProperty({
     example: 'Call me when you receive it',
     description: 'comment for courier',
+    required: false
   })
   @IsOptional()
   @IsString()
@@ -122,6 +121,7 @@ export class UpdateOrderDto {
   @ApiProperty({
     example: 'Tomorrow 22:00',
     description: 'delivery time',
+    required: false
   })
   @IsOptional()
   @IsString()
@@ -130,6 +130,7 @@ export class UpdateOrderDto {
   @ApiProperty({
     example: PaymentType.ONLINE,
     description: 'payment type of the order',
+    required: false
   })
   @IsOptional()
   payment_type?: PaymentType;

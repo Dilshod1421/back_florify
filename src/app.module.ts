@@ -20,6 +20,7 @@ import { WatchedModule } from './watched/watched.module';
 import { CommentModule } from './comment/comment.module';
 import { AdvertisingModule } from './advertising/advertising.module';
 import { OrdersModule } from './orders/orders.module';
+import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { OrdersModule } from './orders/orders.module';
     SoldProductModule,
     WatchedModule,
     OrdersModule,
+    TransactionModule,
   ],
 })
 export class AppModule {}
