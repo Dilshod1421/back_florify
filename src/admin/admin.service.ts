@@ -33,6 +33,9 @@ export class AdminService {
   ): Promise<object> {
     try {
       await this.otpService.checkPhoneNumber(registerAdminDto.phone);
+      if (process.env.ADMIN_SECRET_KEY != registerAdminDto.secret_key) {
+        throw new ForbiddenException("Maxsus kalit so'z xato!");
+      }
       const hashed_password = await hash(registerAdminDto.password, 7);
       const admin = await this.adminRepository.create({
         ...registerAdminDto,
