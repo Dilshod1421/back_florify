@@ -35,16 +35,10 @@ export class CategoryController {
         ru: {
           type: 'string',
         },
-        en: {
-          type: 'string',
-        },
         uz_description: {
           type: 'string',
         },
         ru_description: {
-          type: 'string',
-        },
-        en_description: {
           type: 'string',
         },
         file: {
@@ -94,16 +88,10 @@ export class CategoryController {
         ru: {
           type: 'string',
         },
-        en: {
-          type: 'string',
-        },
         uz_description: {
           type: 'string',
         },
         ru_description: {
-          type: 'string',
-        },
-        en_description: {
           type: 'string',
         },
         file: {
