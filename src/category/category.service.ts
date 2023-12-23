@@ -40,14 +40,7 @@ export class CategoryService {
 
   async getAll(): Promise<object> {
     try {
-      const categories = await this.categoryRepository.findAll({
-        include: [
-          {
-            model: Product,
-            include: [{ model: Image, attributes: ['image'] }],
-          },
-        ],
-      });
+      const categories = await this.categoryRepository.findAll();
       return {
         statusCode: HttpStatus.OK,
         data: {
