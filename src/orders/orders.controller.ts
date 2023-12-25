@@ -38,6 +38,12 @@ export class OrdersController {
     return this.ordersService.findById(id);
   }
 
+  @ApiOperation({ summary: 'Get order by client ID' })
+  @Get('clientId/:client_id')
+  getByClientId(@Param('client_id') client_id: string) {
+    return this.ordersService.getByClientId(client_id);
+  }
+
   @ApiOperation({ summary: 'Edit order by ID' })
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {

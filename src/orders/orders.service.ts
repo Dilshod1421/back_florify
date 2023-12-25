@@ -44,6 +44,22 @@ export class OrdersService {
     }
   }
 
+  async getByClientId(client_id: string): Promise<object> {
+    try {
+      const orders = await this.orderRepository.findAll({
+        where: { client_id },
+      });
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          orders,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
   async create(orderData: CreateOrderDto): Promise<object> {
     let totalAmount = 0;
     const product_ids = orderData.items.map((item) => item.product_id);
