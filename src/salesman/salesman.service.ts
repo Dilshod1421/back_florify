@@ -145,7 +145,7 @@ export class SalesmanService {
         include: [
           {
             model: Product,
-            include: [{ model: Image, attributes: ['image'] }],
+            include: [Image],
           },
         ],
       });
@@ -166,7 +166,7 @@ export class SalesmanService {
         include: [
           {
             model: Product,
-            include: [{ model: Image, attributes: ['image'] }],
+            include: [Image],
           },
         ],
       });
@@ -191,7 +191,7 @@ export class SalesmanService {
         include: [
           {
             model: Product,
-            include: [{ model: Image, attributes: ['image'] }],
+            include: [Image],
           },
         ],
         offset,
@@ -383,7 +383,9 @@ export class SalesmanService {
       if (!salesman) {
         throw new NotFoundException('Sotuvchi topilmadi!');
       }
-      await this.fileService.deleteFile(salesman.image);
+      if (salesman.image) {
+        await this.fileService.deleteFile(salesman.image);
+      }
       const update = await this.salesmanRepository.update(
         { image: null },
         { where: { id }, returning: true },
@@ -406,7 +408,9 @@ export class SalesmanService {
       if (!salesman) {
         throw new NotFoundException('Sotuvchi topilmadi!');
       }
-      await this.fileService.deleteFile(salesman.image);
+      if (salesman.image) {
+        await this.fileService.deleteFile(salesman.image);
+      }
       salesman.destroy();
       return {
         statusCode: HttpStatus.ACCEPTED,

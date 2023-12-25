@@ -64,7 +64,7 @@ export class WatchedService {
           {
             model: Product,
             include: [
-              { model: Image, attributes: ['image'] },
+              { model: Image },
               { model: Like, attributes: ['is_like', 'client_id'] },
             ],
           },
@@ -88,7 +88,7 @@ export class WatchedService {
           [Op.and]: [{ client_id }, { product_id }],
         },
         include: [
-          { model: Image, attributes: ['image'] },
+          { model: Image },
           { model: Like, attributes: ['is_like', 'client_id'] },
         ],
       });
@@ -119,7 +119,7 @@ export class WatchedService {
           {
             model: Product,
             include: [
-              { model: Image, attributes: ['image'] },
+              { model: Image },
               { model: Like, attributes: ['is_like', 'client_id'] },
             ],
           },

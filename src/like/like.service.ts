@@ -62,7 +62,7 @@ export class LikeService {
         include: [
           {
             model: Product,
-            include: [{ model: Image, attributes: ['image'] }],
+            include: [Image],
           },
         ],
       });
@@ -111,7 +111,7 @@ export class LikeService {
         include: [
           {
             model: Product,
-            include: [{ model: Image, attributes: ['image'] }],
+            include: [Image],
           },
         ],
         offset,

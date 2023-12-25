@@ -49,7 +49,7 @@ export class ProductService {
   async getAll(): Promise<object> {
     try {
       const products = await this.productRepository.findAll({
-        include: { model: Image, attributes: ['image'] },
+        include: { model: Image },
       });
       return {
         statusCode: HttpStatus.OK,
@@ -65,7 +65,7 @@ export class ProductService {
   async getById(id: number): Promise<object> {
     try {
       const product = await this.productRepository.findByPk(id, {
-        include: { model: Image, attributes: ['image'] },
+        include: { model: Image },
       });
       if (!product) {
         throw new NotFoundException('Mahsulot topilmadi!');
@@ -91,7 +91,7 @@ export class ProductService {
       const products = await this.productRepository.findAll({
         where: { category_id },
         include: [
-          { model: Image, attributes: ['image'] },
+          { model: Image },
           { model: Like, attributes: ['is_like', 'client_id'] },
         ],
         offset,
@@ -130,7 +130,7 @@ export class ProductService {
       if (quantity == 'All') {
         const products = await this.productRepository.findAll({
           where: { salesman_id },
-          include: { model: Image, attributes: ['image'] },
+          include: { model: Image },
           offset,
           limit,
         });
@@ -194,7 +194,7 @@ export class ProductService {
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
         include: [
-          { model: Image, attributes: ['image'] },
+          { model: Image },
           { model: Like, attributes: ['is_like', 'client_id'] },
         ],
         offset,
@@ -226,7 +226,7 @@ export class ProductService {
       const products = await this.productRepository.findAll({
         where: { date },
         include: [
-          { model: Image, attributes: ['image'] },
+          { model: Image },
           { model: Like, attributes: ['is_like', 'client_id'] },
         ],
         offset,
@@ -260,7 +260,7 @@ export class ProductService {
       const products = await this.productRepository.findAll({
         where: { name: { [Op.iLike]: `%${query}%` } },
         include: [
-          { model: Image, attributes: ['image'] },
+          { model: Image },
           { model: Like, attributes: ['is_like', 'client_id'] },
         ],
         offset,
@@ -361,7 +361,9 @@ export class ProductService {
         where: { product_id: id },
       });
       for (let i = 0; i < images.length; i++) {
-        await this.fileService.deleteFile(images[i].image);
+        if (images[i].image) {
+          await this.fileService.deleteFile(images[i].image);
+        }
       }
       product.destroy();
       return {

@@ -58,7 +58,7 @@ export class CategoryService {
         include: [
           {
             model: Product,
-            include: [{ model: Image, attributes: ['image'] }],
+            include: [Image],
           },
         ],
       });
@@ -83,7 +83,7 @@ export class CategoryService {
         include: [
           {
             model: Product,
-            include: [{ model: Image, attributes: ['image'] }],
+            include: [Image],
           },
         ],
         offset,
