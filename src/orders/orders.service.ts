@@ -75,7 +75,7 @@ export class OrdersService {
     available_products.forEach((item) => {
       products_in_object[item.id] = item;
     });
-    for (const item of orderData.items) {
+    for (const [i, item] of orderData.items.entries()) {
       const real_product = products_in_object[item.product_id] as Product;
 
       if (!real_product) {
@@ -86,6 +86,9 @@ export class OrdersService {
           `${real_product.name} mahsuloti miqdori yetarli emas!`,
         );
       }
+      orderData.items[i] = Object.assign(orderData.items[i], {
+        product: real_product,
+      });
       totalAmount += real_product.price * item.quantity;
     }
 

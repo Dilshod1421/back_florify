@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
+  BadRequestException,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -16,7 +18,7 @@ import { AuthGuard } from 'src/guard/auth.guard';
 
 @ApiTags('Order')
 @Controller('orders')
-// @UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
 
@@ -27,7 +29,7 @@ export class OrdersController {
   }
 
   @ApiOperation({ summary: 'Get all orders' })
-  @Get()
+  @Get('admin')
   findAll() {
     return this.ordersService.findAll();
   }
@@ -39,9 +41,13 @@ export class OrdersController {
   }
 
   @ApiOperation({ summary: 'Get order by client ID' })
-  @Get('clientId/:client_id')
-  getByClientId(@Param('client_id') client_id: string) {
-    return this.ordersService.getByClientId(client_id);
+  @Get()
+  getByClientId(@Req() request) {
+    const user_id = request?.user?.id;
+    if (!user_id) {
+      throw new BadRequestException('Tokendan client_id topilmadi');
+    }
+    return this.ordersService.getByClientId(user_id);
   }
 
   @ApiOperation({ summary: 'Edit order by ID' })
