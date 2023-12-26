@@ -23,22 +23,4 @@ export class SalesmanDto {
   @IsString()
   @MinLength(4)
   password: string;
-
-  @ApiProperty({
-    example: 'florify',
-    description: 'Username of salesman',
-  })
-  username?: string;
-
-  @ApiProperty({
-    example: "Parkentskiy ko'chasi, 14",
-    description: 'Address of salesman',
-  })
-  address?: string;
-
-  @ApiProperty({
-    example: 'user123',
-    description: 'Telegram username of salesman',
-  })
-  telegram?: string;
 }

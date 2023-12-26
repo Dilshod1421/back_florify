@@ -39,20 +39,10 @@ export class SalesmanService {
   ): Promise<object> {
     try {
       const hashed_password = await hash(salesmanDto.password, 7);
-      let salesman: any;
-      if (file) {
-        const file_name = await this.fileService.createFile(file);
-        salesman = await this.salesmanRepository.create({
-          ...salesmanDto,
-          hashed_password,
-          image: file_name,
-        });
-      } else if (!file) {
-        salesman = await this.salesmanRepository.create({
-          ...salesmanDto,
-          hashed_password,
-        });
-      }
+      const salesman = await this.salesmanRepository.create({
+        ...salesmanDto,
+        hashed_password,
+      });
       const { access_token, refresh_token } = await generateToken(
         { id: salesman.id },
         this.jwtService,
@@ -370,6 +360,32 @@ export class SalesmanService {
         message: "Do'kon ma'lumotlari tahrirlandi",
         data: {
           salesman: update_info[1][0],
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async editPhoneAndPassword(
+    id: string,
+    salesmanDto: SalesmanDto,
+  ): Promise<object> {
+    try {
+      const salesman = await this.salesmanRepository.findByPk(id);
+      if (!salesman) {
+        throw new NotFoundException('Sotuvchi topilmadi!');
+      }
+      const hashed_password = await hash(salesmanDto.password, 7);
+      const updated_info = await this.salesmanRepository.update(
+        { ...salesmanDto, hashed_password },
+        { where: { id }, returning: true },
+      );
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Sotuvchining telefon raqamai va paroli tahrirlandi',
+        data: {
+          salesman: updated_info[1][0],
         },
       };
     } catch (error) {

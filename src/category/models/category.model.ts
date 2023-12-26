@@ -35,12 +35,12 @@ export class Category extends Model<Category, CategoryAttrs> {
   ru: string;
 
   @Column({
-    type: DataType.TEXT,
+    type: DataType.STRING,
   })
   uz_description: string;
 
   @Column({
-    type: DataType.TEXT,
+    type: DataType.STRING,
   })
   ru_description: string;
 

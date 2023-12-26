@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class SocialNetworkDto {
   @ApiProperty({
@@ -15,6 +15,6 @@ export class SocialNetworkDto {
     description: 'Link of social network',
   })
   @IsNotEmpty()
-  @IsUrl()
+  @IsString()
   link: string;
 }

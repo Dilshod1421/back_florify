@@ -65,7 +65,10 @@ export class ProductService {
   async getById(id: number): Promise<object> {
     try {
       const product = await this.productRepository.findByPk(id, {
-        include: { model: Image },
+        include: [
+          { model: Image },
+          { model: Like },
+        ],
       });
       if (!product) {
         throw new NotFoundException('Mahsulot topilmadi!');
@@ -92,7 +95,7 @@ export class ProductService {
         where: { category_id },
         include: [
           { model: Image },
-          { model: Like, attributes: ['is_like', 'client_id'] },
+          { model: Like},
         ],
         offset,
         limit,
@@ -130,7 +133,10 @@ export class ProductService {
       if (quantity == 'All') {
         const products = await this.productRepository.findAll({
           where: { salesman_id },
-          include: { model: Image },
+          include: [
+            { model: Image },
+            { model: Like},
+          ],
           offset,
           limit,
         });
@@ -164,8 +170,8 @@ export class ProductService {
         offset,
         limit,
         include: [
-          { model: Image, attributes: ['image'] },
-          { model: Like, attributes: ['is_like', 'client_id'] },
+          { model: Image},
+          { model: Like },
         ],
       });
       const total_count = await this.productRepository.count({
@@ -195,7 +201,7 @@ export class ProductService {
       const products = await this.productRepository.findAll({
         include: [
           { model: Image },
-          { model: Like, attributes: ['is_like', 'client_id'] },
+          { model: Like},
         ],
         offset,
         limit,
@@ -227,7 +233,7 @@ export class ProductService {
         where: { date },
         include: [
           { model: Image },
-          { model: Like, attributes: ['is_like', 'client_id'] },
+          { model: Like},
         ],
         offset,
         limit,
@@ -261,7 +267,7 @@ export class ProductService {
         where: { name: { [Op.iLike]: `%${query}%` } },
         include: [
           { model: Image },
-          { model: Like, attributes: ['is_like', 'client_id'] },
+          { model: Like},
         ],
         offset,
         limit,
