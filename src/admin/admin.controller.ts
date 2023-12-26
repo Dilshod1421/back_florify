@@ -20,11 +20,15 @@ import { NewPasswordDto } from './dto/new-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { RegisterAdminDto } from './dto/register-admin.dto';
 import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
+import { OrdersService } from 'src/orders/orders.service';
 
 @ApiTags('Admin')
 @Controller('admin')
 export class AdminController {
-  constructor(private readonly adminService: AdminService) {}
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly orderService: OrdersService,
+  ) {}
 
   @ApiOperation({ summary: 'Registration a new admin' })
   @Post('register')
@@ -114,5 +118,11 @@ export class AdminController {
   @Delete(':id')
   deleteAdmin(@Param('id') id: string) {
     return this.adminService.deleteAdmin(id);
+  }
+
+  @ApiOperation({ summary: 'Get orders with pagination' })
+  @Get('orders/pagination/:page/:limit')
+  orderPagination(@Param('page') page: number, @Param('limit') limit: number) {
+    return this.orderService.pagination(page, limit);
   }
 }

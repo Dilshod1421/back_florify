@@ -75,7 +75,7 @@ export class OrdersService {
     available_products.forEach((item) => {
       products_in_object[item.id] = item;
     });
-    for (const item of orderData.items) {
+    for (const [i, item] of orderData.items.entries()) {
       const real_product = products_in_object[item.product_id] as Product;
 
       if (!real_product) {
@@ -86,6 +86,9 @@ export class OrdersService {
           `${real_product.name} mahsuloti miqdori yetarli emas!`,
         );
       }
+      orderData.items[i] = Object.assign(orderData.items[i], {
+        product: real_product,
+      });
       totalAmount += real_product.price * item.quantity;
     }
 
@@ -127,6 +130,33 @@ export class OrdersService {
     try {
       await this.findById(id);
       await this.orderRepository.update({ status }, { where: { id } });
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async pagination(page: number, limit: number): Promise<object> {
+    try {
+      const offset = (page - 1) * limit;
+      const orders = await this.orderRepository.findAll({
+        include: [Client],
+        offset,
+        limit,
+      });
+      const total_count = await this.orderRepository.count();
+      const total_pages = Math.ceil(total_count / limit);
+      const response = {
+        statusCode: HttpStatus.OK,
+        data: {
+          records: orders,
+          pagination: {
+            currentPage: Number(page),
+            total_pages,
+            total_count,
+          },
+        },
+      };
+      return response;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
