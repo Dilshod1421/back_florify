@@ -28,12 +28,6 @@ export class OrdersController {
     return this.ordersService.create(createOrderDto);
   }
 
-  @ApiOperation({ summary: 'Get all orders' })
-  @Get('admin')
-  findAll() {
-    return this.ordersService.findAll();
-  }
-
   @ApiOperation({ summary: 'Get order by ID' })
   @Get(':id')
   findOne(@Param('id') id: string) {

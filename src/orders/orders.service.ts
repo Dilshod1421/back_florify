@@ -135,6 +135,33 @@ export class OrdersService {
     }
   }
 
+  async pagination(page: number, limit: number): Promise<object> {
+    try {
+      const offset = (page - 1) * limit;
+      const orders = await this.orderRepository.findAll({
+        include: [Client],
+        offset,
+        limit,
+      });
+      const total_count = await this.orderRepository.count();
+      const total_pages = Math.ceil(total_count / limit);
+      const response = {
+        statusCode: HttpStatus.OK,
+        data: {
+          records: orders,
+          pagination: {
+            currentPage: Number(page),
+            total_pages,
+            total_count,
+          },
+        },
+      };
+      return response;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
   async delete(id: string): Promise<object> {
     try {
       await this.findById(id);
