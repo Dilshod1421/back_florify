@@ -25,15 +25,15 @@ export class Transaction extends Model<Transaction, TransactionDto> {
 
   @ForeignKey(() => Order)
   @Column({
-    type: DataType.UUID,
+    type: DataType.INTEGER,
   })
-  order_id: string;
+  order_id: number;
 
   @BelongsTo(() => Order)
   order: Order;
 
   @Column({ type: DataType.JSON })
-  info: Object;
+  info: object;
 
   @Column(
     DataType.ENUM({

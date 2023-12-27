@@ -25,8 +25,15 @@ export class TransactionService {
       if (id) {
         const exist = await this.findById(id);
         if (exist) {
+          let dto = {};
+          if (updateTransactionDto.info) {
+            dto = Object.assign(dto, { info: updateTransactionDto.info });
+          }
+          if (updateTransactionDto.status) {
+            dto = Object.assign(dto, { status: updateTransactionDto.status });
+          }
           // update
-          await this.transactionRepository.update(updateTransactionDto, {
+          await this.transactionRepository.update(dto, {
             where: { id },
           });
         }

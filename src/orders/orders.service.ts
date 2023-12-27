@@ -27,7 +27,7 @@ export class OrdersService {
     });
   }
 
-  async findById(id: string): Promise<object> {
+  async findById(id: number): Promise<object> {
     try {
       const order = await this.orderRepository.findByPk(id);
       if (!order) {
@@ -107,7 +107,7 @@ export class OrdersService {
     };
   }
 
-  async update(id: string, orderData: UpdateOrderDto): Promise<object> {
+  async update(id: number, orderData: UpdateOrderDto): Promise<object> {
     try {
       await this.findById(id);
       const order = await this.orderRepository.update(orderData, {
@@ -126,7 +126,7 @@ export class OrdersService {
     }
   }
 
-  async updateStatus(id: string, status: OrderStatus): Promise<void> {
+  async updateStatus(id: number, status: OrderStatus): Promise<void> {
     try {
       await this.findById(id);
       await this.orderRepository.update({ status }, { where: { id } });
@@ -162,7 +162,7 @@ export class OrdersService {
     }
   }
 
-  async delete(id: string): Promise<object> {
+  async delete(id: number): Promise<object> {
     try {
       await this.findById(id);
       await this.orderRepository.destroy({ where: { id } });

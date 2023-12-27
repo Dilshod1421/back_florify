@@ -22,8 +22,8 @@ export enum PaymentType {
 @Table({ tableName: 'order' })
 export class Order extends Model<Order, CreateOrderDto> {
   @Column({
-    type: DataType.UUID,
-    defaultValue: DataType.UUIDV4,
+    type: DataType.INTEGER,
+    autoIncrement: true,
     primaryKey: true,
   })
   id: string;
@@ -79,6 +79,9 @@ export class Order extends Model<Order, CreateOrderDto> {
 
   @Column({ type: DataType.STRING })
   delivery_time: string;
+
+  @Column({ type: DataType.STRING, defaultValue: '' })
+  postcard_text: string;
 
   @Column(
     DataType.ENUM({

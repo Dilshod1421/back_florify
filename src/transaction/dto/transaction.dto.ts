@@ -24,8 +24,8 @@ export class TransactionDto {
     description: 'ID of the order',
   })
   @IsNotEmpty()
-  @IsString()
-  order_id: string;
+  @IsNumber()
+  order_id: number;
 
   @ApiProperty({
     example: 10000,
