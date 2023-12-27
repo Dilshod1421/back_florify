@@ -241,19 +241,30 @@ export class ProductService {
     }
   }
 
-  async searchProduct(query: string, page: number): Promise<object> {
+  async searchProduct(query?: string, page?: number): Promise<object> {
     try {
       const limit = 10;
       const offset = (page - 1) * limit;
-      const products = await this.productRepository.findAll({
-        where: { name: { [Op.iLike]: `%${query}%` } },
-        include: [{ model: Image }, { model: Like }],
-        offset,
-        limit,
-      });
-      const total_count = await this.productRepository.count({
-        where: { name: { [Op.iLike]: `%${query}%` } },
-      });
+      let products: Product[];
+      let total_count: number;
+      if (!query) {
+        products = await this.productRepository.findAll({
+          include: [{ model: Image }, { model: Like }],
+          offset,
+          limit,
+        });
+        total_count = await this.productRepository.count();
+      } else {
+        products = await this.productRepository.findAll({
+          where: { name: { [Op.iLike]: `%${query}%` } },
+          include: [{ model: Image }, { model: Like }],
+          offset,
+          limit,
+        });
+        total_count = await this.productRepository.count({
+          where: { name: { [Op.iLike]: `%${query}%` } },
+        });
+      }
       const total_pages = Math.ceil(total_count / limit);
       const response = {
         status: HttpStatus.OK,

@@ -82,7 +82,7 @@ export class ProductController {
 
   @ApiOperation({ summary: 'Search products' })
   @Get('search/:page')
-  searchProduct(@Query('query') query: string, @Param('page') page: number) {
+  searchProduct(@Query('query') query?: string, @Param('page') page?: number) {
     return this.productService.searchProduct(query, page);
   }
 
