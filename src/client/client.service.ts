@@ -14,6 +14,7 @@ import { UpdateDto } from './dto/update.dto';
 import { PhoneDto } from 'src/otp/dto/phone.dto';
 import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
 import { Like } from 'src/like/models/like.model';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class ClientService {
@@ -21,6 +22,7 @@ export class ClientService {
     @InjectModel(Client) private clientRepository: typeof Client,
     private readonly otpService: OtpService,
     private readonly jwtService: JwtService,
+    private readonly fileService: FilesService,
   ) {}
 
   async register(verifyOtpDto: VerifyOtpDto, res: Response): Promise<object> {
@@ -188,7 +190,11 @@ export class ClientService {
     }
   }
 
-  async updateProfile(id: string, updateDto: UpdateDto): Promise<object> {
+  async updateProfile(
+    id: string,
+    updateDto: UpdateDto,
+    file: any,
+  ): Promise<object> {
     try {
       const client = await this.clientRepository.findByPk(id);
       if (!client) {
@@ -205,8 +211,30 @@ export class ClientService {
       if (!address) {
         dto = Object.assign(dto, { address: client.address });
       }
-      const obj = Object.assign(updateDto, dto);
-      const profile = await this.clientRepository.update(obj, {
+      let obj = {};
+      if (!file) {
+        dto = Object.assign(dto, { image: client.image });
+        obj = Object.assign(updateDto, dto);
+        const update = await this.clientRepository.update(obj, {
+          where: { id },
+          returning: true,
+        });
+        return {
+          statusCode: HttpStatus.OK,
+          message: "Mijoz ma'lumotlari tahrirlandi",
+          data: {
+            client: update[1][0],
+          },
+        };
+      }
+      if (client.image) {
+        await this.fileService.deleteFile(client.image);
+      }
+      const file_name = await this.fileService.createFile(file);
+      const image_obj = { image: file_name };
+      obj = Object.assign(obj, updateDto);
+      obj = Object.assign(obj, image_obj);
+      const update = await this.clientRepository.update(obj, {
         where: { id },
         returning: true,
       });
@@ -214,7 +242,7 @@ export class ClientService {
         statusCode: HttpStatus.OK,
         message: "Mijoz ma'lumotlari tahrirlandi",
         data: {
-          client: profile[1][0],
+          category: update[1][0],
         },
       };
     } catch (error) {

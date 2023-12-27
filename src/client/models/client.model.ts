@@ -7,6 +7,7 @@ interface ClientAttrs {
   phone: string;
   name: string;
   address: string;
+  image: string;
 }
 
 @Table({ tableName: 'client' })
@@ -34,6 +35,11 @@ export class Client extends Model<Client, ClientAttrs> {
     type: DataType.STRING,
   })
   address: string;
+
+  @Column({
+    type: DataType.STRING,
+  })
+  image: string;
 
   @HasMany(() => Like, {
     onDelete: 'CASCADE',

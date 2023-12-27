@@ -8,15 +8,19 @@ import {
   Delete,
   UseGuards,
   Res,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ClientService } from './client.service';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { PhoneDto } from 'src/otp/dto/phone.dto';
 import { VerifyOtpDto } from 'src/otp/dto/verifyOtp.dto';
 import { Response } from 'express';
 import { CookieGetter } from 'src/decorators/cookieGetter.decorator';
 import { UpdateDto } from './dto/update.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ImageValidationPipe } from 'src/pipes/image-validation.pipe';
 
 @ApiTags('Client')
 @Controller('client')
@@ -79,10 +83,36 @@ export class ClientController {
   }
 
   @ApiOperation({ summary: 'Update profile of client by ID' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        phone: {
+          type: 'string',
+        },
+        name: {
+          type: 'string',
+        },
+        address: {
+          type: 'string',
+        },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   // @UseGuards(AuthGuard)
   @Patch(':id')
-  updateProfile(@Param('id') id: string, @Body() updateDto: UpdateDto) {
-    return this.clientService.updateProfile(id, updateDto);
+  @UseInterceptors(FileInterceptor('file'))
+  updateProfile(
+    @Param('id') id: string,
+    @Body() updateDto: UpdateDto,
+    @UploadedFile(new ImageValidationPipe()) file: Express.Multer.File,
+  ) {
+    return this.clientService.updateProfile(id, updateDto, file);
   }
 
   @ApiOperation({ summary: 'Delete client by ID' })
