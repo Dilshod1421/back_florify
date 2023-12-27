@@ -30,7 +30,7 @@ export class OrdersController {
 
   @ApiOperation({ summary: 'Get order by ID' })
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: number) {
     return this.ordersService.findById(id);
   }
 
@@ -46,13 +46,13 @@ export class OrdersController {
 
   @ApiOperation({ summary: 'Edit order by ID' })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateOrderDto: UpdateOrderDto) {
+  update(@Param('id') id: number, @Body() updateOrderDto: UpdateOrderDto) {
     return this.ordersService.update(id, updateOrderDto);
   }
 
   @ApiOperation({ summary: 'Delete order by ID' })
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: number) {
     return this.ordersService.delete(id);
   }
 }

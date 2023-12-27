@@ -128,10 +128,20 @@ export class UpdateOrderDto {
   delivery_time?: string;
 
   @ApiProperty({
+    example: 'Hello John...',
+    description: 'postcard text',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  postcard_text?: string;
+
+  @ApiProperty({
     example: PaymentType.ONLINE,
     description: 'payment type of the order',
     required: false,
   })
   @IsOptional()
   payment_type?: PaymentType;
+  totalAmount?: number;
 }

@@ -10,6 +10,7 @@ import { Transaction, TransactionStatus } from './models/transaction.model';
 import { Repository } from 'sequelize-typescript';
 import { Order, OrderStatus } from 'src/orders/models/order.model';
 import { OrdersService } from 'src/orders/orders.service';
+import { orderCompleteSMSSchema, sendSMS } from 'src/utils/sendSMS';
 
 @Injectable()
 export class TransactionService {
@@ -22,11 +23,22 @@ export class TransactionService {
   async create(transactionDto: TransactionDto) {
     try {
       let { id, ...updateTransactionDto } = transactionDto;
+      const orderResponse: any = await this.orderService.findById(
+        updateTransactionDto.order_id,
+      );
+      const order = orderResponse.data.order as Order;
       if (id) {
         const exist = await this.findById(id);
         if (exist) {
+          let dto = {};
+          if (updateTransactionDto.info) {
+            dto = Object.assign(dto, { info: updateTransactionDto.info });
+          }
+          if (updateTransactionDto.status) {
+            dto = Object.assign(dto, { status: updateTransactionDto.status });
+          }
           // update
-          await this.transactionRepository.update(updateTransactionDto, {
+          await this.transactionRepository.update(dto, {
             where: { id },
           });
         }
@@ -42,6 +54,10 @@ export class TransactionService {
       let orderStatus;
       if (transactionDto.status === TransactionStatus.SUCCESS) {
         orderStatus = OrderStatus.PAID;
+        await sendSMS(
+          order.client.phone,
+          orderCompleteSMSSchema(updateTransactionDto.order_id),
+        );
       } else if (transactionDto.status === TransactionStatus.FAIL) {
         orderStatus = OrderStatus.CANCELLED;
       }
