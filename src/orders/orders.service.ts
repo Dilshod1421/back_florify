@@ -29,7 +29,9 @@ export class OrdersService {
 
   async findById(id: number): Promise<object> {
     try {
-      const order = await this.orderRepository.findByPk(id);
+      const order = await this.orderRepository.findByPk(id, {
+        include: [Client],
+      });
       if (!order) {
         throw new NotFoundException('Order topilmadi!');
       }
@@ -110,6 +112,33 @@ export class OrdersService {
   async update(id: number, orderData: UpdateOrderDto): Promise<object> {
     try {
       await this.findById(id);
+
+      if (orderData.totalAmount) {
+        throw new BadRequestException(
+          'Umumiy mablagni ozgartirish mumkin emas!',
+        );
+      }
+      if (orderData.items) {
+        let totalAmount = 0;
+        for (const [i, item] of orderData.items.entries()) {
+          const productResponse: any = await this.productService.getById(
+            item.product_id,
+          );
+          const real_product = productResponse.data.product as Product;
+
+          if (real_product.quantity < item.quantity) {
+            throw new BadRequestException(
+              `${real_product.name} mahsuloti miqdori yetarli emas!`,
+            );
+          }
+          orderData.items[i] = Object.assign(orderData.items[i], {
+            product: real_product,
+          });
+          totalAmount += real_product.price * item.quantity;
+        }
+        orderData.totalAmount = totalAmount;
+      }
+
       const order = await this.orderRepository.update(orderData, {
         where: { id },
         returning: true,

@@ -143,4 +143,5 @@ export class UpdateOrderDto {
   })
   @IsOptional()
   payment_type?: PaymentType;
+  totalAmount?: number;
 }

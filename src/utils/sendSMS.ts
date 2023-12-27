@@ -29,3 +29,11 @@ export async function sendSMS(phone: string, message: string) {
     throw new BadRequestException(error.message);
   }
 }
+
+export function orderCompleteSMSSchema(id) {
+  return (
+    'Sizning buyurtmangiz № ' +
+    id +
+    '. Tez fursatda kuryerimiz mahsulotlarni yetkazadi.'
+  );
+}
