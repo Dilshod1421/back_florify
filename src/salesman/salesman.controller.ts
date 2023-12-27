@@ -43,19 +43,6 @@ export class SalesmanController {
         password: {
           type: 'string',
         },
-        username: {
-          type: 'string',
-        },
-        address: {
-          type: 'string',
-        },
-        telegram: {
-          type: 'string',
-        },
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
       },
     },
   })
@@ -172,6 +159,15 @@ export class SalesmanController {
   @Patch('store/:id')
   updateStore(@Param('id') id: string, @Body() storeDto: StoreDto) {
     return this.salesmanService.updateStore(id, storeDto);
+  }
+
+  @ApiOperation({ summary: 'Update phone and password of salesman' })
+  @Patch('adminEdit/:id')
+  editPhoneAndPassword(
+    @Param('id') id: string,
+    @Body() salesmanDto: SalesmanDto,
+  ) {
+    return this.salesmanService.editPhoneAndPassword(id, salesmanDto);
   }
 
   @ApiOperation({ summary: 'Delete image of salesman by ID' })

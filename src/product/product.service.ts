@@ -65,7 +65,7 @@ export class ProductService {
   async getById(id: number): Promise<object> {
     try {
       const product = await this.productRepository.findByPk(id, {
-        include: { model: Image },
+        include: [{ model: Image }, { model: Like }],
       });
       if (!product) {
         throw new NotFoundException('Mahsulot topilmadi!');
@@ -90,10 +90,7 @@ export class ProductService {
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
         where: { category_id },
-        include: [
-          { model: Image },
-          { model: Like, attributes: ['is_like', 'client_id'] },
-        ],
+        include: [{ model: Image }, { model: Like }],
         offset,
         limit,
       });
@@ -130,7 +127,7 @@ export class ProductService {
       if (quantity == 'All') {
         const products = await this.productRepository.findAll({
           where: { salesman_id },
-          include: { model: Image },
+          include: [{ model: Image }, { model: Like }],
           offset,
           limit,
         });
@@ -163,10 +160,7 @@ export class ProductService {
         where,
         offset,
         limit,
-        include: [
-          { model: Image, attributes: ['image'] },
-          { model: Like, attributes: ['is_like', 'client_id'] },
-        ],
+        include: [{ model: Image }, { model: Like }],
       });
       const total_count = await this.productRepository.count({
         where,
@@ -193,10 +187,7 @@ export class ProductService {
     try {
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
-        include: [
-          { model: Image },
-          { model: Like, attributes: ['is_like', 'client_id'] },
-        ],
+        include: [{ model: Image }, { model: Like }],
         offset,
         limit,
       });
@@ -225,10 +216,7 @@ export class ProductService {
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
         where: { date },
-        include: [
-          { model: Image },
-          { model: Like, attributes: ['is_like', 'client_id'] },
-        ],
+        include: [{ model: Image }, { model: Like }],
         offset,
         limit,
       });
@@ -259,10 +247,7 @@ export class ProductService {
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
         where: { name: { [Op.iLike]: `%${query}%` } },
-        include: [
-          { model: Image },
-          { model: Like, attributes: ['is_like', 'client_id'] },
-        ],
+        include: [{ model: Image }, { model: Like }],
         offset,
         limit,
       });
