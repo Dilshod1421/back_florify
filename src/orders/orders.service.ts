@@ -12,6 +12,7 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { Client } from 'src/client/models/client.model';
 import { ProductService } from 'src/product/product.service';
 import { Product } from 'src/product/models/product.model';
+import { Image } from 'src/image/models/image.model';
 
 @Injectable()
 export class OrdersService {
@@ -23,14 +24,14 @@ export class OrdersService {
 
   async findAll(): Promise<Order[]> {
     return this.orderRepository.findAll({
-      include: [Client],
+      include: [{ model: Client }, { model: Product, include: [Image] }],
     });
   }
 
   async findById(id: number): Promise<object> {
     try {
       const order = await this.orderRepository.findByPk(id, {
-        include: [Client],
+        include: [{ model: Client }, { model: Product, include: [Image] }],
       });
       if (!order) {
         throw new NotFoundException('Order topilmadi!');
@@ -50,6 +51,7 @@ export class OrdersService {
     try {
       const orders = await this.orderRepository.findAll({
         where: { client_id },
+        include: [{ model: Client }, { model: Product, include: [Image] }],
       });
       return {
         statusCode: HttpStatus.OK,

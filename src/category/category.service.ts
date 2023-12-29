@@ -54,6 +54,44 @@ export class CategoryService {
 
   async getById(id: string): Promise<object> {
     try {
+      const category = await this.categoryRepository.findByPk(id);
+      if (!category) {
+        throw new NotFoundException('Kategoriya topilmadi!');
+      }
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          category,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async getAllForMobile(): Promise<object> {
+    try {
+      const categories = await this.categoryRepository.findAll({
+        include: [
+          {
+            model: Product,
+            include: [Image],
+          },
+        ],
+      });
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          categories,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async getByIdForMobile(id: string): Promise<object> {
+    try {
       const category = await this.categoryRepository.findByPk(id, {
         include: [
           {

@@ -14,6 +14,7 @@ export enum OrderStatus {
   CANCELLED = 'CANCELLED',
   PENDING = 'PENDING',
 }
+
 export enum PaymentType {
   ONLINE = 'ONLINE',
   WHEN_DELIVERED = 'WHEN_DELIVERED',
@@ -37,7 +38,9 @@ export class Order extends Model<Order, CreateOrderDto> {
   @BelongsTo(() => Client)
   client: Client;
 
-  @Column({ type: DataType.JSONB })
+  @Column({
+    type: DataType.JSONB,
+  })
   items: CreateOrderItemDto[];
 
   @Column(
@@ -53,34 +56,58 @@ export class Order extends Model<Order, CreateOrderDto> {
   })
   totalAmount: number;
 
-  @Column({ type: DataType.STRING })
+  @Column({
+    type: DataType.STRING,
+  })
   to_whom_bouquet: string;
 
-  @Column({ type: DataType.STRING })
+  @Column({
+    type: DataType.STRING,
+  })
   customer_firstname: string;
 
-  @Column({ type: DataType.STRING })
+  @Column({
+    type: DataType.STRING,
+  })
   customer_lastname: string;
 
-  @Column({ type: DataType.STRING })
+  @Column({
+    type: DataType.STRING,
+  })
   customer_phone: string;
 
-  @Column({ type: DataType.STRING, defaultValue: '' })
+  @Column({
+    type: DataType.STRING,
+    defaultValue: '',
+  })
   receiver_name: string;
 
-  @Column({ type: DataType.STRING, defaultValue: '' })
+  @Column({
+    type: DataType.STRING,
+    defaultValue: '',
+  })
   receiver_phone: string;
 
-  @Column({ type: DataType.STRING })
+  @Column({
+    type: DataType.STRING,
+  })
   full_address: string;
 
-  @Column({ type: DataType.STRING, defaultValue: '' })
+  @Column({
+    type: DataType.STRING,
+    defaultValue: '',
+  })
   comment_for_courier: string;
 
-  @Column({ type: DataType.STRING })
+  @Column({
+    type: DataType.STRING,
+  })
   delivery_time: string;
 
-  @Column({ type: DataType.STRING, defaultValue: '' })
+  @Column({
+    type: DataType.STRING,
+    defaultValue: '',
+  })
   postcard_text: string;
 
   @Column(

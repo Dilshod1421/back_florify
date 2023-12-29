@@ -70,6 +70,18 @@ export class CategoryController {
     return this.categoryService.getById(id);
   }
 
+  @ApiOperation({ summary: 'Get all categories for mobile' })
+  @Get('all')
+  getAllForMobile() {
+    return this.categoryService.getAllForMobile();
+  }
+
+  @ApiOperation({ summary: 'Get category by ID' })
+  @Get('id/:id')
+  getByIdForMobile(@Param('id') id: string) {
+    return this.categoryService.getByIdForMobile(id);
+  }
+
   @ApiOperation({ summary: 'Get categories with pagination' })
   @Get('pagination/:page/:limit')
   pagination(@Param('page') page: number, @Param('limit') limit: number) {
