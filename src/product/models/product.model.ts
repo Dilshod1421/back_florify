@@ -104,9 +104,9 @@ export class Product extends Model<Product, ProductAttributes> {
   })
   comments: Comment[];
 
-  @HasMany(() => Order, {
-    onDelete: 'CASCADE',
-    hooks: true,
-  })
-  orders: Order[];
+  // @HasMany(() => Order, {
+  //   onDelete: 'CASCADE',
+  //   hooks: true,
+  // })
+  // orders: Order[];
 }

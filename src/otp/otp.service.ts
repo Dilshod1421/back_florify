@@ -10,8 +10,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Otp } from './models/otp.model';
 import { PhoneDto } from './dto/phone.dto';
 import { generate } from 'otp-generator';
-import { sendSMS } from 'src/utils/sendSMS';
 import { VerifyOtpDto } from './dto/verifyOtp.dto';
+import { sendSMS } from 'src/utils/sendSMS';
 
 @Injectable()
 export class OtpService {

@@ -7,14 +7,16 @@ export async function sendSMS(phone: string, message: string) {
     const data = new FormData();
     data.append('mobile_phone', phone);
     data.append('message', message);
+    data.append('from', 'florify');
+    data.append('callback_url', 'http://0000.uz/test.php');
     const config = {
       method: 'post',
       maxBodyLength: Infinity,
-      url: 'https://sms.sysdc.ru/index.php',
+      url: 'https://notify.eskiz.uz/api/message/sms/send',
       headers: {
         ...data.getHeaders(),
         Authorization:
-          'Bearer 0VODcOo6kWMdSs8IOnrCgxagqZeGcsbJTMn7RHFEX2auRodfK1CtsgS5BBe8fS0R',
+          'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MDY1NTgwNjEsImlhdCI6MTcwMzk2NjA2MSwicm9sZSI6InVzZXIiLCJzdWIiOiI0NjM0In0.ABoefvDOltfazzDqLKZBxi0xgkChuMz4LBUMW95YwCc',
       },
       data,
     };
@@ -30,7 +32,7 @@ export async function sendSMS(phone: string, message: string) {
   }
 }
 
-export function orderCompleteSMSSchema(id) {
+export function orderCompleteSMSSchema(id: number) {
   return (
     'Sizning buyurtmangiz № ' +
     id +
