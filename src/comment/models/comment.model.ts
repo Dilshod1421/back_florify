@@ -12,6 +12,7 @@ import { Product } from 'src/product/models/product.model';
 interface CommentAttributes {
   id: string;
   text: string;
+  rate: number;
   client_id: string;
   product_id: number;
 }
@@ -30,11 +31,19 @@ export class Comment extends Model<Comment, CommentAttributes> {
   })
   text: string;
 
+  @Column({
+    type: DataType.INTEGER,
+  })
+  rate: number;
+
   @ForeignKey(() => Client)
   @Column({
     type: DataType.UUID,
   })
   client_id: string;
+
+  @BelongsTo(() => Client)
+  client: Client;
 
   @ForeignKey(() => Product)
   @Column({

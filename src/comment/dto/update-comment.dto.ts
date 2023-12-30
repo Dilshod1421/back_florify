@@ -5,5 +5,11 @@ export class UpdateCommentDto {
     example: 'Good job',
     description: 'Comment of product',
   })
-  text: string;
+  text?: string;
+
+  @ApiProperty({
+    example: 3,
+    description: 'Rate of product',
+  })
+  rate?: number;
 }
