@@ -15,10 +15,51 @@ import { Product } from 'src/product/models/product.model';
 @Injectable()
 export class OrdersService {
   constructor(
-    @InjectModel(Order)
-    private orderRepository: Repository<Order>,
+    @InjectModel(Order) private orderRepository: Repository<Order>,
     private readonly productService: ProductService,
   ) {}
+
+  async create(orderData: CreateOrderDto): Promise<object> {
+    let totalAmount = 0;
+    const product_ids = orderData.items.map((item) => item.product_id);
+    const products_in_object = {};
+    const available_products = await this.productService.findByOptions({
+      where: {
+        id: product_ids,
+      },
+      raw: true,
+    });
+    available_products.forEach((item) => {
+      products_in_object[item.id] = item;
+    });
+    for (const [i, item] of orderData.items.entries()) {
+      const real_product = products_in_object[item.product_id] as Product;
+      if (!real_product) {
+        throw new BadRequestException(`Ayrim mahsulotlar omborda mavjud emas`);
+      }
+      if (real_product.quantity < item.quantity) {
+        throw new BadRequestException(
+          `${real_product.name} mahsulot miqdori yetarli emas!`,
+        );
+      }
+      orderData.items[i] = Object.assign(orderData.items[i], {
+        product: real_product,
+      });
+      totalAmount += real_product.price * item.quantity;
+    }
+    const order = await this.orderRepository.create({
+      ...orderData,
+      totalAmount,
+      status: OrderStatus.PENDING,
+    });
+    return {
+      statusCode: HttpStatus.CREATED,
+      message: 'Buyurtma qabul qilindi',
+      data: {
+        order,
+      },
+    };
+  }
 
   async findAll(): Promise<Order[]> {
     return this.orderRepository.findAll({
@@ -62,108 +103,6 @@ export class OrdersService {
     }
   }
 
-  async create(orderData: CreateOrderDto): Promise<object> {
-    let totalAmount = 0;
-    const product_ids = orderData.items.map((item) => item.product_id);
-    const products_in_object = {};
-
-    const available_products = await this.productService.findByOptions({
-      where: {
-        id: product_ids,
-      },
-      raw: true,
-    });
-
-    available_products.forEach((item) => {
-      products_in_object[item.id] = item;
-    });
-    for (const [i, item] of orderData.items.entries()) {
-      const real_product = products_in_object[item.product_id] as Product;
-
-      if (!real_product) {
-        throw new BadRequestException(`Ayrim mahsulotlar omborda mavjud emas`);
-      }
-      if (real_product.quantity < item.quantity) {
-        throw new BadRequestException(
-          `${real_product.name} mahsuloti miqdori yetarli emas!`,
-        );
-      }
-      orderData.items[i] = Object.assign(orderData.items[i], {
-        product: real_product,
-      });
-      totalAmount += real_product.price * item.quantity;
-    }
-
-    const order = await this.orderRepository.create({
-      ...orderData,
-      totalAmount,
-      status: OrderStatus.PENDING,
-    });
-
-    return {
-      statusCode: HttpStatus.CREATED,
-      message: 'Order yaratildi',
-      data: {
-        order,
-      },
-    };
-  }
-
-  async update(id: number, orderData: UpdateOrderDto): Promise<object> {
-    try {
-      await this.findById(id);
-
-      if (orderData.totalAmount) {
-        throw new BadRequestException(
-          'Umumiy mablagni ozgartirish mumkin emas!',
-        );
-      }
-      if (orderData.items) {
-        let totalAmount = 0;
-        for (const [i, item] of orderData.items.entries()) {
-          const productResponse: any = await this.productService.getById(
-            item.product_id,
-          );
-          const real_product = productResponse.data.product as Product;
-
-          if (real_product.quantity < item.quantity) {
-            throw new BadRequestException(
-              `${real_product.name} mahsuloti miqdori yetarli emas!`,
-            );
-          }
-          orderData.items[i] = Object.assign(orderData.items[i], {
-            product: real_product,
-          });
-          totalAmount += real_product.price * item.quantity;
-        }
-        orderData.totalAmount = totalAmount;
-      }
-
-      const order = await this.orderRepository.update(orderData, {
-        where: { id },
-        returning: true,
-      });
-      return {
-        statusCode: HttpStatus.OK,
-        message: 'Order tahrirlandi',
-        data: {
-          order,
-        },
-      };
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async updateStatus(id: number, status: OrderStatus): Promise<void> {
-    try {
-      await this.findById(id);
-      await this.orderRepository.update({ status }, { where: { id } });
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
   async pagination(page: number, limit: number): Promise<object> {
     try {
       const offset = (page - 1) * limit;
@@ -186,6 +125,61 @@ export class OrdersService {
         },
       };
       return response;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async update(id: number, orderData: UpdateOrderDto): Promise<object> {
+    try {
+      await this.findById(id);
+
+      if (orderData.totalAmount) {
+        throw new BadRequestException(
+          "Umumiy mablag'ni ozgartirish mumkin emas!",
+        );
+      }
+      if (orderData.items) {
+        let totalAmount = 0;
+        for (const [i, item] of orderData.items.entries()) {
+          const productResponse: any = await this.productService.getById(
+            item.product_id,
+          );
+          const real_product = productResponse.data.product as Product;
+
+          if (real_product.quantity < item.quantity) {
+            throw new BadRequestException(
+              `${real_product.name} mahsulot miqdori yetarli emas!`,
+            );
+          }
+          orderData.items[i] = Object.assign(orderData.items[i], {
+            product: real_product,
+          });
+          totalAmount += real_product.price * item.quantity;
+        }
+        orderData.totalAmount = totalAmount;
+      }
+
+      const order = await this.orderRepository.update(orderData, {
+        where: { id },
+        returning: true,
+      });
+      return {
+        statusCode: HttpStatus.OK,
+        message: 'Buyurtma tahrirlandi',
+        data: {
+          order,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async updateStatus(id: number, status: OrderStatus): Promise<void> {
+    try {
+      await this.findById(id);
+      await this.orderRepository.update({ status }, { where: { id } });
     } catch (error) {
       throw new BadRequestException(error.message);
     }

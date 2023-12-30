@@ -28,10 +28,22 @@ export class OrdersController {
     return this.ordersService.create(createOrderDto);
   }
 
+  @ApiOperation({ summary: 'Get all orders' })
+  @Get()
+  getAll() {
+    return this.ordersService.findAll();
+  }
+
   @ApiOperation({ summary: 'Get order by ID' })
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.ordersService.findById(id);
+  }
+
+  @ApiOperation({ summary: 'Get orders with pagination' })
+  @Get('pagination/:page/:limit')
+  pagination(@Param('page') page: number, @Param('limit') limit: number) {
+    return this.ordersService.pagination(page, limit);
   }
 
   @ApiOperation({ summary: 'Get order by client ID' })
