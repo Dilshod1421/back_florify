@@ -15,7 +15,6 @@ import { OtpModule } from './otp/otp.module';
 import { ProductModule } from './product/product.module';
 import { SalesmanModule } from './salesman/salesman.module';
 import { SocialNetworkModule } from './social-network/social-network.module';
-import { SoldProductModule } from './sold-product/sold-product.module';
 import { WatchedModule } from './watched/watched.module';
 import { CommentModule } from './comment/comment.module';
 import { AdvertisingModule } from './advertising/advertising.module';
@@ -55,7 +54,6 @@ import { TransactionModule } from './transaction/transaction.module';
     ProductModule,
     SalesmanModule,
     SocialNetworkModule,
-    SoldProductModule,
     WatchedModule,
     OrdersModule,
     TransactionModule,

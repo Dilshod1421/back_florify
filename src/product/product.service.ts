@@ -13,7 +13,6 @@ import { SalesmanService } from 'src/salesman/salesman.service';
 import { CategoryService } from 'src/category/category.service';
 import { UpdateProducDto } from './dto/update-product.dto';
 import { FilesService } from 'src/files/files.service';
-import { Like } from 'src/like/models/like.model';
 
 @Injectable()
 export class ProductService {
@@ -49,7 +48,7 @@ export class ProductService {
   async getAll(): Promise<object> {
     try {
       const products = await this.productRepository.findAll({
-        include: { model: Image },
+        include: { all: true },
       });
       return {
         statusCode: HttpStatus.OK,
@@ -65,7 +64,7 @@ export class ProductService {
   async getById(id: number): Promise<object> {
     try {
       const product = await this.productRepository.findByPk(id, {
-        include: [{ model: Image }, { model: Like }],
+        include: { all: true },
       });
       if (!product) {
         throw new NotFoundException('Mahsulot topilmadi!');
@@ -74,6 +73,31 @@ export class ProductService {
         statusCode: HttpStatus.OK,
         data: {
           product,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async detailsForMobile(id: number): Promise<object> {
+    try {
+      const product = await this.productRepository.findByPk(id, {
+        include: { all: true },
+      });
+      if (!product) {
+        throw new NotFoundException('Mahsulot topilmadi!');
+      }
+      const similar_products = await this.productRepository.findAll({
+        where: { category_id: product.category_id },
+        include: { all: true },
+      });
+      return {
+        statusCode: HttpStatus.OK,
+        data: {
+          product,
+          share_link: `https://florify.uz/product/${id}`,
+          similar_products,
         },
       };
     } catch (error) {
@@ -90,7 +114,7 @@ export class ProductService {
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
         where: { category_id },
-        include: [{ model: Image }, { model: Like }],
+        include: { all: true },
         offset,
         limit,
       });
@@ -127,7 +151,7 @@ export class ProductService {
       if (quantity == 'All') {
         const products = await this.productRepository.findAll({
           where: { salesman_id },
-          include: [{ model: Image }, { model: Like }],
+          include: { all: true },
           offset,
           limit,
         });
@@ -160,7 +184,7 @@ export class ProductService {
         where,
         offset,
         limit,
-        include: [{ model: Image }, { model: Like }],
+        include: { all: true },
       });
       const total_count = await this.productRepository.count({
         where,
@@ -187,7 +211,7 @@ export class ProductService {
     try {
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
-        include: [{ model: Image }, { model: Like }],
+        include: { all: true },
         offset,
         limit,
       });
@@ -216,7 +240,7 @@ export class ProductService {
       const offset = (page - 1) * limit;
       const products = await this.productRepository.findAll({
         where: { date },
-        include: [{ model: Image }, { model: Like }],
+        include: { all: true },
         offset,
         limit,
       });
@@ -249,7 +273,7 @@ export class ProductService {
       let total_count: number;
       if (!query) {
         products = await this.productRepository.findAll({
-          include: [{ model: Image }, { model: Like }],
+          include: { all: true },
           offset,
           limit,
         });
@@ -257,7 +281,7 @@ export class ProductService {
       } else {
         products = await this.productRepository.findAll({
           where: { name: { [Op.iLike]: `%${query}%` } },
-          include: [{ model: Image }, { model: Like }],
+          include: { all: true },
           offset,
           limit,
         });

@@ -9,10 +9,10 @@ import {
 } from 'sequelize-typescript';
 import { Salesman } from '../../salesman/models/salesman.model';
 import { Category } from '../../category/models/category.model';
-import { SoldProduct } from '../../sold-product/models/sold-product.model';
 import { Image } from 'src/image/models/image.model';
 import { Like } from 'src/like/models/like.model';
 import { Comment } from 'src/comment/models/comment.model';
+import { Order } from 'src/orders/models/order.model';
 
 interface ProductAttributes {
   name: string;
@@ -74,14 +74,14 @@ export class Product extends Model<Product, ProductAttributes> {
   })
   salesman_id: string;
 
+  @BelongsTo(() => Salesman)
+  salesman: Salesman;
+
   @ForeignKey(() => Category)
   @Column({
     type: DataType.UUID,
   })
   category_id: string;
-
-  @BelongsTo(() => Salesman)
-  salesman: Salesman;
 
   @BelongsTo(() => Category)
   category: Category;
@@ -98,15 +98,15 @@ export class Product extends Model<Product, ProductAttributes> {
   })
   likes: Like[];
 
-  @HasMany(() => SoldProduct, {
-    onDelete: 'CASCADE',
-    hooks: true,
-  })
-  sold_products: SoldProduct[];
-
   @HasMany(() => Comment, {
     onDelete: 'CASCADE',
     hooks: true,
   })
   comments: Comment[];
+
+  @HasMany(() => Order, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
+  orders: Order[];
 }

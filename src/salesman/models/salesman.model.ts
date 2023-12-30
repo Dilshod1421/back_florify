@@ -1,6 +1,5 @@
 import { Column, DataType, Model, Table, HasMany } from 'sequelize-typescript';
 import { Product } from '../../product/models/product.model';
-import { SoldProduct } from '../../sold-product/models/sold-product.model';
 
 interface SalesmanAttributes {
   id: string;
@@ -78,10 +77,4 @@ export class Salesman extends Model<Salesman, SalesmanAttributes> {
     hooks: true,
   })
   products: Product[];
-
-  @HasMany(() => SoldProduct, {
-    onDelete: 'CASCADE',
-    hooks: true,
-  })
-  sold_products: SoldProduct[];
 }
