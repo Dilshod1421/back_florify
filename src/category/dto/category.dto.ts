@@ -22,11 +22,11 @@ export class CategoryDto {
     example: 'Buketdagi gullar',
     description: 'UZ description of category',
   })
-  uz_description?: string;
+  uz_description: string;
 
   @ApiProperty({
     example: 'Цветы в букете',
     description: 'RU description of category',
   })
-  ru_description?: string;
+  ru_description: string;
 }

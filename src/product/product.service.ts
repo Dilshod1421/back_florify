@@ -13,6 +13,7 @@ import { SalesmanService } from 'src/salesman/salesman.service';
 import { CategoryService } from 'src/category/category.service';
 import { UpdateProducDto } from './dto/update-product.dto';
 import { FilesService } from 'src/files/files.service';
+import { WatchedService } from 'src/watched/watched.service';
 
 @Injectable()
 export class ProductService {
@@ -22,6 +23,7 @@ export class ProductService {
     private readonly salesmanService: SalesmanService,
     private readonly categoryService: CategoryService,
     private readonly fileService: FilesService,
+    private readonly watchedService: WatchedService,
   ) {}
 
   async create(productDto: ProductDto): Promise<object> {
@@ -61,13 +63,16 @@ export class ProductService {
     }
   }
 
-  async getById(id: number): Promise<object> {
+  async getById(id: number, token?: string): Promise<object> {
     try {
       const product = await this.productRepository.findByPk(id, {
         include: { all: true },
       });
       if (!product) {
         throw new NotFoundException('Mahsulot topilmadi!');
+      }
+      if (token) {
+        await this.watchedService.create(id);
       }
       return {
         statusCode: HttpStatus.OK,

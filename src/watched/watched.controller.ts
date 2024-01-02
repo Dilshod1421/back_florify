@@ -1,51 +1,29 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { WatchedService } from './watched.service';
-import { WatchedDto } from './dto/watched.dto';
 
 @ApiTags('Watched')
 @Controller('watched')
 export class WatchedController {
   constructor(private readonly watchedService: WatchedService) {}
 
-  @ApiOperation({ summary: 'Add product to watched' })
-  @Post()
-  create(@Body() watchedDto: WatchedDto) {
-    return this.watchedService.create(watchedDto);
+  @ApiOperation({ summary: 'Get all watched products' })
+  @Get()
+  getAll() {
+    return this.watchedService.getAll();
   }
 
   @ApiOperation({ summary: 'Get watched products by client ID' })
-  @Get('clientId/:clientId')
-  getByClientId(@Param('clientId') client_id: string) {
-    return this.watchedService.getByClientId(client_id);
+  @Get('productId/:product_id')
+  getByProductId(@Param('product_id') product_id: number) {
+    return this.watchedService.getByProductId(product_id);
   }
 
   @ApiOperation({
-    summary: 'Get watched product by client ID and product ID',
+    summary: 'Get watched products with pagination',
   })
-  @Get('id/:client_id/:product_id')
-  getOne(
-    @Param('client_id') client_id: string,
-    @Param('product_id') product_id: number,
-  ) {
-    return this.watchedService.getOne(client_id, product_id);
-  }
-
-  @ApiOperation({
-    summary: 'Get wathced products with pagination by client ID',
-  })
-  @Get('pagination/:client_id/:page/:limit')
-  pagination(
-    @Param('client_id') client_id: string,
-    @Param('page') page: number,
-    @Param('limit') limit: number,
-  ) {
-    return this.watchedService.pagination(client_id, page, limit);
-  }
-
-  @ApiOperation({ summary: 'Remove product from watched' })
-  @Delete()
-  delete(@Body() watchedDto: WatchedDto) {
-    return this.watchedService.delete(watchedDto);
+  @Get('pagination/:page/:limit')
+  pagination(@Param('page') page: number, @Param('limit') limit: number) {
+    return this.watchedService.pagination(page, limit);
   }
 }

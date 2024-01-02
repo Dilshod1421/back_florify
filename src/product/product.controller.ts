@@ -34,9 +34,15 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Get product by ID' })
-  @Get('id/:id')
-  getById(@Param('id') id: number) {
-    return this.productService.getById(id);
+  @Get('id/:id/:token')
+  getById(@Param('id') id: number, @Param('token') token?: string) {
+    return this.productService.getById(id, token);
+  }
+
+  @ApiOperation({ summary: 'Get product by ID with details' })
+  @Get('details/:id')
+  detailsForMobile(@Param('id') id: number) {
+    return this.productService.detailsForMobile(id);
   }
 
   @ApiOperation({ summary: 'Get products by category ID with pagination' })

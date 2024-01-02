@@ -7,6 +7,7 @@ import { SalesmanModule } from 'src/salesman/salesman.module';
 import { CategoryModule } from 'src/category/category.module';
 import { Image } from 'src/image/models/image.model';
 import { FilesModule } from 'src/files/files.module';
+import { WatchedModule } from 'src/watched/watched.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { FilesModule } from 'src/files/files.module';
     SalesmanModule,
     CategoryModule,
     FilesModule,
+    WatchedModule
   ],
   controllers: [ProductController],
   providers: [ProductService],
