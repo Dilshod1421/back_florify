@@ -23,12 +23,12 @@ export class CategoryDto {
     description: 'UZ description of category',
   })
   @IsString()
-  uz_description: string;
+  uz_description?: string;
 
   @ApiProperty({
     example: 'Цветы в букете',
     description: 'RU description of category',
   })
   @IsString()
-  ru_description: string;
+  ru_description?: string;
 }

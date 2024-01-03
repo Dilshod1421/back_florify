@@ -14,7 +14,8 @@ export class CreateCommentDto {
     example: 3,
     description: 'Rate of product',
   })
-  rate: number;
+  @IsNumber()
+  rate?: number;
 
   @ApiProperty({
     example: '11bf5b37-e0b8-42e0-8dcf-dc8c4aefc000',
