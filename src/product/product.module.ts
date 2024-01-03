@@ -15,7 +15,7 @@ import { WatchedModule } from 'src/watched/watched.module';
     SalesmanModule,
     CategoryModule,
     FilesModule,
-    WatchedModule
+    WatchedModule,
   ],
   controllers: [ProductController],
   providers: [ProductService],
