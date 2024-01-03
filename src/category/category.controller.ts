@@ -36,10 +36,10 @@ export class CategoryController {
           type: 'string',
         },
         uz_description: {
-          type: 'text',
+          type: 'string',
         },
         ru_description: {
-          type: 'text',
+          type: 'string',
         },
         file: {
           type: 'string',
