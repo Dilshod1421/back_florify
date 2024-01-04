@@ -181,13 +181,15 @@ export class OrdersService {
   }
 
   async setProducts(orders: Order[]): Promise<Order[]> {
-    for ( let i=0;i<orders.length;i++ ) {
+    for (let i = 0; i < orders.length; i++) {
       for (let j = 0; j < orders[i].items.length; j++) {
-        const productResponse: any = await this.productService.getById(orders[i].items[j].product_id);
+        const productResponse: any = await this.productService.getById(
+          orders[i].items[j].product_id,
+        );
         const product = productResponse?.data?.product ?? {};
 
         orders[i].items[j] = Object.assign(orders[i].items[j], {
-          product
+          product,
         });
       }
     }

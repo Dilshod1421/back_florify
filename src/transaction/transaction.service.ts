@@ -11,6 +11,8 @@ import { Repository } from 'sequelize-typescript';
 import { Order, OrderStatus } from 'src/orders/models/order.model';
 import { OrdersService } from 'src/orders/orders.service';
 import { orderCompleteSMSSchema, sendSMS } from 'src/utils/sendSMS';
+import { ProductService } from 'src/product/product.service';
+import { Product } from 'src/product/models/product.model';
 
 @Injectable()
 export class TransactionService {
@@ -18,6 +20,7 @@ export class TransactionService {
     @InjectModel(Transaction)
     private transactionRepository: Repository<Transaction>,
     private readonly orderService: OrdersService,
+    private readonly productService: ProductService,
   ) {}
 
   async create(transactionDto: TransactionDto) {
@@ -58,6 +61,17 @@ export class TransactionService {
           order.client.phone,
           orderCompleteSMSSchema(updateTransactionDto.order_id),
         );
+
+        for (let i = 0; i < order.items.length; i++) {
+          const item = order.items[i];
+          const productResponse: any = await this.productService.getById(
+            item.product_id,
+          );
+          const product = productResponse?.data?.product as Product;
+          await this.productService.update(item.product_id, {
+            quantity: product.quantity - item.quantity,
+          });
+        }
       } else if (transactionDto.status === TransactionStatus.FAIL) {
         orderStatus = OrderStatus.CANCELLED;
       }
