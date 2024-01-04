@@ -40,7 +40,6 @@ export class TransactionService {
           if (updateTransactionDto.status) {
             dto = Object.assign(dto, { status: updateTransactionDto.status });
           }
-          // update
           await this.transactionRepository.update(dto, {
             where: { id },
           });
