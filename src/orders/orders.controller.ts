@@ -34,6 +34,16 @@ export class OrdersController {
     return this.ordersService.findAll();
   }
 
+  @ApiOperation({ summary: 'Get order by client ID' })
+  @Get('own')
+  getByClientId(@Req() request) {
+    const user_id = request?.user?.id;
+    if (!user_id) {
+      throw new BadRequestException('Tokendan client_id topilmadi');
+    }
+    return this.ordersService.getByClientId(user_id);
+  }
+
   @ApiOperation({ summary: 'Get order by ID' })
   @Get(':id')
   findOne(@Param('id') id: number) {
@@ -44,16 +54,6 @@ export class OrdersController {
   @Get('pagination/:page/:limit')
   pagination(@Param('page') page: number, @Param('limit') limit: number) {
     return this.ordersService.pagination(page, limit);
-  }
-
-  @ApiOperation({ summary: 'Get order by client ID' })
-  @Get()
-  getByClientId(@Req() request) {
-    const user_id = request?.user?.id;
-    if (!user_id) {
-      throw new BadRequestException('Tokendan client_id topilmadi');
-    }
-    return this.ordersService.getByClientId(user_id);
   }
 
   @ApiOperation({ summary: 'Edit order by ID' })

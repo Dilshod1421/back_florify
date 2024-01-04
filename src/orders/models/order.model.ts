@@ -27,7 +27,7 @@ export class Order extends Model<Order, CreateOrderDto> {
     autoIncrement: true,
     primaryKey: true,
   })
-  id: string;
+  id: number;
 
   @ForeignKey(() => Client)
   @Column({

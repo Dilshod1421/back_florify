@@ -42,9 +42,6 @@ export class OrdersService {
           `${real_product.name} mahsulot miqdori yetarli emas!`,
         );
       }
-      orderData.items[i] = Object.assign(orderData.items[i], {
-        product: real_product,
-      });
       totalAmount += real_product.price * item.quantity;
     }
     const order = await this.orderRepository.create({
@@ -62,19 +59,26 @@ export class OrdersService {
   }
 
   async findAll(): Promise<Order[]> {
-    return this.orderRepository.findAll({
+    let orders = await this.orderRepository.findAll({
       include: { all: true },
     });
+
+    orders = await this.setProducts(orders);
+
+    return orders;
   }
 
   async findById(id: number): Promise<object> {
     try {
-      const order = await this.orderRepository.findByPk(id, {
+      let order = await this.orderRepository.findByPk(id, {
         include: { all: true },
       });
       if (!order) {
         throw new NotFoundException('Order topilmadi!');
       }
+
+      order = (await this.setProducts([order]))[0];
+
       return {
         statusCode: HttpStatus.OK,
         data: {
@@ -88,10 +92,13 @@ export class OrdersService {
 
   async getByClientId(client_id: string): Promise<object> {
     try {
-      const orders = await this.orderRepository.findAll({
+      let orders = await this.orderRepository.findAll({
         where: { client_id },
         include: { all: true },
       });
+
+      orders = await this.setProducts(orders);
+
       return {
         statusCode: HttpStatus.OK,
         data: {
@@ -152,9 +159,6 @@ export class OrdersService {
               `${real_product.name} mahsulot miqdori yetarli emas!`,
             );
           }
-          orderData.items[i] = Object.assign(orderData.items[i], {
-            product: real_product,
-          });
           totalAmount += real_product.price * item.quantity;
         }
         orderData.totalAmount = totalAmount;
@@ -174,6 +178,20 @@ export class OrdersService {
     } catch (error) {
       throw new BadRequestException(error.message);
     }
+  }
+
+  async setProducts(orders: Order[]): Promise<Order[]> {
+    for ( let i=0;i<orders.length;i++ ) {
+      for (let j = 0; j < orders[i].items.length; j++) {
+        const productResponse: any = await this.productService.getById(orders[i].items[j].product_id);
+        const product = productResponse?.data?.product ?? {};
+
+        orders[i].items[j] = Object.assign(orders[i].items[j], {
+          product
+        });
+      }
+    }
+    return orders;
   }
 
   async updateStatus(id: number, status: OrderStatus): Promise<void> {
