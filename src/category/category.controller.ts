@@ -65,7 +65,7 @@ export class CategoryController {
   }
 
   @ApiOperation({ summary: 'Get category by ID' })
-  @Get(':id')
+  @Get('id/:id')
   getById(@Param('id') id: string) {
     return this.categoryService.getById(id);
   }
@@ -77,7 +77,7 @@ export class CategoryController {
   }
 
   @ApiOperation({ summary: 'Get category by ID' })
-  @Get('id/:id')
+  @Get('mobileId/:id')
   getByIdForMobile(@Param('id') id: string) {
     return this.categoryService.getByIdForMobile(id);
   }
