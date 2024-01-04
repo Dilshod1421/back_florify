@@ -124,12 +124,12 @@ export class CreateOrderDto {
   comment_for_courier: string;
 
   @ApiProperty({
-    example: 'Tomorrow 22:00',
+    example: '2024-01-04T16:52:35.953Z',
     description: 'delivery time',
   })
   @IsNotEmpty()
   @IsString()
-  delivery_time: string;
+  delivery_time: Date;
 
   @ApiProperty({
     example: 'Hello John...',

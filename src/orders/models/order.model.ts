@@ -100,9 +100,9 @@ export class Order extends Model<Order, CreateOrderDto> {
   comment_for_courier: string;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.DATE,
   })
-  delivery_time: string;
+  delivery_time: Date;
 
   @Column({
     type: DataType.STRING,
