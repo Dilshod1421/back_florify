@@ -69,7 +69,9 @@ export class OrdersController {
     return this.ordersService.delete(id);
   }
 
-  @ApiOperation({ summary: 'Receiving orders related to the seller with pagination' })
+  @ApiOperation({
+    summary: 'Receiving orders related to the seller with pagination',
+  })
   @Get('/search/salesmanId/:salesman_id')
   @ApiQuery({
     name: 'order_id',
@@ -90,8 +92,13 @@ export class OrdersController {
     @Param('salesman_id') salesman_id: string,
     @Query('order_id') order_id?: number,
     @Query('status') status?: string,
-    @Query('date') date?: string
+    @Query('date') date?: string,
   ) {
-    return this.ordersService.searchForSalesman(salesman_id, order_id, status, date);
+    return this.ordersService.searchForSalesman(
+      salesman_id,
+      order_id,
+      status,
+      date,
+    );
   }
 }

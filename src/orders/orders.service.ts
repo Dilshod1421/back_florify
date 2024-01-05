@@ -220,26 +220,29 @@ export class OrdersService {
   }
 
   async searchForSalesman(
-    salesman_id: string, 
-    order_id?: number, 
-    status?: string, 
-    date?: string
+    salesman_id: string,
+    order_id?: number,
+    status?: string,
+    date?: string,
   ): Promise<object> {
     try {
       let availableOrders = [];
       let findOptions: WhereOptions<Order> = {};
 
-      if ( order_id ) {
-        findOptions = { ...findOptions, id: order_id }
+      if (order_id) {
+        findOptions = { ...findOptions, id: order_id };
       }
-      if ( status ) {
-        findOptions = { ...findOptions, status }
+      if (status) {
+        findOptions = { ...findOptions, status };
       }
-      if ( date ) {
-        findOptions = { ...findOptions, createdAt: {
-          [Op.gte]: literal(`'${date}'::date`),
-          [Op.lt]: literal(`'${date}'::date + 1`),
-        } }
+      if (date) {
+        findOptions = {
+          ...findOptions,
+          createdAt: {
+            [Op.gte]: literal(`'${date}'::date`),
+            [Op.lt]: literal(`'${date}'::date + 1`),
+          },
+        };
       }
 
       const orders = await this.orderRepository.findAll({
@@ -249,37 +252,42 @@ export class OrdersService {
 
       const products = await this.productService.findByOptions({
         where: { salesman_id },
-        raw: true
+        raw: true,
       });
 
-      if ( products.length > 0 ) {
-        const product_ids = products.map(product => product.id);
+      if (products.length > 0) {
+        const product_ids = products.map((product) => product.id);
         for (let i = 0; i < orders.length; i++) {
           const items = orders[i].items;
-          const availableProducts = []
+          const availableProducts = [];
           let salesmanProductsAmount = 0;
 
-          const salesman_products = items.filter(item => product_ids.includes(item.product_id))
-          if ( salesman_products.length > 0 ) {
+          const salesman_products = items.filter((item) =>
+            product_ids.includes(item.product_id),
+          );
+          if (salesman_products.length > 0) {
             for (let j = 0; j < salesman_products.length; j++) {
-              const product_detail = products.find(p => p.id === salesman_products[j].product_id);
+              const product_detail = products.find(
+                (p) => p.id === salesman_products[j].product_id,
+              );
               availableProducts.push({
                 ...product_detail,
-                how_many: salesman_products[j].quantity
+                how_many: salesman_products[j].quantity,
               });
 
-              salesmanProductsAmount += product_detail.price * salesman_products[j].quantity;
+              salesmanProductsAmount +=
+                product_detail.price * salesman_products[j].quantity;
             }
           }
 
-          if ( availableProducts.length > 0 ) {
+          if (availableProducts.length > 0) {
             availableOrders.push({
               id: orders[i].id,
               totalAmount: salesmanProductsAmount,
               products: availableProducts,
               createdAt: orders[i].createdAt,
-              status: orders[i].status
-            })
+              status: orders[i].status,
+            });
           }
         }
       }
