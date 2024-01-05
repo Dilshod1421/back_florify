@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
+  IsEmail,
   IsNotEmpty,
   IsPhoneNumber,
   IsString,
@@ -35,11 +36,13 @@ export class RegisterAdminDto {
     example: 'otabek@gmail.com',
     description: 'The email address of the admin',
   })
+  @IsEmail()
   email?: string;
 
   @ApiProperty({
     example: 'otabek_admin',
     description: 'The username of the admin (not required)',
   })
+  @IsString()
   username?: string;
 }

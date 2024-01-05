@@ -32,12 +32,14 @@ export class ProductDto {
     example: 'Some description',
     description: 'Description of product',
   })
+  @IsString()
   description?: string;
 
   @ApiProperty({
     example: 'Red',
     description: 'Color of product',
   })
+  @IsString()
   color?: string;
 
   @ApiProperty({
