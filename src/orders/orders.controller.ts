@@ -9,11 +9,12 @@ import {
   UseGuards,
   Req,
   BadRequestException,
+  Query,
 } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guard/auth.guard';
 
 @ApiTags('Order')
@@ -66,5 +67,31 @@ export class OrdersController {
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.ordersService.delete(id);
+  }
+
+  @ApiOperation({ summary: 'Receiving orders related to the seller with pagination' })
+  @Get('/search/salesmanId/:salesman_id')
+  @ApiQuery({
+    name: 'order_id',
+    required: false,
+    description: 'id of the order',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description: 'status of the order',
+  })
+  @ApiQuery({
+    name: 'date',
+    required: false,
+    description: 'createdAt of the order',
+  })
+  searchProduct(
+    @Param('salesman_id') salesman_id: string,
+    @Query('order_id') order_id?: number,
+    @Query('status') status?: string,
+    @Query('date') date?: string
+  ) {
+    return this.ordersService.searchForSalesman(salesman_id, order_id, status, date);
   }
 }

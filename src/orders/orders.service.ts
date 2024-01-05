@@ -11,6 +11,7 @@ import { Repository } from 'sequelize-typescript';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { ProductService } from 'src/product/product.service';
 import { Product } from 'src/product/models/product.model';
+import { Op, WhereOptions, literal } from 'sequelize';
 
 @Injectable()
 export class OrdersService {
@@ -213,6 +214,83 @@ export class OrdersService {
         statusCode: HttpStatus.ACCEPTED,
         message: "Order o'chirildi",
       };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async searchForSalesman(
+    salesman_id: string, 
+    order_id?: number, 
+    status?: string, 
+    date?: string
+  ): Promise<object> {
+    try {
+      let availableOrders = [];
+      let findOptions: WhereOptions<Order> = {};
+
+      if ( order_id ) {
+        findOptions = { ...findOptions, id: order_id }
+      }
+      if ( status ) {
+        findOptions = { ...findOptions, status }
+      }
+      if ( date ) {
+        findOptions = { ...findOptions, createdAt: {
+          [Op.gte]: literal(`'${date}'::date`),
+          [Op.lt]: literal(`'${date}'::date + 1`),
+        } }
+      }
+
+      const orders = await this.orderRepository.findAll({
+        where: findOptions,
+        include: { all: true },
+      });
+
+      const products = await this.productService.findByOptions({
+        where: { salesman_id },
+        raw: true
+      });
+
+      if ( products.length > 0 ) {
+        const product_ids = products.map(product => product.id);
+        for (let i = 0; i < orders.length; i++) {
+          const items = orders[i].items;
+          const availableProducts = []
+          let salesmanProductsAmount = 0;
+
+          const salesman_products = items.filter(item => product_ids.includes(item.product_id))
+          if ( salesman_products.length > 0 ) {
+            for (let j = 0; j < salesman_products.length; j++) {
+              const product_detail = products.find(p => p.id === salesman_products[j].product_id);
+              availableProducts.push({
+                ...product_detail,
+                how_many: salesman_products[j].quantity
+              });
+
+              salesmanProductsAmount += product_detail.price * salesman_products[j].quantity;
+            }
+          }
+
+          if ( availableProducts.length > 0 ) {
+            availableOrders.push({
+              id: orders[i].id,
+              totalAmount: salesmanProductsAmount,
+              products: availableProducts,
+              createdAt: orders[i].createdAt,
+              status: orders[i].status
+            })
+          }
+        }
+      }
+
+      const response = {
+        status: HttpStatus.OK,
+        data: {
+          orders: availableOrders,
+        },
+      };
+      return response;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
