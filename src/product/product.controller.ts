@@ -34,9 +34,9 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Get product by ID' })
-  @Get('id/:id-token')
-  getById(@Param('id') id_token: string) {
-    return this.productService.getById(id_token);
+  @Get('id/:id')
+  getById(@Param('id') id: number) {
+    return this.productService.getById(id);
   }
 
   @ApiOperation({ summary: 'Get product by ID with details' })

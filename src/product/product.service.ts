@@ -63,18 +63,15 @@ export class ProductService {
     }
   }
 
-  async getById(id_token: string): Promise<object> {
+  async getById(id: number): Promise<object> {
     try {
-      const id_token_ = id_token.split('-');
-      const id = Number(id_token_[0]);
-      const token = id_token_[1];
       const product = await this.productRepository.findByPk(id, {
         include: { all: true },
       });
       if (!product) {
         throw new NotFoundException('Mahsulot topilmadi!');
       }
-      if (token) {
+      if (product) {
         await this.watchedService.create(id);
       }
       return {
