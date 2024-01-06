@@ -221,12 +221,16 @@ export class OrdersService {
 
   async searchForSalesman(
     salesman_id: string,
+    page: number,
     order_id?: number,
     status?: string,
     date?: string,
   ): Promise<object> {
     try {
-      let availableOrders = [];
+      const page_limit = 10;
+      const startIndex = (page - 1) * page_limit;
+      const endIndex = page * page_limit;
+      const availableOrders = [];
       let findOptions: WhereOptions<Order> = {};
 
       if (order_id) {
@@ -291,11 +295,18 @@ export class OrdersService {
           }
         }
       }
+      const total_count = availableOrders.length;
+      const total_pages = Math.ceil(total_count / page_limit);
 
       const response = {
         status: HttpStatus.OK,
         data: {
-          orders: availableOrders,
+          records: availableOrders.slice(startIndex, endIndex),
+          pagination: {
+            currentPage: Number(page),
+            total_pages,
+            total_count,
+          },
         },
       };
       return response;
