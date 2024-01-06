@@ -14,6 +14,7 @@ import { CategoryService } from 'src/category/category.service';
 import { UpdateProducDto } from './dto/update-product.dto';
 import { FilesService } from 'src/files/files.service';
 import { WatchedService } from 'src/watched/watched.service';
+import { WatchedTokenDto } from './dto/watched-token.dto';
 
 @Injectable()
 export class ProductService {
@@ -63,7 +64,7 @@ export class ProductService {
     }
   }
 
-  async getById(id: number, token?: string): Promise<object> {
+  async getById(id: number, tokenDto?: WatchedTokenDto): Promise<object> {
     try {
       const product = await this.productRepository.findByPk(id, {
         include: { all: true },
@@ -71,7 +72,7 @@ export class ProductService {
       if (!product) {
         throw new NotFoundException('Mahsulot topilmadi!');
       }
-      if (token) {
+      if (tokenDto.token) {
         await this.watchedService.create(id);
       }
       return {
@@ -97,12 +98,14 @@ export class ProductService {
         where: { category_id: product.category_id },
         include: { all: true },
       });
+      const watched = await this.watchedService.getByProductId(id);
       return {
         statusCode: HttpStatus.OK,
         data: {
           product,
           share_link: `https://florify.uz/product/${id}`,
           similar_products,
+          watched,
         },
       };
     } catch (error) {

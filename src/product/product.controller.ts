@@ -14,6 +14,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guard/auth.guard';
 import { ProductDto } from './dto/product.dto';
 import { UpdateProducDto } from './dto/update-product.dto';
+import { WatchedTokenDto } from './dto/watched-token.dto';
 
 @ApiTags('Product')
 @Controller('product')
@@ -34,9 +35,9 @@ export class ProductController {
   }
 
   @ApiOperation({ summary: 'Get product by ID' })
-  @Get('id/:id/:token')
-  getById(@Param('id') id: number, @Param('token') token?: string) {
-    return this.productService.getById(id, token);
+  @Get('id/:id')
+  getById(@Param('id') id: number, @Body() tokenDto?: WatchedTokenDto) {
+    return this.productService.getById(id, tokenDto);
   }
 
   @ApiOperation({ summary: 'Get product by ID with details' })
