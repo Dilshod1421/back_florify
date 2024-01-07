@@ -72,7 +72,7 @@ export class OrdersController {
   @ApiOperation({
     summary: 'Receiving orders related to the seller with pagination',
   })
-  @Get('/search/salesmanId/:salesman_id')
+  @Get('/search/salesmanId/:salesman_id/:page')
   @ApiQuery({
     name: 'order_id',
     required: false,
@@ -90,12 +90,14 @@ export class OrdersController {
   })
   searchProduct(
     @Param('salesman_id') salesman_id: string,
+    @Param('page') page: number,
     @Query('order_id') order_id?: number,
     @Query('status') status?: string,
     @Query('date') date?: string,
   ) {
     return this.ordersService.searchForSalesman(
       salesman_id,
+      page,
       order_id,
       status,
       date,
