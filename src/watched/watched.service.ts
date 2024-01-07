@@ -52,9 +52,6 @@ export class WatchedService {
         where: { product_id },
         include: { model: Product, include: [Image] },
       });
-      if (!watcheds.length) {
-        throw new NotFoundException("Ushbu mahsulot hali ko'rilmagan!");
-      }
       return {
         statusCode: HttpStatus.OK,
         data: {
